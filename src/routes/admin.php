@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
+use App\Http\Controllers\Admin\TinyMCEController;
 use App\Http\Controllers\Admin\UserPriceController;
 use App\Http\Controllers\Admin\UserPriceLegendController;
 use App\Http\Controllers\Admin\UserStatisticsController;
@@ -36,6 +37,9 @@ Route::get('/admin/forgot-password', [AdminAuthController::class, 'PasswordReque
 Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+
+    /** TinyMCE Image Upload Route */
+    Route::post('/upload-image', [TinyMCEController::class, 'uploadImage'])->name('upload-image');
 
     /** Profile Routes */
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');

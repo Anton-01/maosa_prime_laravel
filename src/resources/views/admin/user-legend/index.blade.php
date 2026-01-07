@@ -204,11 +204,19 @@
                                 $('#legend-row-' + id).fadeOut(300, function() {
                                     $(this).remove();
                                 });
-                                toastr.success(response.message);
+                                new FilamentNotification()
+                                    .title('Éxito')
+                                    .body(response.message)
+                                    .success()
+                                    .send();
                             }
                         },
                         error: function() {
-                            toastr.error('Error al eliminar la leyenda');
+                            new FilamentNotification()
+                                .title('Error')
+                                .body('Error al eliminar la leyenda')
+                                .danger()
+                                .send();
                         }
                     });
                 }

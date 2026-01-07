@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/modules/fontawesome/css/all.min.css') }}">
 
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="{{ asset('admin/assets/modules/summernote/summernote-bs4.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/css/bootstrap-iconpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/modules/select2/dist/css/select2.min.css') }}">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
@@ -24,6 +23,7 @@
     @stack('styles')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @filamentStyles
+    @livewireStyles
 </head>
 
 <body>
@@ -56,32 +56,137 @@
     <script src="{{ asset('admin/assets/js/stisla.js') }}"></script>
 
     <!-- JS Libraies -->
-    <script src="{{ asset('admin/assets/modules/summernote/summernote-bs4.js') }}"></script>
     <script src="{{ asset('admin/assets/modules/upload-preview/assets/js/jquery.uploadPreview.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('admin/assets/js/bootstrap-iconpicker.bundle.min.js') }}"></script>
     <script src="{{ asset('admin/assets/modules/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
     <script src="{{ asset('admin/assets/modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.cloud/1/0000/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
 
     @filamentScripts
+    @livewireScripts
+
     <!-- Template JS File -->
     <script src="{{ asset('admin/assets/js/scripts.js') }}"></script>
+    <!-- TinyMCE Initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof tinymce !== 'undefined') {
+                tinymce.init({
+                    selector: 'textarea.tinymce, textarea.summernote',
+                    height: 400,
+                    menubar: true,
+                    plugins: [
+                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
+                    ],
+                    toolbar: 'undo redo | blocks | bold italic forecolor backcolor | ' +
+                        'alignleft aligncenter alignright alignjustify | ' +
+                        'bullist numlist outdent indent | removeformat | image media link | help',
+                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                    images_upload_url: '{{ route('admin.upload-image') }}',
+                    automatic_uploads: true,
+                    images_upload_handler: function (blobInfo, progress) {
+                        return new Promise(function (resolve, reject) {
+                            const xhr = new XMLHttpRequest();
+                            xhr.withCredentials = false;
+                            xhr.open('POST', '{{ route('admin.upload-image') }}');
+                            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                            xhr.upload.onprogress = function (e) {
+                                progress(e.loaded / e.total * 100);
+                            };
+                            xhr.onload = function () {
+                                if (xhr.status < 200 || xhr.status >= 300) {
+                                    reject('HTTP Error: ' + xhr.status);
+                                    return;
+                                }
+                                const json = JSON.parse(xhr.responseText);
+                                if (!json || typeof json.location != 'string') {
+                                    reject('Invalid JSON: ' + xhr.responseText);
+                                    return;
+                                }
+                                resolve(json.location);
+                            };
+                            xhr.onerror = function () {
+                                reject('Image upload failed');
+                            };
+                            const formData = new FormData();
+                            formData.append('file', blobInfo.blob(), blobInfo.filename());
+                            xhr.send(formData);
+                        });
+                    },
+                    file_picker_types: 'image',
+                    branding: false,
+                    promotion: false,
+                    relative_urls: false,
+                    remove_script_host: false,
+                    convert_urls: true,
+                    uploadcare_public_key: '00000',
+                });
+            }
+        });
+    </script>
     <script>
         @if ($errors->any())
+        window.addEventListener('load', function() {
             @foreach ($errors->all() as $error)
-                toastr.error("{{ $error }}")
+            new FilamentNotification()
+                .title('Error de validación')
+                .body('{{ addslashes($error) }}')
+                .danger()
+                .send();
             @endforeach
+        });
+        @endif
+        // Display session flash messages using Filament Notifications
+        @if (session('success'))
+        window.addEventListener('load', function() {
+            new FilamentNotification()
+                .title('Éxito')
+                .body('{{ addslashes(session('success')) }}')
+                .success()
+                .send();
+        });
+        @endif
+        @if (session('error'))
+        window.addEventListener('load', function() {
+            new FilamentNotification()
+                .title('Error')
+                .body('{{ addslashes(session('error')) }}')
+                .danger()
+                .send();
+        });
+        @endif
+        @if (session('warning'))
+        window.addEventListener('load', function() {
+            new FilamentNotification()
+                .title('Advertencia')
+                .body('{{ addslashes(session('warning')) }}')
+                .warning()
+                .send();
+        });
+        @endif
+        @if (session('info'))
+        window.addEventListener('load', function() {
+            new FilamentNotification()
+                .title('Información')
+                .body('{{ addslashes(session('info')) }}')
+                .info()
+                .send();
+        });
         @endif
 
         $.uploadPreview({
-            input_field: "#image-upload", // Default: .image-upload
-            preview_box: "#image-preview", // Default: .image-preview
-            label_field: "#image-label", // Default: .image-label
-            label_default: "Choose File", // Default: Choose File
-            label_selected: "Change File", // Default: Change File
-            no_label: false, // Default: false
-            success_callback: null // Default: null
+            input_field: "#image-upload",
+            preview_box: "#image-preview",
+            label_field: "#image-label",
+            label_default: "Choose File",
+            label_selected: "Change File",
+            no_label: false,
+            success_callback: null
         });
 
         $('body').on('click', '.delete-item', function(e) {
