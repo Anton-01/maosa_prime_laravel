@@ -1,18 +1,19 @@
 <?php
 namespace App\Services;
 
+use App\Models\Setting;
 use Cache;
 
 class SettingsService {
 
     function getSettings() {
-        if (!class_exists(\App\Models\Setting::class)) {
+        if (!class_exists(Setting::class)) {
             return [];
         }
 
         try {
             return Cache::rememberForever('settings', function () {
-                return \App\Models\Setting::pluck('value', 'key')->toArray();
+                return Setting::pluck('value', 'key')->toArray();
             });
         } catch (\Exception $e) {
             return [];

@@ -97,4 +97,27 @@ class RoleUserController extends Controller
             return response(['status' => 'error', 'message' => $e->getMessage()]);
         }
     }
+
+    /**
+     * Toggle user's access to price table.
+     */
+    public function togglePriceTable(Request $request, string $id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->can_view_price_table = !$user->can_view_price_table;
+            $user->save();
+
+            $status = $user->can_view_price_table ? 'activado' : 'desactivado';
+
+            return response([
+                'status' => 'success',
+                'message' => "Acceso a tabla de precios {$status} correctamente",
+                'can_view_price_table' => $user->can_view_price_table
+            ]);
+        } catch(\Exception $e) {
+            logger($e);
+            return response(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
 }

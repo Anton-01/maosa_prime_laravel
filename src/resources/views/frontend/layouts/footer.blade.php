@@ -1,6 +1,5 @@
 @php
-    $footerInfo = \App\Models\FooterInfo::first();
-    $socialLinks = \App\Models\SocialLink::where('status', 1)->get();
+    use App\Models\FooterInfo; $footerInfo = FooterInfo::first();
 @endphp
 <footer>
     <div class="container">
@@ -10,9 +9,6 @@
                     <h3>Sobre Nosotros</h3>
                     <p>{!! $footerInfo?->short_description !!}</p>
                     <ul class="footer_icon">
-                        @foreach ($socialLinks as $link)
-                            <li><a href="{{ $link->url }}"><i class="{{ $link->icon }}"></i></a></li>
-                        @endforeach
 
                     </ul>
                 </div>
@@ -22,7 +18,12 @@
                     <h3>Mi cuenta</h3>
                     <ul class="footer_link">
                         @foreach (Menu::getByName('Footer Menu One') as $footerMenuOne)
-                        <li><a href="{{ $footerMenuOne['link'] }}"><i class="far fa-chevron-double-right"></i> {{ $footerMenuOne['label'] }}</a></li>
+                            <li>
+                                <a href="{{ $footerMenuOne['link'] }}">
+                                    <i class="far fa-chevron-double-right"></i>
+                                    {{ $footerMenuOne['label'] }}
+                                </a>
+                            </li>
                         @endforeach
                     </ul>
                 </div>
@@ -32,7 +33,8 @@
                     <h3>Enlaces útiles</h3>
                     <ul class="footer_link">
                         @foreach (Menu::getByName('Footer Menu Two') as $footerMenuOne)
-                        <li><a href="{{ $footerMenuOne['link'] }}"><i class="far fa-chevron-double-right"></i> {{ $footerMenuOne['label'] }}</a></li>
+                            <li><a href="{{ $footerMenuOne['link'] }}"><i
+                                        class="far fa-chevron-double-right"></i> {{ $footerMenuOne['label'] }}</a></li>
                         @endforeach
                     </ul>
                 </div>
@@ -57,21 +59,22 @@
                     <h3>Información</h3>
                     <ul class="footer_link">
                         <li>
-                            <p><i class="far fa-map-marker-alt"></i> {{ $footerInfo?->address }}</p>
+                            <p>
+                                <i class="far fa-map-marker-alt"></i>
+                                {{ $footerInfo?->address }}
+                            </p>
                         </li>
                         <li>
-                            <a href="#">
-                                <a href="mailto:{{ $footerInfo?->email }}">
-                                    <i class="fal fa-envelope"></i>
-                                    {{ $footerInfo?->email }}
-                                </a>
+                            <a href="mailto:{{ $footerInfo?->email }}">
+                                <i class="fal fa-envelope"></i>
+                                {{ $footerInfo?->email }}
+                            </a>
                         </li>
                         <li>
-                            <a href="#">
-                                <a href="callto:{{ $footerInfo?->phone }}">
-                                    <i class="fal fa-phone-alt"></i>
-                                    {{ $footerInfo?->phone }}
-                                </a>
+                            <a href="callto:{{ $footerInfo?->phone }}">
+                                <i class="fal fa-phone-alt"></i>
+                                {{ $footerInfo?->phone }}
+                            </a>
                         </li>
                     </ul>
                 </div>

@@ -131,7 +131,7 @@
             @endcan
 
             @can('access management index')
-            <li class="dropdown {{ setSidebarActive(['admin.hero.index']) }}">
+            <li class="dropdown {{ setSidebarActive(['admin.role-user.*']) }}">
                 <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-fingerprint"></i> <span>Gestión de accesos</span></a>
 
                 <ul class="dropdown-menu">
@@ -141,6 +141,30 @@
                 </ul>
             </li>
             @endcan
+
+            <li class="dropdown {{ setSidebarActive([
+                'admin.fuel-terminal.*',
+                'admin.user-price.*',
+                'admin.price-import.*',
+                'admin.default-legend.*',
+                'admin.user-legend.*'
+                ]) }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-gas-pump"></i> <span>Precios Combustibles</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ setSidebarActive(['admin.fuel-terminal.*']) }}"><a class="nav-link" href="{{ route('admin.fuel-terminal.index') }}">Terminales</a></li>
+                    <li class="{{ setSidebarActive(['admin.user-price.*']) }}"><a class="nav-link" href="{{ route('admin.user-price.index') }}">Listas de Precios</a></li>
+                    <li class="{{ setSidebarActive(['admin.price-import.*']) }}"><a class="nav-link" href="{{ route('admin.price-import.index') }}">Importar Excel</a></li>
+                    <li class="{{ setSidebarActive(['admin.default-legend.*']) }}"><a class="nav-link" href="{{ route('admin.default-legend.index') }}">Leyendas por Defecto</a></li>
+                    <li class="{{ setSidebarActive(['admin.user-legend.*']) }}"><a class="nav-link" href="{{ route('admin.user-legend.index') }}">Leyendas por Usuario</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown {{ setSidebarActive(['admin.statistics.*']) }}">
+                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-chart-line"></i> <span>Estadísticas</span></a>
+                <ul class="dropdown-menu">
+                    <li class="{{ setSidebarActive(['admin.statistics.index']) }}"><a class="nav-link" href="{{ route('admin.statistics.index') }}">Panel General</a></li>
+                </ul>
+            </li>
 
             @can('menu builder index')
             <li class="{{ setSidebarActive(['admin.menu-builder.index']) }}"><a class="nav-link" href="{{ route('admin.menu-builder.index') }}"><i class="fas fa-wrench"></i> <span>Menús</span></a></li>

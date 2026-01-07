@@ -119,7 +119,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/ignition" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/laravel-ignition" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/laravel-permission" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/stripe/stripe-php" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/clock" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/console" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/css-selector" />
@@ -166,6 +165,8 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jaybizzle/crawler-detect" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jenssegers/agent" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mobiledetect/mobiledetectlib" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/mews/purifier" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/predis/predis" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

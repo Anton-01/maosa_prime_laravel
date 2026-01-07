@@ -20,6 +20,20 @@
               Mi perfil
           </a>
       </li>
+            @if (auth()->user()->canViewPriceTable())
+                <li>
+                    <a href="{{ route('user.price-table.index') }}">
+                        <i class="fas fa-gas-pump"></i>
+                        Tabla de Precios
+                    </a>
+                </li>
+            @endif
+            <li>
+                <a href="{{ route('listings') }}">
+                    <i class="fas fa-building"></i>
+                    Ver Proveedores
+                </a>
+            </li>
       <li>
         <form method="POST" action="{{ route('logout') }}">
             @csrf

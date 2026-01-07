@@ -27,8 +27,9 @@ class RoleUserDataTable extends DataTable
                 if($query->getRoleNames()->first() !== 'Super Admin'){
                     $edit = '<a href="'.route('admin.role-user.edit', $query->id).'" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>';
                     $delete = '<a href="'.route('admin.role-user.destroy', $query->id).'" class="delete-item btn btn-sm btn-danger ml-2"><i class="fas fa-trash"></i></a>';
+                    $stats = '<a href="'.route('admin.statistics.show', $query->id).'" class="btn btn-sm btn-info ml-2" title="Ver estadísticas"><i class="fas fa-chart-bar"></i></a>';
 
-                    return $edit.$delete;
+                    return $edit.$delete.$stats;
                 }
             })
             ->addColumn('role', function($query) {
@@ -41,7 +42,20 @@ class RoleUserDataTable extends DataTable
                     return "<span class='badge badge-primary'>Aprobado</span>";
                 }
             })
-            ->rawColumns(['role','approved','action'])
+            ->addColumn('price_table_access', function($query) {
+                $checked = $query->can_view_price_table ? 'checked' : '';
+                $badgeClass = $query->can_view_price_table ? 'badge-success' : 'badge-secondary';
+                $badgeText = $query->can_view_price_table ? 'Activo' : 'Inactivo';
+
+                return '<div class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input toggle-price-table"
+                           id="priceTable'.$query->id.'" data-user-id="'.$query->id.'" '.$checked.'>
+                    <label class="custom-control-label" for="priceTable'.$query->id.'">
+                        <span class="badge '.$badgeClass.'">'.$badgeText.'</span>
+                    </label>
+                </div>';
+            })
+            ->rawColumns(['role','approved','action','price_table_access'])
             ->setRowId('id');
     }
 
@@ -82,14 +96,15 @@ class RoleUserDataTable extends DataTable
         return [
 
             Column::make('id'),
-            Column::make('name'),
+            Column::make('name')->title('Nombre'),
             Column::make('email'),
-            Column::make('role'),
-            Column::make('approved'),
-            Column::computed('action')
+            Column::make('role')->title('Rol'),
+            Column::make('approved')->title('Aprobado'),
+            Column::make('price_table_access')->title('Acceso Precios')->width(120),
+            Column::computed('action')->title('Acciones')
             ->exportable(false)
             ->printable(false)
-            ->width(100)
+            ->width(130)
             ->addClass('text-center'),
         ];
     }

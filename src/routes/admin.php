@@ -7,10 +7,11 @@ use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\ClearDatabaseController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DefaultPriceLegendController;
 use App\Http\Controllers\Admin\FooterInfoController;
+use App\Http\Controllers\Admin\FuelTerminalController;
 use App\Http\Controllers\Admin\HeroController;
 use App\Http\Controllers\Admin\ListingController;
 use App\Http\Controllers\Admin\ListingImageGalleryController;
@@ -19,24 +20,23 @@ use App\Http\Controllers\Admin\ListingVideoGalleryController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MenuBuilderController;
 use App\Http\Controllers\Admin\OurFeatureController;
+use App\Http\Controllers\Admin\PriceImportController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
-use App\Http\Controllers\Admin\SocialLinkController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
+use App\Http\Controllers\Admin\UserPriceController;
+use App\Http\Controllers\Admin\UserPriceLegendController;
+use App\Http\Controllers\Admin\UserStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login')->middleware('guest');
 Route::get('/admin/forgot-password', [AdminAuthController::class, 'PasswordRequest'])->name('admin.password.request')->middleware('guest');
 
-Route::group([
-    'middleware' => ['auth', 'user.type:admin'],
-    'prefix' => 'admin',
-    'as' => 'admin.'
-], function(){
+Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
@@ -113,8 +113,6 @@ Route::group([
     /** Footer Info Route */
     Route::get('footer-info', [FooterInfoController::class, 'index'])->name('footer-info.index');
     Route::post('footer-info', [FooterInfoController::class, 'update'])->name('footer-info.update');
-    /** Social link Route */
-    Route::resource('social-link', SocialLinkController::class);
 
     /** Role Route */
     Route::resource('role', RolePermissionController::class);
@@ -124,13 +122,37 @@ Route::group([
     /** Settings Routes */
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
     Route::post('/general-settings', [SettingController::class, 'updateGeneralSetting'])->name('general-settings.update');
-    Route::post('/pusher-settings', [SettingController::class, 'updatePusherSetting'])->name('pusher-settings.update');
     Route::post('/logo-settings', [SettingController::class, 'logoSettings'])->name('logo-settings.update');
     Route::post('/appearance-settings', [SettingController::class, 'appearanceSetting'])->name('appearance-settings.update');
 
-    /** Database Clear Route */
-    Route::get('/clear-database', [ClearDatabaseController::class, 'index'])->name('clear-database.index');
-    Route::post('/clear-database', [ClearDatabaseController::class, 'createDB'])->name('clear-database');
+    /** Fuel Terminal Routes */
+    Route::resource('fuel-terminal', FuelTerminalController::class);
 
+    /** User Price Routes */
+    Route::resource('user-price', UserPriceController::class);
 
+    /** Price Import Routes */
+    Route::get('price-import', [PriceImportController::class, 'index'])->name('price-import.index');
+    Route::post('price-import', [PriceImportController::class, 'import'])->name('price-import.store');
+    Route::get('price-import/layout', [PriceImportController::class, 'downloadLayout'])->name('price-import.layout');
+
+    /** Default Price Legend Routes */
+    Route::resource('default-legend', DefaultPriceLegendController::class);
+
+    /** User Price Legend Routes */
+    Route::get('user-legend', [UserPriceLegendController::class, 'index'])->name('user-legend.index');
+    Route::post('user-legend', [UserPriceLegendController::class, 'store'])->name('user-legend.store');
+    Route::put('user-legend/{id}', [UserPriceLegendController::class, 'update'])->name('user-legend.update');
+    Route::delete('user-legend/{id}', [UserPriceLegendController::class, 'destroy'])->name('user-legend.destroy');
+    Route::post('user-legend/copy-defaults', [UserPriceLegendController::class, 'copyDefaults'])->name('user-legend.copy-defaults');
+
+    /** User Statistics Routes */
+    Route::get('statistics', [UserStatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/user/{userId}', [UserStatisticsController::class, 'show'])->name('statistics.show');
+    Route::get('statistics/user/{userId}/sessions', [UserStatisticsController::class, 'sessions'])->name('statistics.sessions');
+    Route::get('statistics/session/{sessionId}', [UserStatisticsController::class, 'sessionDetail'])->name('statistics.session-detail');
+    Route::get('statistics/user/{userId}/activities', [UserStatisticsController::class, 'activities'])->name('statistics.activities');
+
+    /** Toggle User Price Table Access */
+    Route::post('role-user/{id}/toggle-price-table', [RoleUserController::class, 'togglePriceTable'])->name('role-user.toggle-price-table');
 });

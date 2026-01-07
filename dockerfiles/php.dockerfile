@@ -1,7 +1,8 @@
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
 COPY src .
-COPY uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
+COPY dockerfiles/uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
+COPY dockerfiles/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 
 RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu
 RUN apk add --no-cache --virtual build-essentials \

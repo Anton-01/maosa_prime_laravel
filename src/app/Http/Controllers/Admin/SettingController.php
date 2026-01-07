@@ -42,7 +42,8 @@ class SettingController extends Controller
         return back()->with('statusStnGen', true);
     }
 
-    function logoSettings(Request $request) {
+    function logoSettings(Request $request): RedirectResponse
+    {
         $request->validate([
             'logo' => ['nullable', 'image', 'max:3000'],
             'favicon' => ['nullable', 'image', 'max:3000'],
@@ -68,7 +69,8 @@ class SettingController extends Controller
         return back()->with('statusStnLg', true);
     }
 
-    function appearanceSetting(Request $request) {
+    function appearanceSetting(Request $request): RedirectResponse
+    {
         $validatedData = $request->validate([
             'site_default_color' => ['required'],
 
