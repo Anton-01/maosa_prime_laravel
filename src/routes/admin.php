@@ -3,8 +3,6 @@
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AmenityController;
-use App\Http\Controllers\Admin\BlogCategoryController;
-use App\Http\Controllers\Admin\BlogCommentController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactController;
@@ -13,10 +11,9 @@ use App\Http\Controllers\Admin\DefaultPriceLegendController;
 use App\Http\Controllers\Admin\FooterInfoController;
 use App\Http\Controllers\Admin\FuelTerminalController;
 use App\Http\Controllers\Admin\HeroController;
+use App\Http\Controllers\Admin\ListingAmenityController;
 use App\Http\Controllers\Admin\ListingController;
-use App\Http\Controllers\Admin\ListingImageGalleryController;
 use App\Http\Controllers\Admin\ListingScheduleController;
-use App\Http\Controllers\Admin\ListingVideoGalleryController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MenuBuilderController;
 use App\Http\Controllers\Admin\OurFeatureController;
@@ -69,12 +66,6 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     /** Listing Routes */
     Route::resource('/listing', ListingController::class);
 
-    /** Listing Image Gallery Routes */
-    Route::resource('/listing-image-gallery', ListingImageGalleryController::class);
-
-    /** Listing Video Gallery Routes */
-    Route::resource('/listing-video-gallery', ListingVideoGalleryController::class);
-
     /** Listing Schedule Routes */
     Route::get('/listing-schedule/{listing_id}', [ListingScheduleController::class, 'index'])->name('listing-schedule.index');
     Route::get('/listing-schedule/{listing_id}/create', [ListingScheduleController::class, 'create'])->name('listing-schedule.create');
@@ -83,15 +74,15 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::put('/listing-schedule/{id}', [ListingScheduleController::class, 'update'])->name('listing-schedule.update');
     Route::delete('/listing-schedule/{id}', [ListingScheduleController::class, 'destroy'])->name('listing-schedule.destroy');
 
+    /** Listing Amenities Routes */
+    Route::get('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'index'])->name('listing.amenities.index');
+    Route::put('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'update'])->name('listing.amenities.update');
+
     /** Our Feature Routes */
     Route::resource('our-features', OurFeatureController::class);
 
     /** Blog Routes */
-    Route::resource('blog-category', BlogCategoryController::class);
     Route::resource('blog', BlogController::class);
-    Route::get('blog-comment', [BlogCommentController::class, 'index'])->name('blog-comment.index');
-    Route::delete('blog-comment/{id}', [BlogCommentController::class, 'destroy'])->name('blog-comment.destroy');
-    Route::get('comment-status', [BlogCommentController::class, 'commentStatusUpdate'])->name('comment-status.update');
 
     /** About Route */
     Route::get('about-us', [AboutController::class, 'index'])->name('about-us.index');

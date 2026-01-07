@@ -100,40 +100,9 @@
                                             <input type="text" class="form-control" name="website">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Facebook Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="facebook_link">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">X Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="x_link">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Linkedin Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="linkedin_link">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Whatsapp Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="whatsapp_link">
-                                        </div>
-                                    </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label>Servicios</label>
-                                    <select class="form-control select2" multiple="" name="amenities[]">
-                                        @foreach ($amenities as $amenity)
-                                        <option value="{{ $amenity->id }}" >{{ $amenity->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                                @livewire('admin.social-links-manager')
 
                                 <div class="form-group">
                                     <label for="">Descripción general <span class="text-danger">*</span></label>

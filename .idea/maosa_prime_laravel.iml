@@ -8,7 +8,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/tests" isTestSource="true" packagePrefix="Tests\" />
       <sourceFolder url="file://$MODULE_DIR$/src/tests/Feature" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/tests/Unit" isTestSource="true" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/barryvdh/laravel-debugbar" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/barryvdh/laravel-ide-helper" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/barryvdh/reflection-docblock" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/brianium/paratest" />
@@ -52,7 +51,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/maennchen/zipstream-php" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/markbaker/complex" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/markbaker/matrix" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/maximebf/debugbar" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mockery/mockery" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/monolog/monolog" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/myclabs/deep-copy" />
@@ -165,8 +163,30 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jaybizzle/crawler-detect" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jenssegers/agent" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mobiledetect/mobiledetectlib" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/anourvalar/eloquent-serialize" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/blade-ui-kit/blade-heroicons" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/blade-ui-kit/blade-icons" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/danharrin/date-format-converter" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/doctrine/dbal" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/actions" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/forms" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/infolists" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/notifications" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/support" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/tables" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/kirschbaum-development/eloquent-power-joins" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/csv" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri-interfaces" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/masterminds/html5" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mews/purifier" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/predis/predis" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/psr/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/ryangjchandler/blade-capture-directive" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/color" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/invade" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/laravel-package-tools" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/html-sanitizer" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -114,7 +114,6 @@
       <path value="$PROJECT_DIR$/src/vendor/symfony/var-dumper" />
       <path value="$PROJECT_DIR$/src/vendor/symfony/yaml" />
       <path value="$PROJECT_DIR$/src/vendor/theseer/tokenizer" />
-      <path value="$PROJECT_DIR$/src/vendor/barryvdh/laravel-debugbar" />
       <path value="$PROJECT_DIR$/src/vendor/barryvdh/laravel-ide-helper" />
       <path value="$PROJECT_DIR$/src/vendor/barryvdh/reflection-docblock" />
       <path value="$PROJECT_DIR$/src/vendor/brianium/paratest" />
@@ -124,7 +123,6 @@
       <path value="$PROJECT_DIR$/src/vendor/fakerphp/faker" />
       <path value="$PROJECT_DIR$/src/vendor/hamcrest/hamcrest-php" />
       <path value="$PROJECT_DIR$/src/vendor/livewire/livewire" />
-      <path value="$PROJECT_DIR$/src/vendor/maximebf/debugbar" />
       <path value="$PROJECT_DIR$/src/vendor/razorpay/razorpay" />
       <path value="$PROJECT_DIR$/src/vendor/carbonphp/carbon-doctrine-types" />
       <path value="$PROJECT_DIR$/src/vendor/fruitcake/php-cors" />
@@ -171,6 +169,28 @@
       <path value="$PROJECT_DIR$/src/vendor/jenssegers/agent" />
       <path value="$PROJECT_DIR$/src/vendor/mobiledetect/mobiledetectlib" />
       <path value="$PROJECT_DIR$/src/vendor/mews/purifier" />
+      <path value="$PROJECT_DIR$/src/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/src/vendor/symfony/html-sanitizer" />
+      <path value="$PROJECT_DIR$/src/vendor/doctrine/dbal" />
+      <path value="$PROJECT_DIR$/src/vendor/spatie/invade" />
+      <path value="$PROJECT_DIR$/src/vendor/spatie/color" />
+      <path value="$PROJECT_DIR$/src/vendor/spatie/laravel-package-tools" />
+      <path value="$PROJECT_DIR$/src/vendor/blade-ui-kit/blade-heroicons" />
+      <path value="$PROJECT_DIR$/src/vendor/blade-ui-kit/blade-icons" />
+      <path value="$PROJECT_DIR$/src/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/src/vendor/league/csv" />
+      <path value="$PROJECT_DIR$/src/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/src/vendor/masterminds/html5" />
+      <path value="$PROJECT_DIR$/src/vendor/anourvalar/eloquent-serialize" />
+      <path value="$PROJECT_DIR$/src/vendor/danharrin/date-format-converter" />
+      <path value="$PROJECT_DIR$/src/vendor/ryangjchandler/blade-capture-directive" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/actions" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/forms" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/infolists" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/notifications" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/support" />
+      <path value="$PROJECT_DIR$/src/vendor/kirschbaum-development/eloquent-power-joins" />
+      <path value="$PROJECT_DIR$/src/vendor/filament/tables" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.1" />

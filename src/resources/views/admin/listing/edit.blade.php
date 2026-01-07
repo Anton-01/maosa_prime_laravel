@@ -106,39 +106,31 @@
                                             <input type="text" class="form-control" name="website" value="{{ $listing->website }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Facebook Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="facebook_link" value="{{ $listing->facebook_link }}" >
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">X Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="x_link" value="{{ $listing->x_link }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Linkedin Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="linkedin_link" value="{{ $listing->linkedin_link }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="form-group">
-                                            <label for="">Whatsapp Link <span class="text-danger"></span></label>
-                                            <input type="text" class="form-control" name="whatsapp_link" value="{{ $listing->whatsapp_link }}">
-                                        </div>
-                                    </div>
+
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Servicios</label>
-                                    <select class="form-control select2" multiple="" name="amenities[]" value="[3]">
-                                        @foreach ($amenities as $amenity)
-                                            <option value="{{ $amenity->id }}">{{ $amenity->name }}</option>
-                                        @endforeach
-                                    </select>
+                                    @php
+                                        $existingLinks = $listing->socialLinks->map(function($link) {
+                                            return [
+                                                'social_network_id' => $link->social_network_id,
+                                                'url' => $link->url
+                                            ];
+                                        })->toArray();
+                                    @endphp
+
+                                    @livewire('admin.social-links-manager', ['existingLinks' => $existingLinks])
+
+                                    <div class="alert alert-info mt-4 mb-4">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-2"><i class="fas fa-cog"></i> Gestión de Servicios</h6>
+                                                <p class="mb-0 small">Administra los servicios asociados a este proveedor desde una vista dedicada</p>
+                                            </div>
+                                            <a href="{{ route('admin.listing.amenities.index', $listing->id) }}" class="btn btn-primary">
+                                                <i class="fas fa-list"></i> Gestionar Servicios
+                                            </a>
+                                        </div>
                                 </div>
 
                                 <div class="form-group">

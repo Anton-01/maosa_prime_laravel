@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -24,19 +25,22 @@ class Listing extends Model
         return $this->belongsTo(User::class);
     }
 
-    function gallery() : HasMany {
-        return $this->hasMany(ListingImageGallery::class, 'listing_id', 'id');
-    }
-
     function amenities() : HasMany {
         return $this->hasMany(ListingAmenity::class, 'listing_id', 'id');
     }
 
-    function videoGallery() : HasMany {
-        return $this->hasMany(ListingVideoGallery::class, 'listing_id', 'id');
-    }
-
     function schedules() : HasMany {
         return $this->hasMany(ListingSchedule::class, 'listing_id', 'id');
+    }
+
+    function socialNetworks() : BelongsToMany {
+        return $this->belongsToMany(SocialNetwork::class, 'listing_social_links')
+            ->withPivot('url', 'order')
+            ->withTimestamps()
+            ->orderBy('order');
+    }
+
+    function socialLinks() : HasMany {
+        return $this->hasMany(ListingSocialLink::class, 'listing_id', 'id')->orderBy('order');
     }
 }

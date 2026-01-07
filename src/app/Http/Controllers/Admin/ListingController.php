@@ -34,9 +34,9 @@ class ListingController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(ListingDataTable $dataTable) : View | JsonResponse
+    public function index() : View
     {
-        return $dataTable->render('admin.listing.index');
+        return view('admin.listing.index');
     }
 
     /**
@@ -72,10 +72,6 @@ class ListingController extends Controller
         $listing->phone = $request->phone;
         $listing->email = $request->email;
         $listing->website = $request->website;
-        $listing->facebook_link = $request->facebook_link;
-        $listing->x_link = $request->x_link;
-        $listing->linkedin_link = $request->linkedin_link;
-        $listing->whatsapp_link = $request->whatsapp_link;
         $listing->file = $attachmentPath;
         $listing->description = $request->description;
         $listing->google_map_embed_code = $request->google_map_embed_code;
@@ -89,11 +85,17 @@ class ListingController extends Controller
         $listing->is_approved = 1;
         $listing->save();
 
-        foreach($request->amenities as $amenityId) {
-            $amenity = new ListingAmenity();
-            $amenity->listing_id = $listing->id;
-            $amenity->amenity_id = $amenityId;
-            $amenity->save();
+        if ($request->has('social_links')) {
+            foreach ($request->social_links as $link) {
+                if (!empty($link['social_network_id']) && !empty($link['url'])) {
+                    \App\Models\ListingSocialLink::create([
+                        'listing_id' => $listing->id,
+                        'social_network_id' => $link['social_network_id'],
+                        'url' => $link['url'],
+                        'order' => 0
+                    ]);
+                }
+            }
         }
 
         return to_route('admin.listing.index')->with('statusCtLts', true);
@@ -136,10 +138,6 @@ class ListingController extends Controller
         $listing->phone = $request->phone;
         $listing->email = $request->email;
         $listing->website = $request->website;
-        $listing->facebook_link = $request->facebook_link;
-        $listing->x_link = $request->x_link;
-        $listing->linkedin_link = $request->linkedin_link;
-        $listing->whatsapp_link = $request->whatsapp_link;
         $listing->file = !empty($attachmentPath) ? $attachmentPath : $request->old_attachment;
         $listing->description = $request->description;
         $listing->google_map_embed_code = $request->google_map_embed_code;
@@ -153,13 +151,20 @@ class ListingController extends Controller
 
         $listing->save();
 
-        ListingAmenity::where('listing_id', $listing->id)->delete();
+        // Update social links
+        \App\Models\ListingSocialLink::where('listing_id', $listing->id)->delete();
 
-        foreach($request->amenities as $amenityId) {
-            $amenity = new ListingAmenity();
-            $amenity->listing_id = $listing->id;
-            $amenity->amenity_id = $amenityId;
-            $amenity->save();
+        if ($request->has('social_links')) {
+            foreach ($request->social_links as $link) {
+                if (!empty($link['social_network_id']) && !empty($link['url'])) {
+                    \App\Models\ListingSocialLink::create([
+                        'listing_id' => $listing->id,
+                        'social_network_id' => $link['social_network_id'],
+                        'url' => $link['url'],
+                        'order' => 0
+                    ]);
+                }
+            }
         }
 
         return to_route('admin.listing.index')->with('statusUpLts', true);

@@ -103,6 +103,17 @@ services:
     entrypoint: [ "php", "/var/www/html/artisan" ]
     networks:
       - laravel_network_station
+  node:
+    image: node:18-alpine
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_HOST=0.0.0.0
+    networks:
+      - laravel_network_station
 volumes:
   mysql-data:
     driver: local
