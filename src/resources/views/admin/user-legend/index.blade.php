@@ -204,11 +204,11 @@
                                 $('#legend-row-' + id).fadeOut(300, function() {
                                     $(this).remove();
                                 });
-                                // TODO Agregar notificación al usuario
+                                toastr.success(response.message || 'Leyenda eliminada correctamente');
                             }
                         },
                         error: function() {
-                            // TODO Agregar notificación al usuario
+                            toastr.error('Error al eliminar la leyenda');
                         }
                     });
                 }

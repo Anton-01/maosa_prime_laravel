@@ -162,6 +162,8 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mews/purifier" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/predis/predis" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php85" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri-interfaces" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -43,6 +43,7 @@ class UserPriceController extends Controller
             ->where('can_view_price_table', true)
             ->orderBy('name')
             ->get();
+        
         $terminals = FuelTerminal::active()->orderBy('name')->get();
 
         return view('admin.user-price.create', compact('users', 'terminals'));

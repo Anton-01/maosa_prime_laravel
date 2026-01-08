@@ -102,8 +102,8 @@
                                     </div>
                                 </div>
 
-
-                                // TODO vista -- admin.social-links-manager  --- liveware -- @livewire('admin.social-links-manager')
+                                {{-- Social Links Manager --}}
+                                @include('admin.listing.partials.social-links-manager')
 
                                 <div class="form-group">
                                     <label for="">Descripción general <span class="text-danger">*</span></label>
@@ -180,6 +180,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('admin/assets/js/social-links-manager.js') }}"></script>
     <script>
         $.uploadPreview({
             input_field: "#image-upload-2", // Default: .image-upload

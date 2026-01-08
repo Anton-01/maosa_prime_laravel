@@ -119,19 +119,8 @@
                                         })->toArray();
                                     @endphp
 
-                                    // TODO vista -- admin.social-links-manager  --- liveware -- @livewire('admin.social-links-manager', ['existingLinks' => $existingLinks])
-
-                                    <div class="alert alert-info mt-4 mb-4">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <div>
-                                                <h6 class="mb-2"><i class="fas fa-cog"></i> Gestión de Servicios</h6>
-                                                <p class="mb-0 small">Administra los servicios asociados a este proveedor desde una vista dedicada</p>
-                                            </div>
-                                            <a href="{{ route('admin.listing.amenities.index', $listing->id) }}" class="btn btn-primary">
-                                                <i class="fas fa-list"></i> Gestionar Servicios
-                                            </a>
-                                        </div>
-                                    </div>
+                                    {{-- Social Links Manager --}}
+                                    @include('admin.listing.partials.social-links-manager', ['existingLinks' => $existingLinks])
                                 </div>
 
                                 <div class="form-group">
@@ -209,6 +198,7 @@
 @endsection
 
 @push('scripts')
+    <script src="{{ asset('admin/assets/js/social-links-manager.js') }}"></script>
     <script>
         const listingAmenities = {!! json_encode($listingAmenities) !!}
 

@@ -12,6 +12,7 @@ use App\Models\Listing;
 use App\Models\ListingAmenity;
 use App\Models\ListingSocialLink;
 use App\Models\Location;
+use App\Models\SocialNetwork;
 use App\Traits\FileUploadTrait;
 use Auth;
 use Illuminate\Http\JsonResponse;
@@ -39,7 +40,9 @@ class ListingController extends Controller
         $categories = Category::all();
         $locations = Location::all();
         $amenities = Amenity::all();
-        return view('admin.listing.create', compact('categories', 'locations', 'amenities'));
+        $socialNetworks = SocialNetwork::active()->ordered()->get();
+
+        return view('admin.listing.create', compact('categories', 'locations', 'amenities', 'socialNetworks'));
     }
 
     /**
@@ -104,8 +107,9 @@ class ListingController extends Controller
         $categories = Category::all();
         $locations = Location::all();
         $amenities = Amenity::all();
+        $socialNetworks = SocialNetwork::active()->ordered()->get();
 
-        return view('admin.listing.edit', compact('categories', 'locations', 'amenities', 'listing', 'listingAmenities'));
+        return view('admin.listing.edit', compact('categories', 'locations', 'amenities', 'listing', 'listingAmenities', 'socialNetworks'));
     }
 
     /**

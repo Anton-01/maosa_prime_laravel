@@ -32,15 +32,20 @@
                         <div class="card-header">
                             <h4>Todos los usuarios</h4>
                             <div class="card-header-action">
-                                <a href="{{ route('admin.statistics.index') }}" class="btn btn-info mr-2"><i class="fas fa-chart-line"></i>
-                                <a href="{{ route('admin.role-user.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Crear</a>
+                                <a href="{{ route('admin.statistics.index') }}" class="btn btn-info mr-2">
+                                    <i class="fas fa-chart-line"></i>
+                                </a>
+                                <a href="{{ route('admin.role-user.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                    Crear
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i> Use el switch en "Acceso Precios" para activar/desactivar la vista de tabla de precios para cada usuario.
+                                <i class="fas fa-info-circle"></i>
+                                Use el switch en "Acceso Precios" para activar/desactivar la vista de tabla de precios para cada usuario.
                             </div>
-
                             {{ $dataTable->table() }}
                         </div>
                     </div>
@@ -72,15 +77,15 @@
                         } else {
                             label.removeClass('badge-success').addClass('badge-secondary').text('Inactivo');
                         }
-                            // TODO Agregar notificación al usuario
+                        toastr.success(response.message || 'Acceso actualizado correctamente');
                     } else {
                         checkbox.prop('checked', !checkbox.prop('checked'));
-                        // TODO Agregar notificación al usuario
+                        toastr.error(response.message || 'Error al actualizar el acceso');
                     }
                 },
                 error: function() {
                     checkbox.prop('checked', !checkbox.prop('checked'));
-                    // TODO Agregar notificación al usuario
+                    toastr.error('Error al procesar la solicitud');
                 }
             });
         });

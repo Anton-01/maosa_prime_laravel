@@ -24,6 +24,8 @@
     <link rel="stylesheet" href="{{ asset('admin/assets/css/components.css') }}">
 
     @stack('styles')
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
@@ -74,152 +76,21 @@
 
     <!-- TinyMCE Initialization -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof tinymce !== 'undefined') {
-                tinymce.init({
-                    selector: 'textarea.tinymce, textarea.summernote',
-                    height: 400,
-                    menubar: true,
-                    plugins: [
-                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
-                    ],
-                    toolbar: 'undo redo | blocks | bold italic forecolor backcolor | ' +
-                        'alignleft aligncenter alignright alignjustify | ' +
-                        'bullist numlist outdent indent | removeformat | image media link | help',
-                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-                    images_upload_url: '{{ route('admin.upload-image') }}',
-                    automatic_uploads: true,
-                    images_upload_handler: function (blobInfo, progress) {
-                        return new Promise(function (resolve, reject) {
-                            const xhr = new XMLHttpRequest();
-                            xhr.withCredentials = false;
-                            xhr.open('POST', '{{ route('admin.upload-image') }}');
-                            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
-                            xhr.upload.onprogress = function (e) {
-                                progress(e.loaded / e.total * 100);
-                            };
-                            xhr.onload = function () {
-                                if (xhr.status < 200 || xhr.status >= 300) {
-                                    reject('HTTP Error: ' + xhr.status);
-                                    return;
-                                }
-                                const json = JSON.parse(xhr.responseText);
-                                if (!json || typeof json.location != 'string') {
-                                    reject('Invalid JSON: ' + xhr.responseText);
-                                    return;
-                                }
-                                resolve(json.location);
-                            };
-                            xhr.onerror = function () {
-                                reject('Image upload failed');
-                            };
-                            const formData = new FormData();
-                            formData.append('file', blobInfo.blob(), blobInfo.filename());
-                            xhr.send(formData);
-                        });
-                    },
-                    file_picker_types: 'image',
-                    branding: false,
-                    promotion: false,
-                    relative_urls: false,
-                    remove_script_host: false,
-                    convert_urls: true,
-                    uploadcare_public_key: 'uljukhturdir8kfxmaz6fjy232zpyv0yp476vwk2havbs81j',
-                });
-            }
-        });
+        window.uploadImageRoute = '{{ route('admin.upload-image') }}';
     </script>
-    <script>
-        @if ($errors->any())
-        window.addEventListener('load', function() {
-            @foreach ($errors->all() as $error)
-                // TODO Agregar notificación al usuario
-            @endforeach
-        });
-        @endif
 
+    <script src="{{ asset('admin/assets/js/tinymce-init.js') }}"></script>
 
-        // Display session flash messages
-        @if (session('success'))
-        window.addEventListener('load', function() {
-            // TODO Agregar notificación al usuario
-        });
-        @endif
-        @if (session('error'))
-        window.addEventListener('load', function() {
-            // TODO Agregar notificación al usuario
-        });
-        @endif
-        @if (session('warning'))
-        window.addEventListener('load', function() {
-            // TODO Agregar notificación al usuario
-        });
-        @endif
-        @if (session('info'))
-        window.addEventListener('load', function() {
-            // TODO Agregar notificación al usuario
-        });
-        @endif
+    <!-- Flash Messages & Notifications -->
+    <script src="{{ asset('admin/assets/js/notifications.js') }}"></script>
 
-        $.uploadPreview({
-            input_field: "#image-upload",
-            preview_box: "#image-preview",
-            label_field: "#image-label",
-            label_default: "Choose File",
-            label_selected: "Change File",
-            no_label: false,
-            success_callback: null
-        });
+    <!-- Upload Preview & Delete Item -->
+    <script src="{{ asset('admin/assets/js/common-actions.js') }}"></script>
 
-        $('body').on('click', '.delete-item', function(e) {
-            e.preventDefault();
-            let url = $(this).attr('href');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "You won't be able to revert this!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-
-                    $.ajax({
-                        method: 'DELETE',
-                        url: url,
-                        data: {_token: "{{ csrf_token() }}"},
-                        success: function(response) {
-                            if(response.status === 'success'){
-                                Swal.fire(
-                                    'Deleted!',
-                                    response.message,
-                                    'success'
-                                )
-                                window.location.reload();
-                            }else if (response.status === 'error'){
-                                Swal.fire(
-                                    'Something wen\'t wrong!',
-                                    response.message,
-                                    'error'
-                                )
-                            }
-                        },
-                        error: function(xhr, status, error){
-                            console.log(error);
-                        }
-
-                    })
-
-                }
-            })
-
-        })
-    </script>
     @stack('scripts')
+
+    <!-- PHPFlasher Toastr Notifications -->
+    @flasher_render
 </body>
 
 </html>

@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class ListingDataTable extends DataTable
@@ -28,10 +26,11 @@ class ListingDataTable extends DataTable
 
                 $more = '<div class="btn-group dropleft">
                 <button type="button" class="btn btn-sm ml-2 btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-cog"></i>
+                    <i class="fas fa-cog"></i>
                 </button>
                 <div class="dropdown-menu dropleft" x-placement="left-start" style="position: absolute; transform: translate3d(-2px, 0px, 0px); top: 0px; left: 0px; will-change: transform;">
-                  <a class="dropdown-item" href="'.route('admin.listing-schedule.index', $query->id).'">Horarios</a>
+                  <a class="dropdown-item" href="'.route('admin.listing-schedule.index', $query->id).'"> <i class="fas fa-clock"></i> Gestión de Horarios</a>
+                  <a class="dropdown-item" href="'.route('admin.listing.amenities.index', $query->id).'"><i class="fas fa-users-cog"></i> Gestión de Servicios</a>
                 </div>
               </div>';
 
