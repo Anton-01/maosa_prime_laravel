@@ -46,7 +46,6 @@
       <path value="$PROJECT_DIR$/src/vendor/league/fractal" />
       <path value="$PROJECT_DIR$/src/vendor/league/mime-type-detection" />
       <path value="$PROJECT_DIR$/src/vendor/nesbot/carbon" />
-      <path value="$PROJECT_DIR$/src/vendor/pusher/pusher-php-server" />
       <path value="$PROJECT_DIR$/src/vendor/ramsey/collection" />
       <path value="$PROJECT_DIR$/src/vendor/ramsey/uuid" />
       <path value="$PROJECT_DIR$/src/vendor/rmccue/requests" />
@@ -130,8 +129,6 @@
       <path value="$PROJECT_DIR$/src/vendor/markbaker/complex" />
       <path value="$PROJECT_DIR$/src/vendor/markbaker/matrix" />
       <path value="$PROJECT_DIR$/src/vendor/openspout/openspout" />
-      <path value="$PROJECT_DIR$/src/vendor/paragonie/random_compat" />
-      <path value="$PROJECT_DIR$/src/vendor/paragonie/sodium_compat" />
       <path value="$PROJECT_DIR$/src/vendor/phpoffice/phpspreadsheet" />
       <path value="$PROJECT_DIR$/src/vendor/phpoption/phpoption" />
       <path value="$PROJECT_DIR$/src/vendor/ralouphie/getallheaders" />

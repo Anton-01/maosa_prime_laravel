@@ -61,8 +61,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/nunomaduro/collision" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/nunomaduro/termwind" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/openspout/openspout" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/paragonie/random_compat" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/paragonie/sodium_compat" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/pestphp/pest" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/pestphp/pest-plugin" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/pestphp/pest-plugin-arch" />
@@ -90,7 +88,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/psr/log" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/psr/simple-cache" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/psy/psysh" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/pusher/pusher-php-server" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/ralouphie/getallheaders" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/ramsey/collection" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/ramsey/uuid" />

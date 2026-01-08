@@ -20,10 +20,11 @@
     <!-- Template CSS -->
     <link rel="stylesheet" href="{{ asset('admin/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/css/components.css') }}">
-    @stack('styles')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     @filamentStyles
     @livewireStyles
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 
 <body>
@@ -38,8 +39,7 @@
 
             <footer class="main-footer">
                 <div class="footer-left">
-                    Copyright &copy; {{ date('Y') }} <div class="bullet"></div> Design By <a
-                        href="https://bullup.com.mx/">BullUp</a>
+                    Copyright &copy; {{ date('Y') }} <div class="bullet"></div> Design By <a href="https://bullup.com.mx/">BullUp</a>
                 </div>
                 <div class="footer-right">
 
@@ -70,6 +70,7 @@
 
     <!-- Template JS File -->
     <script src="{{ asset('admin/assets/js/scripts.js') }}"></script>
+
     <!-- TinyMCE Initialization -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
