@@ -11,12 +11,9 @@
     <link rel="stylesheet" href="{{ asset('frontend/css/slick.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/venobox.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/select2.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('frontend/css/summernote.min.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/nice-select.css') }}">
 
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
-
+    <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/responsive.css') }}">
     <style>
@@ -24,7 +21,6 @@
     </style>
 
     @stack('styles')
-    @vite(['resources/js/app.js', 'resources/js/frontend.js'])
 </head>
 
 <body>
@@ -103,15 +99,9 @@
     <script src="{{ asset('frontend/js/select2.min.js') }}"></script>
     <!--isotope js-->
     <script src="{{ asset('frontend/js/isotope.pkgd.min.js') }}"></script>
-    <!--summer_note js-->
-    <script src="{{ asset('frontend/js/summernote.min.js') }}"></script>
+
     <!--select js-->
     <script src="{{ asset('frontend/js/jquery.nice-select.min.js') }}"></script>
-
-    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
-    <script src="//cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
 
     <!--main/custom js-->
     <script src="{{ asset('frontend/js/main.js') }}"></script>

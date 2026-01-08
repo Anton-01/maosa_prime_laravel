@@ -13,17 +13,16 @@
     <!-- CSS Libraries -->
     <link rel="stylesheet" href="{{ asset('admin/assets/css/bootstrap-iconpicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/modules/select2/dist/css/select2.min.css') }}">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.css">
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/timePicker/jquery.timepicker.min.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css') }}">
 
+    <!-- CSS Data Table -->
+    <link rel="stylesheet" href="{{ asset('admin/assets/css/dataTable/dataTables.bootstrap5.min.css') }}">
 
-    <!-- Template CSS -->
+    <!-- Template CSS (Custom styles only) -->
     <link rel="stylesheet" href="{{ asset('admin/assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('admin/assets/css/components.css') }}">
 
-    @filamentStyles
-    @livewireStyles
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
 </head>
 
@@ -57,16 +56,18 @@
 
     <!-- JS Libraies -->
     <script src="{{ asset('admin/assets/modules/upload-preview/assets/js/jquery.uploadPreview.min.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('admin/assets/js/sweetAlert/sweet-alert-v2.js') }}"></script>
     <script src="{{ asset('admin/assets/js/bootstrap-iconpicker.bundle.min.js') }}"></script>
     <script src="{{ asset('admin/assets/modules/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/timepicker/1.3.5/jquery.timepicker.min.js"></script>
+    <script src="{{ asset('admin/assets/js/timePicker/jquery.timepicker.min.js') }}"></script>
     <script src="{{ asset('admin/assets/modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js') }}"></script>
-    <!-- TinyMCE Editor -->
-    <script src="https://cdn.tiny.cloud/1/00000/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
 
-    @filamentScripts
-    @livewireScripts
+    <!-- DataTables JS -->
+    <script src="{{ asset('admin/assets/js/dataTable/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('admin/assets/js/dataTable/dataTables.bootstrap5.min.js') }}"></script>
+
+    <!-- TinyMCE Editor -->
+    <script src="https://cdn.tiny.cloud/1/uljukhturdir8kfxmaz6fjy232zpyv0yp476vwk2havbs81j/tinymce/8/tinymce.min.js" referrerpolicy="origin" crossorigin="anonymous"></script>
 
     <!-- Template JS File -->
     <script src="{{ asset('admin/assets/js/scripts.js') }}"></script>
@@ -125,7 +126,7 @@
                     relative_urls: false,
                     remove_script_host: false,
                     convert_urls: true,
-                    uploadcare_public_key: '00000',
+                    uploadcare_public_key: 'uljukhturdir8kfxmaz6fjy232zpyv0yp476vwk2havbs81j',
                 });
             }
         });
@@ -134,49 +135,31 @@
         @if ($errors->any())
         window.addEventListener('load', function() {
             @foreach ($errors->all() as $error)
-            new FilamentNotification()
-                .title('Error de validación')
-                .body('{{ addslashes($error) }}')
-                .danger()
-                .send();
+                // TODO Agregar notificación al usuario
             @endforeach
         });
         @endif
-        // Display session flash messages using Filament Notifications
+
+
+        // Display session flash messages
         @if (session('success'))
         window.addEventListener('load', function() {
-            new FilamentNotification()
-                .title('Éxito')
-                .body('{{ addslashes(session('success')) }}')
-                .success()
-                .send();
+            // TODO Agregar notificación al usuario
         });
         @endif
         @if (session('error'))
         window.addEventListener('load', function() {
-            new FilamentNotification()
-                .title('Error')
-                .body('{{ addslashes(session('error')) }}')
-                .danger()
-                .send();
+            // TODO Agregar notificación al usuario
         });
         @endif
         @if (session('warning'))
         window.addEventListener('load', function() {
-            new FilamentNotification()
-                .title('Advertencia')
-                .body('{{ addslashes(session('warning')) }}')
-                .warning()
-                .send();
+            // TODO Agregar notificación al usuario
         });
         @endif
         @if (session('info'))
         window.addEventListener('load', function() {
-            new FilamentNotification()
-                .title('Información')
-                .body('{{ addslashes(session('info')) }}')
-                .info()
-                .send();
+            // TODO Agregar notificación al usuario
         });
         @endif
 

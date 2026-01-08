@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            @livewire('admin.listing-table')
+                            {{ $dataTable->table() }}
                         </div>
                     </div>
                 </div>
@@ -48,3 +48,7 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+    {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+@endpush

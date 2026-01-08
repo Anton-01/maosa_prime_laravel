@@ -10,12 +10,12 @@ use App\Models\Amenity;
 use App\Models\Category;
 use App\Models\Listing;
 use App\Models\ListingAmenity;
+use App\Models\ListingSocialLink;
 use App\Models\Location;
 use App\Traits\FileUploadTrait;
 use Auth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Str;
 
@@ -23,20 +23,12 @@ class ListingController extends Controller
 {
     use FileUploadTrait;
 
-    function __construct()
-    {
-        $this->middleware(['permission:listing index'])->only(['index']);
-        $this->middleware(['permission:listing create'])->only(['create', 'store']);
-        $this->middleware(['permission:listing update'])->only(['edit', 'update']);
-        $this->middleware(['permission:listing delete'])->only(['destroy']);
-    }
-
     /**
      * Display a listing of the resource.
      */
-    public function index() : View
+    public function index(ListingDataTable $dataTable) : View | JsonResponse
     {
-        return view('admin.listing.index');
+        return $dataTable->render('admin.listing.index');
     }
 
     /**
@@ -53,7 +45,7 @@ class ListingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ListingStoreRequest $request)
+    public function store(ListingStoreRequest $request): RedirectResponse
     {
         $imagePath = $this->uploadImage($request, 'image');
         $thumbnailPath = $this->uploadImage($request, 'thumbnail_image');
@@ -88,7 +80,7 @@ class ListingController extends Controller
         if ($request->has('social_links')) {
             foreach ($request->social_links as $link) {
                 if (!empty($link['social_network_id']) && !empty($link['url'])) {
-                    \App\Models\ListingSocialLink::create([
+                    ListingSocialLink::create([
                         'listing_id' => $listing->id,
                         'social_network_id' => $link['social_network_id'],
                         'url' => $link['url'],
@@ -108,6 +100,7 @@ class ListingController extends Controller
     {
         $listing = Listing::findOrFail($id);
         $listingAmenities = ListingAmenity::where('listing_id', $listing->id)->pluck('amenity_id')->toArray();
+
         $categories = Category::all();
         $locations = Location::all();
         $amenities = Amenity::all();
@@ -152,12 +145,12 @@ class ListingController extends Controller
         $listing->save();
 
         // Update social links
-        \App\Models\ListingSocialLink::where('listing_id', $listing->id)->delete();
+        ListingSocialLink::where('listing_id', $listing->id)->delete();
 
         if ($request->has('social_links')) {
             foreach ($request->social_links as $link) {
                 if (!empty($link['social_network_id']) && !empty($link['url'])) {
-                    \App\Models\ListingSocialLink::create([
+                    ListingSocialLink::create([
                         'listing_id' => $listing->id,
                         'social_network_id' => $link['social_network_id'],
                         'url' => $link['url'],
@@ -177,7 +170,6 @@ class ListingController extends Controller
     {
         try {
             Listing::findOrFail($id)->delete();
-
             return response(['status' => 'success', 'message' => 'Deleted successfully!']);
         }catch(\Exception $e){
             logger($e);

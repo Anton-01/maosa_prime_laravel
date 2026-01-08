@@ -131,7 +131,6 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-intl-idn" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-intl-normalizer" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-mbstring" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php72" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php80" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php83" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-uuid" />
@@ -160,32 +159,12 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jaybizzle/crawler-detect" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/jenssegers/agent" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mobiledetect/mobiledetectlib" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/anourvalar/eloquent-serialize" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/blade-ui-kit/blade-heroicons" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/blade-ui-kit/blade-icons" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/danharrin/date-format-converter" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/doctrine/dbal" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/actions" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/forms" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/infolists" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/notifications" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/support" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/filament/tables" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/kirschbaum-development/eloquent-power-joins" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/csv" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri-interfaces" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/masterminds/html5" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mews/purifier" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/predis/predis" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/psr/cache" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/ryangjchandler/blade-capture-directive" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/color" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/invade" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/spatie/laravel-package-tools" />
-      <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/html-sanitizer" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php85" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="jquery.dataTables" level="application" />
   </component>
 </module>

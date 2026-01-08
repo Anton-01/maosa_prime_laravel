@@ -7,8 +7,6 @@
     "require": {
         "php": "^8.1",
         "efectn/laravel-menu-builder": "dev-master",
-        "filament/notifications": "^3.3",
-        "filament/tables": "^3.3",
         "guzzlehttp/guzzle": "^7.2",
         "jenssegers/agent": "^2.6",
         "laravel/breeze": "^2.0",
@@ -50,8 +48,7 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi",
-            "@php artisan filament:upgrade"
+            "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

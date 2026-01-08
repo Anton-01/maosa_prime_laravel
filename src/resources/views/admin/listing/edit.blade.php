@@ -119,7 +119,7 @@
                                         })->toArray();
                                     @endphp
 
-                                    @livewire('admin.social-links-manager', ['existingLinks' => $existingLinks])
+                                    // TODO vista -- admin.social-links-manager  --- liveware -- @livewire('admin.social-links-manager', ['existingLinks' => $existingLinks])
 
                                     <div class="alert alert-info mt-4 mb-4">
                                         <div class="d-flex justify-content-between align-items-center">
@@ -131,6 +131,7 @@
                                                 <i class="fas fa-list"></i> Gestionar Servicios
                                             </a>
                                         </div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -209,7 +210,7 @@
 
 @push('scripts')
     <script>
-        var listingAmenities = {!! json_encode($listingAmenities) !!}
+        const listingAmenities = {!! json_encode($listingAmenities) !!}
 
         $('.select2').select2().val(listingAmenities).trigger("change");
 

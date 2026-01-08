@@ -2,7 +2,7 @@ $(function () {
 
   "use strict";
 
-  //=========MENU FIX JS=========   
+  //=========MENU FIX JS=========
   if ($('.main_menu').offset() != undefined) {
     var navoff = $('.main_menu').offset().top;
     $(window).scroll(function () {
@@ -16,22 +16,18 @@ $(function () {
     });
   }
 
-
-  //=========COUNTER JS=========   
+  //=========COUNTER JS=========
   $('.counter').countUp();
 
-
-  //=======SELECT2====== 
+  //=======SELECT2======
   $(document).ready(function () {
     $('.select_2').select2();
   });
 
-
   // ===VENO BOX JS===
   $('.venobox').venobox();
 
-
-  //*==========ISOTOPE============== 
+  //*==========ISOTOPE==============
   jQuery(function ($) {
     var grid = $('.grid').isotope({});
 
@@ -50,7 +46,7 @@ $(function () {
 
   });
 
-  //=========LISTING SLIDER=========   
+  //=========LISTING SLIDER=========
   $('.listing_slider').slick({
     slidesToShow: 4,
     slidesToScroll: 1,
@@ -108,47 +104,7 @@ $(function () {
     ]
   });
 
-
-
-  //*=====TESTIMONIAL SLIDER===== 
-  $('.testi_slider').slick({
-    slidesToShow: 2,
-    slidesToScroll: 1,
-    autoplay: false,
-    autoplaySpeed: 2000,
-    dots: true,
-    arrows: false,
-
-    responsive: [
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 2,
-        }
-      },
-      {
-        breakpoint: 992,
-        settings: {
-          slidesToShow: 1,
-        }
-      },
-      {
-        breakpoint: 768,
-        settings: {
-          slidesToShow: 1,
-        }
-      },
-      {
-        breakpoint: 576,
-        settings: {
-          slidesToShow: 1,
-        }
-      }
-    ]
-  });
-
-
-  //*==========SCROLL BUTTON==========  
+  //*==========SCROLL BUTTON==========
   $('.scroll_btn').on('click', function () {
     $('html, body').animate({
       scrollTop: 0,
@@ -167,8 +123,7 @@ $(function () {
     }
   });
 
-
-  //=========ABOUT PAGE SLIDER=========   
+  //=========ABOUT PAGE SLIDER=========
   $('.about_page_slider').slick({
     slidesToShow: 6,
     slidesToScroll: 1,
@@ -210,8 +165,7 @@ $(function () {
     ]
   });
 
-
-  //=========== ADD ROW JS===========   
+  //=========== ADD ROW JS===========
   $("#add_row").on('click', function () {
     var html = '';
     html += '<div  id="remove">';
@@ -250,7 +204,6 @@ $(function () {
 
 
   // for 2 input in 1 row
-
   $("#add_row3").on('click', function () {
     var html = '';
     html += '<div class="row" id="remove">';
@@ -280,28 +233,17 @@ $(function () {
     $(this).closest('#remove').remove();
   });
 
-
-  // ==========SUMMER NOTE JS==========
-  $(document).ready(function () {
-    $('.summer_note').summernote();
-  });
-
-
-  //*==========DASHBOARD MENU==========  
+  //*==========DASHBOARD MENU==========
 
   $('.menu_icon').on('click', function () {
     $('.dashboard_sidebar').addClass('.menu_show');
   });
 
-
   $('.close_icon').on('click', function () {
     $('.dashboard_sidebar').removeClass('.menu_show');
   });
 
-
-
-
-  //=========CATEGORY SLIDER=========   
+  //=========CATEGORY SLIDER=========
   $('.category_slider').slick({
     slidesToShow: 6,
     slidesToScroll: 1,
@@ -348,11 +290,8 @@ $(function () {
     ]
   });
 
-
-
   //=====NICE SELECT========
   $('.select_js').niceSelect();
-
 
 });
 

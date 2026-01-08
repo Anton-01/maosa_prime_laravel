@@ -102,7 +102,8 @@
                                     </div>
                                 </div>
 
-                                @livewire('admin.social-links-manager')
+
+                                // TODO vista -- admin.social-links-manager  --- liveware -- @livewire('admin.social-links-manager')
 
                                 <div class="form-group">
                                     <label for="">Descripción general <span class="text-danger">*</span></label>

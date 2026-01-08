@@ -72,27 +72,15 @@
                         } else {
                             label.removeClass('badge-success').addClass('badge-secondary').text('Inactivo');
                         }
-                        new FilamentNotification()
-                            .title('Éxito')
-                            .body(response.message)
-                            .success()
-                            .send();
+                            // TODO Agregar notificación al usuario
                     } else {
                         checkbox.prop('checked', !checkbox.prop('checked'));
-                        new FilamentNotification()
-                            .title('Error')
-                            .body(response.message)
-                            .danger()
-                            .send();
+                        // TODO Agregar notificación al usuario
                     }
                 },
                 error: function() {
                     checkbox.prop('checked', !checkbox.prop('checked'));
-                    new FilamentNotification()
-                        .title('Error')
-                        .body('Error al actualizar el acceso')
-                        .danger()
-                        .send();
+                    // TODO Agregar notificación al usuario
                 }
             });
         });
