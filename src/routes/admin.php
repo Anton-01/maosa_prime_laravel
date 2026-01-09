@@ -81,6 +81,9 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     /** Listing Amenities Routes */
     Route::get('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'index'])->name('listing.amenities.index');
     Route::put('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'update'])->name('listing.amenities.update');
+    Route::post('/listing/{listing_id}/amenities/add', [ListingAmenityController::class, 'addAmenity'])->name('listing.amenities.add');
+    Route::delete('/listing/{listing_id}/amenities/{amenity_id}', [ListingAmenityController::class, 'removeAmenity'])->name('listing.amenities.remove');
+    Route::post('/listing/{listing_id}/amenities/create', [ListingAmenityController::class, 'createAmenity'])->name('listing.amenities.create');
 
     /** Our Feature Routes */
     Route::resource('our-features', OurFeatureController::class);

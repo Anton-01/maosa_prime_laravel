@@ -44,15 +44,18 @@ class RoleUserDataTable extends DataTable
             })
             ->addColumn('price_table_access', function($query) {
                 $checked = $query->can_view_price_table ? 'checked' : '';
-                $badgeClass = $query->can_view_price_table ? 'badge-success' : 'badge-secondary';
-                $badgeText = $query->can_view_price_table ? 'Activo' : 'Inactivo';
+                $statusClass = $query->can_view_price_table ? 'text-success' : 'text-secondary';
+                $statusText = $query->can_view_price_table ? 'Activo' : 'Inactivo';
 
-                return '<div class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input toggle-price-table"
-                           id="priceTable'.$query->id.'" data-user-id="'.$query->id.'" '.$checked.'>
-                    <label class="custom-control-label" for="priceTable'.$query->id.'">
-                        <span class="badge '.$badgeClass.'">'.$badgeText.'</span>
-                    </label>
+                return '<div class="price-access-wrapper text-center">
+                    <div class="custom-control custom-switch d-inline-block">
+                        <input type="checkbox" class="custom-control-input toggle-price-table"
+                               id="priceTable'.$query->id.'" data-user-id="'.$query->id.'" '.$checked.'>
+                        <label class="custom-control-label" for="priceTable'.$query->id.'"></label>
+                    </div>
+                    <div class="status-text mt-1 '.$statusClass.' font-weight-bold" style="font-size: 11px;">
+                        '.$statusText.'
+                    </div>
                 </div>';
             })
             ->rawColumns(['role','approved','action','price_table_access'])

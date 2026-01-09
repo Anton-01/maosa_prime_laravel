@@ -162,8 +162,15 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/mews/purifier" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/predis/predis" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/symfony/polyfill-php85" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/barryvdh/laravel-dompdf" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/dompdf/dompdf" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/dompdf/php-font-lib" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/dompdf/php-svg-lib" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/league/uri-interfaces" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/masterminds/html5" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/sabberworm/php-css-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/thecodingmachine/safe" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
