@@ -78,10 +78,10 @@
                                                        placeholder="Diesel" value="{{ $item->diesel_price }}">
                                             </div>
                                             <div class="col-md-2">
-                                                <select name="items[{{ $index }}][fuel_terminal_id]" class="form-control">
+                                                <select name="items[{{ $index }}][fuel_terminal_id]" class="form-control terminal-select">
                                                     <option value="">Terminal (opcional)</option>
                                                     @foreach($terminals as $terminal)
-                                                        <option value="{{ $terminal->id }}" {{ $item->fuel_terminal_id == $terminal->id ? 'selected' : '' }}>
+                                                        <option value="{{ $terminal->id }}" data-name="{{ $terminal->name }}" {{ $item->fuel_terminal_id == $terminal->id ? 'selected' : '' }}>
                                                             {{ $terminal->name }}
                                                         </option>
                                                     @endforeach
@@ -120,13 +120,26 @@
         let itemIndex = {{ $priceList->items->count() }};
         const terminalsOptions = `<option value="">Terminal (opcional)</option>
         @foreach($terminals as $terminal)
-        <option value="{{ $terminal->id }}">{{ $terminal->name }}</option>
+        <option value="{{ $terminal->id }}" data-name="{{ $terminal->name }}">{{ $terminal->name }}</option>
         @endforeach`;
+
+        // Auto-fill terminal name when selecting from ComboBox
+        $(document).on('change', 'select[name$="[fuel_terminal_id]"]', function() {
+            const selectedOption = $(this).find('option:selected');
+            const terminalName = selectedOption.data('name');
+            const row = $(this).closest('.item-row');
+            const terminalNameInput = row.find('input[name$="[terminal_name]"]');
+
+            if (terminalName) {
+                terminalNameInput.val(terminalName);
+            }
+        });
+
         $('#addItem').click(function() {
             const newRow = `
             <div class="item-row row mb-3" data-index="${itemIndex}">
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="items[${itemIndex}][terminal_name]"
+                    <input type="text" class="form-control terminal-name-input" name="items[${itemIndex}][terminal_name]"
                            placeholder="Nombre de Terminal" required>
                 </div>
                 <div class="col-md-2">
@@ -142,7 +155,7 @@
                            placeholder="Diesel">
                 </div>
                 <div class="col-md-2">
-                    <select name="items[${itemIndex}][fuel_terminal_id]" class="form-control">
+                    <select name="items[${itemIndex}][fuel_terminal_id]" class="form-control terminal-select">
                         ${terminalsOptions}
                     </select>
                 </div>
