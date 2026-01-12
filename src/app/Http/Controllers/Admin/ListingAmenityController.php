@@ -9,6 +9,7 @@ use App\Models\ListingAmenity;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Str;
 
 class ListingAmenityController extends Controller
 {
@@ -124,7 +125,9 @@ class ListingAmenityController extends Controller
 
         $amenity = Amenity::create([
             'name' => $request->name,
-            'icon' => $request->icon
+            'icon' => $request->icon,
+            'slug' => Str::slug($request->name),
+            'status' => 1,
         ]);
 
         // Automatically add to listing

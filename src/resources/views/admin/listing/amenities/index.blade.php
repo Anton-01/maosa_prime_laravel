@@ -198,6 +198,21 @@
                 $('#icon-class-name').text(icon);
                 $('#selected-icon-preview').show();
             });
+
+            // Fix iconpicker search input inside modal - prevent Bootstrap from stealing focus
+            $('#createAmenityModal').on('shown.bs.modal', function() {
+                $(document).off('focusin.modal');
+            });
+
+            $(document).on('click', '.iconpicker-popover .iconpicker-search input', function(e) {
+                e.stopPropagation();
+                $(this).focus();
+            });
+
+            $(document).on('focus', '.iconpicker-popover .iconpicker-search input', function(e) {
+                e.stopPropagation();
+            });
+
             // Add amenity
             $('#add-amenity-btn').click(function() {
                 var amenityId = $('#amenity-select').val();
@@ -214,7 +229,7 @@
                     type: 'POST',
                     data: {
                         _token: '{{ csrf_token() }}',
-                        amenity_id: amenityId
+                        amenity_id: amenityId,
                     },
                     success: function(response) {
                         if (response.status === 'success') {
@@ -232,7 +247,7 @@
                         }
                     },
                     error: function(xhr) {
-                        var message = xhr.responseJSON?.message || 'Error al agregar el servicio';
+                        const message = xhr.responseJSON?.message || 'Error al agregar el servicio';
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -243,8 +258,8 @@
             });
             // Remove amenity
             $(document).on('click', '.remove-amenity', function() {
-                var amenityId = $(this).data('amenity-id');
-                var card = $(this).closest('[data-amenity-id]');
+                const amenityId = $(this).data('amenity-id');
+                const card = $(this).closest('[data-amenity-id]');
                 Swal.fire({
                     title: '¿Estás seguro?',
                     text: "Se eliminará este servicio del proveedor",
@@ -285,8 +300,9 @@
             // Create new amenity
             $('#create-amenity-form').submit(function(e) {
                 e.preventDefault();
-                var name = $('#new-amenity-name').val();
-                var icon = $('#selected-icon').val();
+                const name = $('#new-amenity-name').val();
+                const icon = $('#selected-icon').val();
+
                 if (!name || !icon) {
                     Swal.fire({
                         icon: 'warning',
@@ -295,6 +311,7 @@
                     });
                     return;
                 }
+
                 $.ajax({
                     url: '{{ route('admin.listing.amenities.create', $listing->id) }}',
                     type: 'POST',
@@ -320,7 +337,7 @@
                         }
                     },
                     error: function(xhr) {
-                        var message = xhr.responseJSON?.message || 'Error al crear el servicio';
+                        const message = xhr.responseJSON?.message || 'Error al crear el servicio';
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
@@ -331,7 +348,7 @@
             });
             function addAmenityToUI(amenity) {
                 $('#no-amenities-message').remove();
-                var html = `
+                const html = `
                     <div class="col-md-4 col-sm-6 mb-3" data-amenity-id="${amenity.id}" style="display: none;">
                         <div class="card amenity-card">
                             <div class="card-body d-flex justify-content-between align-items-center">
@@ -353,8 +370,8 @@
                 $('[data-amenity-id="' + amenity.id + '"]').fadeIn(300);
             }
             function updateCounts() {
-                var currentCount = $('#assigned-amenities-container [data-amenity-id]').length;
-                var availableCount = $('#amenity-select option').length - 1; // -1 for placeholder
+                const currentCount = $('#assigned-amenities-container [data-amenity-id]').length;
+                const availableCount = $('#amenity-select option').length - 1; // -1 for placeholder
                 $('#current-count').text(currentCount);
                 $('#available-count').text(availableCount);
             }
@@ -387,6 +404,22 @@
         }
         .select2-container--default .select2-selection--single .select2-selection__arrow {
             height: 36px;
+        }
+
+        /* Fix iconpicker inside modal */
+        .iconpicker-popover {
+            z-index: 1060 !important;
+        }
+        .iconpicker-popover .popover-body {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .iconpicker-popover .iconpicker-search {
+            position: relative;
+            z-index: 1061;
+        }
+        .iconpicker-popover .iconpicker-search input {
+            pointer-events: auto !important;
         }
     </style>
 @endpush

@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
+use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\UserPriceController;
 use App\Http\Controllers\Admin\UserPriceLegendController;
 use App\Http\Controllers\Admin\UserStatisticsController;
@@ -116,6 +117,13 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::resource('role', RolePermissionController::class);
     /** Role Users Routes */
     Route::resource('role-user', RoleUserController::class);
+
+    /** User Import Routes */
+    Route::get('user-import', [UserImportController::class, 'index'])->name('user-import.index');
+    Route::post('user-import', [UserImportController::class, 'import'])->name('user-import.store');
+    Route::get('user-import/layout', [UserImportController::class, 'downloadLayout'])->name('user-import.layout');
+    Route::get('user-import/result', [UserImportController::class, 'result'])->name('user-import.result');
+    Route::get('user-import/download', [UserImportController::class, 'downloadResult'])->name('user-import.download');
 
     /** Settings Routes */
     Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');

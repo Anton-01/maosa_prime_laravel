@@ -21,7 +21,7 @@
             </a>
         </li>
         @if (auth()->user()->canViewPriceTable())
-            <li>
+            <li style="background-color: rgb(199, 149, 44, 0.8)">
                 <a href="{{ route('user.price-table.index') }}">
                     <i class="fas fa-gas-pump"></i>
                     Tabla de Precios

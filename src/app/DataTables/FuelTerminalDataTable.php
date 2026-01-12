@@ -27,7 +27,7 @@ class FuelTerminalDataTable extends DataTable
                 return $edit.$delete;
             })
             ->addColumn('status', function($query){
-                if($query->status === 1){
+                if($query->status === true){
                     return "<span class='badge badge-primary'>Activo</span>";
                 }else{
                     return "<span class='badge badge-danger'>Inactivo</span>";

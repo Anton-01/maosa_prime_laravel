@@ -90,7 +90,7 @@
                             </div>
                         @else
                             <div class="no-price-list">
-                                <div class="no-price-list">
+                                <div class="no-price-list" style="display: flex; flex-direction: column; align-items: center;">
                                     <i class="fas fa-gas-pump"></i>
                                     <h4>No hay lista de precios disponible</h4>
                                     <p>Tu lista de precios personalizada aún no ha sido configurada.</p>

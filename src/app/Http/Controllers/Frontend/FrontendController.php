@@ -110,7 +110,10 @@ class FrontendController extends Controller
 
     function showListing(string $slug) : View {
 
-        $listing = Listing::where(['status' => 1])->where('slug', $slug)->firstOrFail();
+        $listing = Listing::with(['socialNetworks', 'amenities.amenity', 'schedules', 'user', 'location'])
+            ->where(['status' => 1])
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         $openStatus = $this->listingScheduleStatus($listing);
         $smellerListings = Listing::where('category_id', $listing->category_id)->where('id', '!=', $listing->id)->orderBy('id', 'DESC')->take(4)->get();
