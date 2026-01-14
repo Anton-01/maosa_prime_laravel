@@ -33,6 +33,9 @@ class UserPriceListDataTable extends DataTable
             ->addColumn('user_email', function($query){
                 return $query->user ? $query->user->email : '-';
             })
+            ->addColumn('branch_name', function($query){
+                return $query->branch ? $query->branch->name : '-';
+            })
             ->addColumn('items_count', function($query){
                 return $query->items_count ?? 0;
             })
@@ -59,7 +62,7 @@ class UserPriceListDataTable extends DataTable
     public function query(UserPriceList $model): QueryBuilder
     {
         return $model->newQuery()
-            ->with(['user', 'createdBy'])
+            ->with(['user', 'createdBy', 'branch'])
             ->withCount('items');
     }
 
@@ -93,7 +96,8 @@ class UserPriceListDataTable extends DataTable
             Column::make('id')->width(60),
             Column::make('user_name')->title('Cliente'),
             Column::make('user_email')->title('Email'),
-            Column::make('items_count')->title('Terminales')->width(100),
+            Column::make('branch_name')->title('Sucursal')->width(120),
+            Column::make('items_count')->title('Terminales')->width(90),
             Column::make('price_date')->title('Fecha')->width(100),
             Column::make('is_active')->title('Estado')->width(80),
             Column::make('created_by_name')->title('Creado por'),

@@ -57,6 +57,9 @@
                         <div class="card-header">
                             <h4>Todos los usuarios</h4>
                             <div class="card-header-action">
+                                <a href="{{ route('admin.role-user.export') }}" class="btn btn-success mr-2">
+                                    <i class="fas fa-file-excel"></i> Exportar Excel
+                                </a>
                                 <a href="{{ route('admin.statistics.index') }}" class="btn btn-info mr-2">
                                     <i class="fas fa-chart-line"></i>
                                 </a>

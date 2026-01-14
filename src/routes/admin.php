@@ -26,10 +26,12 @@ use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
+use App\Http\Controllers\Admin\UserBranchController;
 use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\UserPriceController;
 use App\Http\Controllers\Admin\UserPriceLegendController;
 use App\Http\Controllers\Admin\UserStatisticsController;
+use App\Http\Controllers\Admin\BulkPriceImportController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login')->middleware('guest');
@@ -117,6 +119,7 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::resource('role', RolePermissionController::class);
     /** Role Users Routes */
     Route::resource('role-user', RoleUserController::class);
+    Route::get('role-user-export', [RoleUserController::class, 'exportExcel'])->name('role-user.export');
 
     /** User Import Routes */
     Route::get('user-import', [UserImportController::class, 'index'])->name('user-import.index');
@@ -141,6 +144,17 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::get('price-import', [PriceImportController::class, 'index'])->name('price-import.index');
     Route::post('price-import', [PriceImportController::class, 'import'])->name('price-import.store');
     Route::get('price-import/layout', [PriceImportController::class, 'downloadLayout'])->name('price-import.layout');
+
+    /** User Branch Routes */
+    Route::resource('user-branch', UserBranchController::class)->except(['show']);
+    Route::get('user-branch/get-branches', [UserBranchController::class, 'getBranchesForUser'])->name('user-branch.get-branches');
+
+    /** Bulk Price Import Routes (Multi-user) */
+    Route::get('bulk-price-import', [BulkPriceImportController::class, 'index'])->name('bulk-price-import.index');
+    Route::post('bulk-price-import', [BulkPriceImportController::class, 'import'])->name('bulk-price-import.store');
+    Route::get('bulk-price-import/layout', [BulkPriceImportController::class, 'downloadLayout'])->name('bulk-price-import.layout');
+    Route::get('bulk-price-import/result', [BulkPriceImportController::class, 'result'])->name('bulk-price-import.result');
+    Route::get('bulk-price-import/download', [BulkPriceImportController::class, 'downloadResult'])->name('bulk-price-import.download');
 
     /** Default Price Legend Routes */
     Route::resource('default-legend', DefaultPriceLegendController::class);

@@ -9,10 +9,14 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 use Illuminate\View\View;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Spatie\Permission\Models\Role;
-
-use function Ramsey\Uuid\v1;
 
 class RoleUserController extends Controller
 {
@@ -119,5 +123,103 @@ class RoleUserController extends Controller
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Export all users to Excel.
+     */
+    public function exportExcel()
+    {
+        $users = User::with(['roles', 'branches'])
+            ->orderBy('name')
+            ->get();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Usuarios');
+
+        // Headers
+        $headers = [
+            'ID', 'Nombre', 'Email', 'Telefono', 'Empresa',
+            'Tipo Usuario', 'Rol', 'Aprobado', 'Tabla Precios',
+            'Sucursales', 'Fecha Registro'
+        ];
+        $sheet->fromArray($headers, null, 'A1');
+
+        // Style headers
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '1B5E20'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle('A1:K1')->applyFromArray($headerStyle);
+
+        // Data
+        $row = 2;
+        foreach ($users as $user) {
+            $branches = $user->branches->pluck('name')->implode(', ');
+            $roles = $user->roles->pluck('name')->implode(', ');
+
+            $sheet->setCellValue('A' . $row, $user->id);
+            $sheet->setCellValue('B' . $row, $user->name);
+            $sheet->setCellValue('C' . $row, $user->email);
+            $sheet->setCellValue('D' . $row, $user->phone ?? '-');
+            $sheet->setCellValue('E' . $row, $user->company ?? '-');
+            $sheet->setCellValue('F' . $row, $user->user_type == 'admin' ? 'Administrador' : 'Usuario');
+            $sheet->setCellValue('G' . $row, $roles ?: '-');
+            $sheet->setCellValue('H' . $row, $user->is_approved ? 'Si' : 'No');
+            $sheet->setCellValue('I' . $row, $user->can_view_price_table ? 'Si' : 'No');
+            $sheet->setCellValue('J' . $row, $branches ?: 'Sin sucursales');
+            $sheet->setCellValue('K' . $row, $user->created_at->format('d/m/Y H:i'));
+            $row++;
+        }
+
+        // Style data cells
+        $lastRow = $row - 1;
+        $dataStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                ],
+            ],
+        ];
+        $sheet->getStyle("A2:K{$lastRow}")->applyFromArray($dataStyle);
+
+        // Set column widths
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(25);
+        $sheet->getColumnDimension('C')->setWidth(30);
+        $sheet->getColumnDimension('D')->setWidth(15);
+        $sheet->getColumnDimension('E')->setWidth(20);
+        $sheet->getColumnDimension('F')->setWidth(15);
+        $sheet->getColumnDimension('G')->setWidth(15);
+        $sheet->getColumnDimension('H')->setWidth(10);
+        $sheet->getColumnDimension('I')->setWidth(12);
+        $sheet->getColumnDimension('J')->setWidth(30);
+        $sheet->getColumnDimension('K')->setWidth(18);
+
+        // Create response
+        $writer = new Xlsx($spreadsheet);
+        $filename = 'usuarios_' . date('Y-m-d') . '.xlsx';
+
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        $writer->save($tempFile);
+
+        return Response::download($tempFile, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
     }
 }

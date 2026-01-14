@@ -47,20 +47,21 @@
                                 <h5><i class="fas fa-info-circle"></i> Instrucciones</h5>
                                 <ul class="mb-0">
                                     <li>Descargue el layout de ejemplo para ver el formato correcto</li>
-                                    <li>El archivo debe contener las columnas: TERMINAL, MAGNA, PREMIUM, DIESEL</li>
+                                    <li>El archivo debe contener las columnas: <strong>TERMINAL, FLETE, MAGNA, PREMIUM, DIESEL</strong></li>
                                     <li>La primera fila debe ser el encabezado</li>
-                                    <li>Los precios deben ser numéricos con hasta 4 decimales</li>
-                                    <li>Al importar se desactivarán las listas de precios anteriores del usuario</li>
+                                    <li>Los precios deben ser numericos con hasta 4 decimales</li>
+                                    <li>El <strong>FLETE</strong> es el costo de envio por terminal (puede ser 0)</li>
+                                    <li>Al importar se desactivaran las listas de precios anteriores del usuario (y sucursal si aplica)</li>
                                 </ul>
                             </div>
 
                             <form action="{{ route('admin.price-import.store') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="">Usuario <span class="text-danger">*</span></label>
-                                            <select name="user_id" class="form-control select2 @error('user_id') is-invalid @enderror" required>
+                                            <select name="user_id" id="user_id" class="form-control select2 @error('user_id') is-invalid @enderror" required>
                                                 <option value="">Seleccionar usuario...</option>
                                                 @foreach($users as $user)
                                                     <option value="{{ $user->id }}" {{ old('user_id') == $user->id ? 'selected' : '' }}>
@@ -73,7 +74,19 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="">Sucursal <small class="text-muted">(Opcional)</small></label>
+                                            <select name="user_branch_id" id="user_branch_id" class="form-control @error('user_branch_id') is-invalid @enderror">
+                                                <option value="">Sin sucursal</option>
+                                            </select>
+                                            <small class="text-muted" id="branch-help">Seleccione un usuario para ver sus sucursales</small>
+                                            @error('user_branch_id')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="">Fecha de Precios <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control @error('price_date') is-invalid @enderror"
@@ -108,3 +121,35 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+    <script>
+        // Load branches when user changes
+        $('#user_id').on('change', function() {
+            const userId = $(this).val();
+            const branchSelect = $('#user_branch_id');
+            const branchHelp = $('#branch-help');
+
+            branchSelect.html('<option value="">Sin sucursal</option>');
+
+            if (userId) {
+                $.ajax({
+                    url: '{{ route("admin.user-branch.get-branches") }}',
+                    data: { user_id: userId },
+                    success: function(branches) {
+                        if (branches.length > 0) {
+                            branches.forEach(function(branch) {
+                                branchSelect.append(`<option value="${branch.id}">${branch.name}</option>`);
+                            });
+                            branchHelp.text('Seleccione una sucursal o deje vacio');
+                        } else {
+                            branchHelp.text('Este usuario no tiene sucursales');
+                        }
+                    }
+                });
+            } else {
+                branchHelp.text('Seleccione un usuario para ver sus sucursales');
+            }
+        });
+    </script>
+@endpush

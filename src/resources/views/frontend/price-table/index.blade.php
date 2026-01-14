@@ -13,7 +13,7 @@
                         <div class="my_listing">
                             <div class="d-flex justify-content-between align-items-center mb-4">
                                 <h4 class="mb-0">Mi Tabla de Precios</h4>
-                                @if($priceList)
+                                @if($priceLists->count() > 0)
                                     <a href="{{ route('user.price-table.pdf') }}" class="pdf-export-btn">
                                         <i class="fas fa-file-pdf"></i> Exportar PDF
                                     </a>
@@ -21,79 +21,92 @@
                             </div>
                         </div>
 
-                        @if($priceList)
-                            <div class="price-table-container">
-                                <table class="price-table">
-                                    <thead>
-                                    <tr>
-                                        <th colspan="4" style="background: #1a472a; color: white; padding: 15px; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px 8px 0 0;">
-                                            ESTIMADO {{ strtoupper($user->name) }}
-                                        </th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="4" style="background: #1a472a; color: white; padding: 8px; text-align: center; font-size: 13px;">
-                                            {{ $priceList->price_date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
-                                        </th>
-                                    </tr>
-                                    <tr style="background: #333; color: white;">
-                                        <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: bold;">TERMINAL</th>
-                                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #2e7d32; width: 120px; font-weight: bold;">MAGNA</th>
-                                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #c62828; width: 120px; font-weight: bold;">PREMIUM</th>
-                                        <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #424242; width: 120px; font-weight: bold;">DIÉSEL</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($priceList->items as $item)
-                                        <tr style="background: {{ $loop->even ? '#f9f9f9' : 'white' }};">
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd; font-weight: 500;">{{ $item->terminal_name }}</td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right; color: #2e7d32;">
-                                                @if($item->magna_price)
-                                                    <span style="color: #666;">$</span> {{ number_format($item->magna_price, 4) }}
-                                                @else
-                                                    <span style="color: #999;">-</span>
+                        @if($priceLists->count() > 0)
+                            @foreach($priceLists as $priceList)
+                                <div class="price-table-container {{ !$loop->first ? 'mt-4' : '' }}">
+                                    <table class="price-table">
+                                        <thead>
+                                        <tr>
+                                            <th colspan="5" style="background: #1a472a; color: white; padding: 15px; text-align: center; font-size: 18px; font-weight: bold; {{ $loop->first ? 'border-radius: 8px 8px 0 0;' : '' }}">
+                                                ESTIMADO {{ strtoupper($user->name) }}
+                                                @if($priceList->branch)
+                                                    <br><span style="font-size: 14px; font-weight: normal;">{{ $priceList->branch->name }}</span>
                                                 @endif
-                                            </td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right; color: #c62828;">
-                                                @if($item->premium_price)
-                                                    <span style="color: #666;">$</span> {{ number_format($item->premium_price, 4) }}
-                                                @else
-                                                    <span style="color: #999;">-</span>
-                                                @endif
-                                            </td>
-                                            <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right;">
-                                                @if($item->diesel_price)
-                                                    <span style="color: #666;">$</span> {{ number_format($item->diesel_price, 4) }}
-                                                @else
-                                                    <span style="color: #999;">-</span>
-                                                @endif
-                                            </td>
+                                            </th>
                                         </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-
-                                @if($legends->count() > 0)
-                                    <div class="legends">
-                                        @foreach($legends as $legend)
-                                            <p class="{{ $loop->last ? 'legend-important' : '' }}">
-                                                {{ $legend->legend_text }}
-                                            </p>
+                                        <tr>
+                                            <th colspan="5" style="background: #1a472a; color: white; padding: 8px; text-align: center; font-size: 13px;">
+                                                {{ $priceList->price_date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}
+                                            </th>
+                                        </tr>
+                                        <tr style="background: #333; color: white;">
+                                            <th style="padding: 12px; text-align: left; border: 1px solid #ddd; font-weight: bold;">TERMINAL</th>
+                                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #5c6bc0; width: 100px; font-weight: bold;">FLETE</th>
+                                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #2e7d32; width: 120px; font-weight: bold;">MAGNA</th>
+                                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #c62828; width: 120px; font-weight: bold;">PREMIUM</th>
+                                            <th style="padding: 12px; text-align: center; border: 1px solid #ddd; background: #424242; width: 120px; font-weight: bold;">DIESEL</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($priceList->items as $item)
+                                            <tr style="background: {{ $loop->even ? '#f9f9f9' : 'white' }};">
+                                                <td style="padding: 10px 12px; border: 1px solid #ddd; font-weight: 500;">{{ $item->terminal_name }}</td>
+                                                <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right; color: #5c6bc0;">
+                                                    @if($item->shipping_price)
+                                                        <span style="color: #666;">$</span> {{ number_format($item->shipping_price, 4) }}
+                                                    @else
+                                                        <span style="color: #999;">-</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right; color: #2e7d32;">
+                                                    @if($item->magna_price)
+                                                        <span style="color: #666;">$</span> {{ number_format($item->magna_price, 4) }}
+                                                    @else
+                                                        <span style="color: #999;">-</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right; color: #c62828;">
+                                                    @if($item->premium_price)
+                                                        <span style="color: #666;">$</span> {{ number_format($item->premium_price, 4) }}
+                                                    @else
+                                                        <span style="color: #999;">-</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 10px 12px; border: 1px solid #ddd; text-align: right;">
+                                                    @if($item->diesel_price)
+                                                        <span style="color: #666;">$</span> {{ number_format($item->diesel_price, 4) }}
+                                                    @else
+                                                        <span style="color: #999;">-</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
                                         @endforeach
-                                    </div>
-                                @endif
-
-                                <div class="supplier-link">
-                                    <a href="{{ route('listings') }}" class="read_btn">
-                                        <i class="fas fa-building"></i> Ver Proveedores
-                                    </a>
+                                        </tbody>
+                                    </table>
                                 </div>
+                            @endforeach
+
+                            @if($legends->count() > 0)
+                                <div class="legends">
+                                    @foreach($legends as $legend)
+                                        <p class="{{ $loop->last ? 'legend-important' : '' }}">
+                                            {{ $legend->legend_text }}
+                                        </p>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <div class="supplier-link">
+                                <a href="{{ route('listings') }}" class="read_btn">
+                                    <i class="fas fa-building"></i> Ver Proveedores
+                                </a>
                             </div>
                         @else
                             <div class="no-price-list">
                                 <div class="no-price-list" style="display: flex; flex-direction: column; align-items: center;">
                                     <i class="fas fa-gas-pump"></i>
                                     <h4>No hay lista de precios disponible</h4>
-                                    <p>Tu lista de precios personalizada aún no ha sido configurada.</p>
+                                    <p>Tu lista de precios personalizada aun no ha sido configurada.</p>
                                     <a href="{{ route('listings') }}" class="read_btn">
                                         <i class="fas fa-building"></i> Ver Proveedores
                                     </a>

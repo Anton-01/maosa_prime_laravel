@@ -56,22 +56,30 @@ class UserPriceController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
+            'user_branch_id' => 'nullable|exists:user_branches,id',
             'price_date' => 'required|date',
             'items' => 'required|array|min:1',
             'items.*.terminal_name' => 'required|string|max:255',
+            'items.*.shipping_price' => 'nullable|numeric|min:0',
             'items.*.magna_price' => 'nullable|numeric|min:0',
             'items.*.premium_price' => 'nullable|numeric|min:0',
             'items.*.diesel_price' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($request) {
-            // Deactivate previous price lists for this user
-            UserPriceList::where('user_id', $request->user_id)
-                ->update(['is_active' => false]);
+            // Deactivate previous price lists for this user (and branch if specified)
+            $query = UserPriceList::where('user_id', $request->user_id);
+            if ($request->user_branch_id) {
+                $query->where('user_branch_id', $request->user_branch_id);
+            } else {
+                $query->whereNull('user_branch_id');
+            }
+            $query->update(['is_active' => false]);
 
             // Create new price list
             $priceList = UserPriceList::create([
                 'user_id' => $request->user_id,
+                'user_branch_id' => $request->user_branch_id ?: null,
                 'price_date' => $request->price_date,
                 'is_active' => true,
                 'created_by' => auth()->id(),
@@ -84,6 +92,7 @@ class UserPriceController extends Controller
                         'user_price_list_id' => $priceList->id,
                         'fuel_terminal_id' => $item['fuel_terminal_id'] ?? null,
                         'terminal_name' => $item['terminal_name'],
+                        'shipping_price' => $item['shipping_price'] ?? 0,
                         'magna_price' => $item['magna_price'] ?? null,
                         'premium_price' => $item['premium_price'] ?? null,
                         'diesel_price' => $item['diesel_price'] ?? null,
@@ -105,7 +114,7 @@ class UserPriceController extends Controller
      */
     public function show(string $id): View
     {
-        $priceList = UserPriceList::with(['user', 'items', 'createdBy'])->findOrFail($id);
+        $priceList = UserPriceList::with(['user', 'items', 'createdBy', 'branch'])->findOrFail($id);
         $legends = UserPriceLegend::forUser($priceList->user_id)->active()->get();
 
         return view('admin.user-price.show', compact('priceList', 'legends'));
@@ -116,7 +125,7 @@ class UserPriceController extends Controller
      */
     public function edit(string $id): View
     {
-        $priceList = UserPriceList::with(['user', 'items'])->findOrFail($id);
+        $priceList = UserPriceList::with(['user', 'user.branches', 'items', 'branch'])->findOrFail($id);
         $users = User::where('user_type', 'user')
             ->where('can_view_price_table', true)
             ->orderBy('name')
@@ -133,10 +142,12 @@ class UserPriceController extends Controller
     {
         $request->validate([
             'user_id' => 'required|exists:users,id',
+            'user_branch_id' => 'nullable|exists:user_branches,id',
             'price_date' => 'required|date',
             'is_active' => 'required|boolean',
             'items' => 'required|array|min:1',
             'items.*.terminal_name' => 'required|string|max:255',
+            'items.*.shipping_price' => 'nullable|numeric|min:0',
             'items.*.magna_price' => 'nullable|numeric|min:0',
             'items.*.premium_price' => 'nullable|numeric|min:0',
             'items.*.diesel_price' => 'nullable|numeric|min:0',
@@ -145,15 +156,21 @@ class UserPriceController extends Controller
         DB::transaction(function () use ($request, $id) {
             $priceList = UserPriceList::findOrFail($id);
 
-            // If activating this list, deactivate others for the same user
+            // If activating this list, deactivate others for the same user and branch
             if ($request->is_active) {
-                UserPriceList::where('user_id', $request->user_id)
-                    ->where('id', '!=', $id)
-                    ->update(['is_active' => false]);
+                $query = UserPriceList::where('user_id', $request->user_id)
+                    ->where('id', '!=', $id);
+                if ($request->user_branch_id) {
+                    $query->where('user_branch_id', $request->user_branch_id);
+                } else {
+                    $query->whereNull('user_branch_id');
+                }
+                $query->update(['is_active' => false]);
             }
 
             $priceList->update([
                 'user_id' => $request->user_id,
+                'user_branch_id' => $request->user_branch_id ?: null,
                 'price_date' => $request->price_date,
                 'is_active' => $request->is_active,
             ]);
@@ -167,6 +184,7 @@ class UserPriceController extends Controller
                         'user_price_list_id' => $priceList->id,
                         'fuel_terminal_id' => $item['fuel_terminal_id'] ?? null,
                         'terminal_name' => $item['terminal_name'],
+                        'shipping_price' => $item['shipping_price'] ?? 0,
                         'magna_price' => $item['magna_price'] ?? null,
                         'premium_price' => $item['premium_price'] ?? null,
                         'diesel_price' => $item['diesel_price'] ?? null,

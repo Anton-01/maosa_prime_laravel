@@ -7,58 +7,49 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserPriceList extends Model
+class UserBranch extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'user_branch_id',
-        'price_date',
+        'name',
         'is_active',
-        'created_by',
     ];
 
     protected $casts = [
-        'price_date' => 'date',
         'is_active' => 'boolean',
     ];
 
+    /**
+     * Get the user that owns the branch.
+     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function createdBy(): BelongsTo
+    /**
+     * Get the price lists for this branch.
+     */
+    public function priceLists(): HasMany
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->hasMany(UserPriceList::class);
     }
 
-    public function branch(): BelongsTo
-    {
-        return $this->belongsTo(UserBranch::class, 'user_branch_id');
-    }
-
-    public function items(): HasMany
-    {
-        return $this->hasMany(UserPriceItem::class)->orderBy('sort_order');
-    }
-
+    /**
+     * Scope a query to only include active branches.
+     */
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
     }
 
+    /**
+     * Scope a query to filter by user.
+     */
     public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
-    }
-
-    public static function getActiveForUser($userId)
-    {
-        return static::forUser($userId)
-            ->active()
-            ->orderByDesc('price_date')
-            ->first();
     }
 }

@@ -28,6 +28,12 @@
                         <div class="card-header">
                             <h4>Todas las Listas de Precios</h4>
                             <div class="card-header-action">
+                                <a href="{{ route('admin.user-branch.index') }}" class="btn btn-secondary mr-2">
+                                    <i class="fas fa-code-branch"></i> Sucursales
+                                </a>
+                                <a href="{{ route('admin.bulk-price-import.index') }}" class="btn btn-success mr-2">
+                                    <i class="fas fa-file-upload"></i> Carga Masiva
+                                </a>
                                 <a href="{{ route('admin.price-import.index') }}" class="btn btn-info mr-2">
                                     <i class="fas fa-file-excel"></i> Importar Excel
                                 </a>
