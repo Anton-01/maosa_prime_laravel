@@ -13,7 +13,7 @@ class ContactController extends Controller
 {
     function __construct()
     {
-        $this->middleware(['permission:contact index']);
+        $this->middleware(['permission:access management pages']);
     }
 
     function index() : View {

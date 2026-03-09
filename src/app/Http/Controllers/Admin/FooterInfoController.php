@@ -13,7 +13,7 @@ class FooterInfoController extends Controller
 {
     function __construct()
     {
-        $this->middleware(['permission:footer index']);
+        $this->middleware(['permission:access management footer']);
     }
 
     function index() : View {

@@ -14,6 +14,7 @@ class UserPriceItem extends Model
         'user_price_list_id',
         'fuel_terminal_id',
         'terminal_name',
+        'shipping_price',
         'magna_price',
         'premium_price',
         'diesel_price',
@@ -21,6 +22,7 @@ class UserPriceItem extends Model
     ];
 
     protected $casts = [
+        'shipping_price' => 'decimal:4',
         'magna_price' => 'decimal:4',
         'premium_price' => 'decimal:4',
         'diesel_price' => 'decimal:4',
@@ -40,14 +42,21 @@ class UserPriceItem extends Model
     {
         return $this->magna_price ? number_format($this->magna_price, 4) : '-';
     }
-
     public function getFormattedPremiumPriceAttribute(): string
     {
         return $this->premium_price ? number_format($this->premium_price, 4) : '-';
     }
-
     public function getFormattedDieselPriceAttribute(): string
     {
         return $this->diesel_price ? number_format($this->diesel_price, 4) : '-';
+    }
+
+    public function getFormattedShippingPriceAttribute(): string
+    {
+        return $this->shipping_price ? number_format($this->shipping_price, 4) : '-';
+    }
+    public function getFormattedQualityCode(): string
+    {
+        return $this->code ? $this->code : '-';
     }
 }

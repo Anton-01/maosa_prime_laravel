@@ -5,6 +5,11 @@
     <a href="{{ route('user.profile.index') }}" class="dash_logo">
         <img src="{{ asset(auth()->user()->avatar) }}" alt="logo" class="img-fluid">
     </a>
+    <div class="container-user-simple-info">
+        <span style="margin-bottom: 5px;"> <i class="fas fa-envelope"></i> {{auth()->user()->email}}</span>
+        <span style="margin-bottom: 5px;"> <i class="fas fa-user-circle"></i> {{auth()->user()->name}}</span>
+        <span style="font-size: 13px;"> <i class="fas fa-user-check"></i> {{auth()->user()->user_type}}</span>
+    </div>
     <ul class="dashboard_link">
         @if (auth()->user()->user_type === 'admin')
             <li>

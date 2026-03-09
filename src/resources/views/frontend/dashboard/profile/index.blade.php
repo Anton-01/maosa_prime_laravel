@@ -63,54 +63,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>Sitio web</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="Website" name="website" value="{{ $user->website }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>Facebook</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="Facebook" name="fb_link" value="{{ $user->fb_link }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>X</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="X" name="x_link" value="{{ $user->x_link }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>Linkedin</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="Linkedin" name="in_link" value="{{ $user->in_link }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>Whatsapp</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="Whatsapp" name="wa_link" value="{{ $user->wa_link }}">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-6">
-                                                <div class="my_listing_single">
-                                                    <label>Instragram</label>
-                                                    <div class="input_area">
-                                                        <input type="text" placeholder="Instragram" name="instra_link" value="{{ $user->instra_link }}">
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-xl-4 col-md-5">

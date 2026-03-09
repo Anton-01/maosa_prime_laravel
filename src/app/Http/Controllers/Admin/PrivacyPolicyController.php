@@ -12,7 +12,7 @@ class PrivacyPolicyController extends Controller
 {
     function __construct()
     {
-        $this->middleware(['permission:privacy policy index']);
+        $this->middleware(['permission:access management pages']);
     }
 
     function index() : View {

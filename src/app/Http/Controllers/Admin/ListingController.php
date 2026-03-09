@@ -24,6 +24,11 @@ class ListingController extends Controller
 {
     use FileUploadTrait;
 
+    function __construct()
+    {
+        $this->middleware(['permission:access management suppliers']);
+    }
+
     /**
      * Display a listing of the resource.
      */

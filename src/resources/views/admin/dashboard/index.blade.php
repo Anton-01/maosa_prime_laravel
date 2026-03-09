@@ -128,7 +128,7 @@
                 </div>
                 <div class="card-wrap">
                     <div class="card-header">
-                        <h4>Amenidades</h4>
+                        <h4>Servicios</h4>
                     </div>
                     <div class="card-body">
                         {{ $amenitiesCount }}

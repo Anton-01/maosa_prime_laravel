@@ -9,8 +9,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class RolePermissionDataTable extends DataTable
@@ -30,8 +28,7 @@ class RolePermissionDataTable extends DataTable
 
                     return $edit.$delete;
                 }
-            })
-            ->addColumn('permissions', function($query) {
+            })->addColumn('permissions', function($query) {
                 $html = '';
                 if($query->name === 'Super Admin'){
                     $html .= "<span class='badge badge-danger m-1'>All Permissions</span>";
@@ -41,9 +38,7 @@ class RolePermissionDataTable extends DataTable
                     }
                 }
                 return $html;
-            })
-            ->rawColumns(['permissions', 'action'])
-
+            })->rawColumns(['permissions', 'action'])
             ->setRowId('id');
     }
 
@@ -64,7 +59,6 @@ class RolePermissionDataTable extends DataTable
                     ->setTableId('rolepermission-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    //->dom('Bfrtip')
                     ->orderBy(0, 'asc')
                     ->selectStyleSingle()
                     ->buttons([
@@ -83,7 +77,6 @@ class RolePermissionDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-
             Column::make('id'),
             Column::make('name'),
             Column::make('permissions')->width(800),

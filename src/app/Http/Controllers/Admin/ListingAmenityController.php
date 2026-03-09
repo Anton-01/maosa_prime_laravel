@@ -13,6 +13,11 @@ use Str;
 
 class ListingAmenityController extends Controller
 {
+
+    function __construct()
+    {
+        $this->middleware(['permission:access management suppliers']);
+    }
     /**
      * Display the amenities management page for a specific listing
      */

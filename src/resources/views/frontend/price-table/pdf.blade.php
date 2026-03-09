@@ -11,13 +11,13 @@
         }
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             color: #333;
-            padding: 20px;
+            padding: 15px;
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         .header h1 {
             font-size: 16px;
@@ -34,26 +34,31 @@
             color: white;
         }
         .price-table .title-row td {
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
+        }
+        .price-table .branch-name {
+            font-size: 12px;
+            font-weight: normal;
         }
         .price-table .date-row {
             background: #1a472a;
             color: white;
         }
         .price-table .date-row td {
-            padding: 6px;
+            padding: 5px;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
         }
         .price-table .header-row th {
-            padding: 10px 8px;
+            padding: 8px 5px;
             text-align: center;
             font-weight: bold;
             color: white;
             border: 1px solid #ddd;
+            font-size: 10px;
         }
         .price-table .header-row .terminal-col {
             background: #333;
@@ -72,14 +77,18 @@
             background: #f5f5f5;
         }
         .price-table tbody td {
-            padding: 8px;
+            padding: 6px 5px;
             border: 1px solid #ddd;
+            font-size: 10px;
         }
         .price-table tbody .terminal-name {
             font-weight: 500;
         }
         .price-table tbody .price {
             text-align: right;
+        }
+        .price-table tbody .price-flete {
+            color: #5c6bc0;
         }
         .price-table tbody .price-magna {
             color: #2e7d32;
@@ -95,7 +104,7 @@
         }
         .legends p {
             margin: 3px 0;
-            font-size: 10px;
+            font-size: 9px;
             color: #555;
         }
         .legends p.warning {
@@ -103,59 +112,81 @@
             font-weight: 500;
         }
         .footer {
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
-            font-size: 10px;
+            font-size: 9px;
             color: #999;
+        }
+        .page-break {
+            page-break-after: always;
         }
     </style>
 </head>
 <body>
-@if($priceList)
-    <table class="price-table">
-        <thead>
-        <tr class="title-row">
-            <td colspan="4">ESTIMADO {{ strtoupper($user->name) }}</td>
-        </tr>
-        <tr class="date-row">
-            <td colspan="4">{{ $priceList->price_date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}</td>
-        </tr>
-        <tr class="header-row">
-            <th class="terminal-col" style="width: 40%;">TERMINAL</th>
-            <th class="magna-col" style="width: 20%;">MAGNA</th>
-            <th class="premium-col" style="width: 20%;">PREMIUM</th>
-            <th class="diesel-col" style="width: 20%;">DIÉSEL</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach($priceList->items as $item)
-            <tr>
-                <td class="terminal-name">{{ $item->terminal_name }}</td>
-                <td class="price price-magna">
-                    @if($item->magna_price)
-                        $ {{ number_format($item->magna_price, 4) }}
-                    @else
-                        -
-                    @endif
-                </td>
-                <td class="price price-premium">
-                    @if($item->premium_price)
-                        $ {{ number_format($item->premium_price, 4) }}
-                    @else
-                        -
-                    @endif
-                </td>
-                <td class="price">
-                    @if($item->diesel_price)
-                        $ {{ number_format($item->diesel_price, 4) }}
-                    @else
-                        -
+@if($priceLists->count() > 0)
+    @foreach($priceLists as $priceList)
+        <table class="price-table">
+            <thead>
+            <tr class="title-row">
+                <td colspan="5">
+                    ESTIMADO {{ strtoupper($user->name) }}
+                    @if($priceList->branch)
+                        <br><span class="branch-name">{{ $priceList->branch->name }}</span>
                     @endif
                 </td>
             </tr>
-        @endforeach
-        </tbody>
-    </table>
+            <tr class="date-row">
+                <td colspan="5">Vigencia de los costos asignados: {{ $priceList->price_date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}</td>
+            </tr>
+            <tr class="header-row">
+                <th class="terminal-col" style="width: 35%;">TERMINAL</th>
+                <th class="flete-col" style="width: 15%;">FLETE</th>
+                <th class="magna-col" style="width: 17%;">MAGNA</th>
+                <th class="premium-col" style="width: 17%;">PREMIUM</th>
+                <th class="diesel-col" style="width: 16%;">DIESEL</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach($priceList->items as $item)
+                <tr>
+                    <td class="terminal-name">{{ $item->terminal_name }}</td>
+                    <td class="price price-flete">
+                        @if($item->shipping_price)
+                            $ {{ number_format($item->shipping_price, 4) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="price price-magna">
+                        @if($item->magna_price)
+                            $ {{ number_format($item->magna_price, 4) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="price price-premium">
+                        @if($item->premium_price)
+                            $ {{ number_format($item->premium_price, 4) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td class="price">
+                        @if($item->diesel_price)
+                            $ {{ number_format($item->diesel_price, 4) }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+
+        @if(!$loop->last)
+            <div style="margin-bottom: 25px;"></div>
+        @endif
+    @endforeach
 
     @if($legends->count() > 0)
         <div class="legends">

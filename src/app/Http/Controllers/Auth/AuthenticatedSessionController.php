@@ -28,10 +28,14 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
-        if(auth()->user()->user_type === 'admin'){
-            return redirect()->intended(RouteServiceProvider::ADMIN);
+        if(auth()->user()->user_type === RouteServiceProvider::ROLE_ADMIN){
+            return redirect()->intended(RouteServiceProvider::ROUTE_ADMIN);
         }else {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            if (auth()->user()->canViewPriceTable()){
+                return redirect()->intended(RouteServiceProvider::ROUTE_HOME_ALLOWED_PRICE);
+            }else{
+                return redirect()->intended(RouteServiceProvider::ROUTE_HOME_NOT_ALLOWED_PRICE);
+            }
         }
     }
 

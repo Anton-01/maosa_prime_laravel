@@ -9,7 +9,6 @@
 
     </form>
     <ul class="navbar-nav navbar-right">
-
         <li class="dropdown">
             <a href="#" data-toggle="dropdown"
                 class="nav-link dropdown-toggle nav-link-lg nav-link-user">
@@ -46,131 +45,114 @@
         </div>
         <ul class="sidebar-menu">
 
-            <li class="menu-header">Starter</li>
+            <li class="menu-header">Admin Panel</li>
+
             <li class="{{ setSidebarActive(['admin.dashboard.index']) }}"><a class="nav-link" href="{{ route('admin.dashboard.index') }}"><i class="fas fa-fire"></i> <span>Dashboard</span></a></li>
 
-            @can('section index')
-            <li class="dropdown {{ setSidebarActive([
-                'admin.hero.index',
-                'admin.hero-public.index',
-                'admin.our-features.index',
-                'admin.section-title.index'
-                ]) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
-                    <i class="fas fa-columns"></i> <span>Secciones</span>
-                </a>
-                <ul class="dropdown-menu">
-                    <li class="{{ setSidebarActive(['admin.hero.index']) }}"><a class="nav-link" href="{{ route('admin.hero.index') }}">Banner</a></li>
-                    <li class="{{ setSidebarActive(['admin.hero-public.index']) }}"><a class="nav-link" href="{{ route('admin.hero.public.index') }}">Banner público</a></li>
-                    <li class="{{ setSidebarActive(['admin.our-features.index']) }}"><a class="nav-link" href="{{ route('admin.our-features.index') }}">Nuestras funciones</a></li>
-                    <li class="{{ setSidebarActive(['admin.section-title.index']) }}"><a class="nav-link" href="{{ route('admin.section-title.index') }}">Títulos - Secciones</a></li>
-                </ul>
-            </li>
+            @can('access management sections content')
+                <li class="dropdown {{ setSidebarActive([
+                    'admin.hero.index',
+                    'admin.hero-public.index',
+                    'admin.our-features.index',
+                    'admin.section-title.index'
+                    ]) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown">
+                        <i class="fas fa-columns"></i> <span>Secciones</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.hero.index']) }}"><a class="nav-link" href="{{ route('admin.hero.index') }}">Banner</a></li>
+                        <li class="{{ setSidebarActive(['admin.hero-public.index']) }}"><a class="nav-link" href="{{ route('admin.hero.public.index') }}">Banner público</a></li>
+                        <li class="{{ setSidebarActive(['admin.our-features.index']) }}"><a class="nav-link" href="{{ route('admin.our-features.index') }}">Nuestras funciones</a></li>
+                        <li class="{{ setSidebarActive(['admin.section-title.index']) }}"><a class="nav-link" href="{{ route('admin.section-title.index') }}">Títulos - Secciones</a></li>
+                    </ul>
+                </li>
             @endcan
 
-            @canany(['listing index'])
-            <li class="dropdown {{
-                setSidebarActive([
-                    'admin.category.*',
-                    'admin.location.*',
-                    'admin.amenity.*',
-                    'admin.listing.*',
-                ])
-            }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-list"></i> <span>Proveedores</span></a>
-                <ul class="dropdown-menu">
-                    @can('listing index')
-                    <li class="{{ setSidebarActive(['admin.category.*']) }}"><a class="nav-link" href="{{ route('admin.category.index') }}">Categorías</a></li>
-                    <li class="{{ setSidebarActive(['admin.location.*']) }}"><a class="nav-link" href="{{ route('admin.location.index') }}">Ubicaciones</a></li>
-                    <li class="{{ setSidebarActive(['admin.listing.*']) }}"><a class="nav-link" href="{{ route('admin.listing.index') }}">Todos los Proveedores</a></li>
-                    @endcan
-                </ul>
-            </li>
-            @endcanany
-
-            @canany(['about index', 'contact index', 'parivacy policy index', 'terms and condition index'])
-            <li class="dropdown {{ setSidebarActive([
-                'admin.about-us.index',
-                'admin.contact.index',
-                'admin.privacy-policy.index',
-                'admin.terms-and-condition.index'
-                ]) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-file-alt"></i> <span>Páginas</span></a>
-
-                <ul class="dropdown-menu"
-                {{ setSidebarActive([
-                    'admin.packages.*',
-                ]) }}
-                >
-                @can('about index')
-                <li class="{{ setSidebarActive(['admin.about-us.index']) }}"><a class="nav-link" href="{{ route('admin.about-us.index') }}">Sobre nosotros</a></li>
-                @endcan
-                @can('contact index')
-                <li class="{{ setSidebarActive(['admin.contact.index']) }}"><a class="nav-link" href="{{ route('admin.contact.index') }}">Contacto</a></li>
-                @endcan
-                @can('parivacy policy index')
-                <li class="{{ setSidebarActive(['admin.privacy-policy.index']) }}"><a class="nav-link" href="{{ route('admin.privacy-policy.index') }}">Política de privacidad</a></li>
-                @endcan
-                @can('terms and condition index')
-                <li class="{{ setSidebarActive(['admin.terms-and-condition.index']) }}"><a class="nav-link" href="{{ route('admin.terms-and-condition.index') }}">Términos y condiciones</a></li>
-                @endcan
-
-                </ul>
-            </li>
-            @endcanany
-
-            @can('footer index')
-            <li class="dropdown {{ setSidebarActive(['admin.footer-info.index', 'admin.social-link.*]']) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-info"></i> <span>Gestionar Footer</span></a>
-
-                <ul class="dropdown-menu">
-                    <li class="{{ setSidebarActive(['admin.footer-info.index']) }}"><a class="nav-link" href="{{ route('admin.footer-info.index') }}">Footer Info</a></li>
-                </ul>
-            </li>
+            @can('access management suppliers')
+                <li class="dropdown {{
+                    setSidebarActive([
+                        'admin.category.*',
+                        'admin.location.*',
+                        'admin.amenity.*',
+                        'admin.listing.*',
+                    ])
+                }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-list"></i> <span>Proveedores</span></a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.category.*']) }}"><a class="nav-link" href="{{ route('admin.category.index') }}">Categorías</a></li>
+                        <li class="{{ setSidebarActive(['admin.location.*']) }}"><a class="nav-link" href="{{ route('admin.location.index') }}">Ubicaciones</a></li>
+                        <li class="{{ setSidebarActive(['admin.listing.*']) }}"><a class="nav-link" href="{{ route('admin.listing.index') }}">Todos los Proveedores</a></li>
+                    </ul>
+                </li>
             @endcan
 
-            @can('access management index')
-            <li class="dropdown {{ setSidebarActive(['admin.role-user.*']) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-fingerprint"></i> <span>Gestión de accesos</span></a>
-
-                <ul class="dropdown-menu">
-                    <li class="{{ setSidebarActive(['admin.role-user.*']) }}"><a class="nav-link" href="{{ route('admin.role-user.index') }}">Usuarios</a></li>
-
-                    <!--<li class="{{ setSidebarActive(['admin.role.*']) }}"><a class="nav-link" href="{{ route('admin.role.index') }}">Roles y permisos</a></li>-->
-                </ul>
-            </li>
+            @can('access management pages')
+                <li class="dropdown {{ setSidebarActive(['admin.about-us.index','admin.contact.index','admin.privacy-policy.index','admin.terms-and-condition.index']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-file-alt"></i> <span>Páginas</span></a>
+                    <ul class="dropdown-menu" {{ setSidebarActive(['admin.packages.*',]) }}>
+                        <li class="{{ setSidebarActive(['admin.about-us.index']) }}"><a class="nav-link" href="{{ route('admin.about-us.index') }}">Sobre nosotros</a></li>
+                        <li class="{{ setSidebarActive(['admin.contact.index']) }}"><a class="nav-link" href="{{ route('admin.contact.index') }}">Contacto</a></li>
+                        <li class="{{ setSidebarActive(['admin.privacy-policy.index']) }}"><a class="nav-link" href="{{ route('admin.privacy-policy.index') }}">Política de privacidad</a></li>
+                        <li class="{{ setSidebarActive(['admin.terms-and-condition.index']) }}"><a class="nav-link" href="{{ route('admin.terms-and-condition.index') }}">Términos y condiciones</a></li>
+                    </ul>
+                </li>
             @endcan
 
-            <li class="dropdown {{ setSidebarActive([
+            @can('access management footer')
+                <li class="dropdown {{ setSidebarActive(['admin.footer-info.index', 'admin.social-link.*]']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-info"></i> <span>Gestionar Footer</span></a>
+
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.footer-info.index']) }}"><a class="nav-link" href="{{ route('admin.footer-info.index') }}">Footer Info</a></li>
+                    </ul>
+                </li>
+            @endcan
+
+            @can('access management users')
+                <li class="dropdown {{ setSidebarActive(['admin.role-user.*']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-fingerprint"></i> <span>Gestión de accesos</span></a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.role-user.*']) }}"><a class="nav-link" href="{{ route('admin.role-user.index') }}">Usuarios</a></li>
+
+                        <li class="{{ setSidebarActive(['admin.role.*']) }}"><a class="nav-link" href="{{ route('admin.role.index') }}">Roles y permisos</a></li>
+                    </ul>
+                </li>
+            @endcan
+
+            @can('access management gas price')
+                <li class="dropdown {{ setSidebarActive([
                 'admin.fuel-terminal.*',
                 'admin.user-price.*',
                 'admin.price-import.*',
                 'admin.default-legend.*',
                 'admin.user-legend.*'
                 ]) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-gas-pump"></i> <span>Precios Combustibles</span></a>
-                <ul class="dropdown-menu">
-                    <li class="{{ setSidebarActive(['admin.fuel-terminal.*']) }}"><a class="nav-link" href="{{ route('admin.fuel-terminal.index') }}">Terminales</a></li>
-                    <li class="{{ setSidebarActive(['admin.user-price.*']) }}"><a class="nav-link" href="{{ route('admin.user-price.index') }}">Listas de Precios</a></li>
-                    <li class="{{ setSidebarActive(['admin.price-import.*']) }}"><a class="nav-link" href="{{ route('admin.price-import.index') }}">Importar Excel</a></li>
-                    <li class="{{ setSidebarActive(['admin.default-legend.*']) }}"><a class="nav-link" href="{{ route('admin.default-legend.index') }}">Leyendas por Defecto</a></li>
-                    <li class="{{ setSidebarActive(['admin.user-legend.*']) }}"><a class="nav-link" href="{{ route('admin.user-legend.index') }}">Leyendas por Usuario</a></li>
-                </ul>
-            </li>
-
-            <li class="dropdown {{ setSidebarActive(['admin.statistics.*']) }}">
-                <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-chart-line"></i> <span>Estadísticas</span></a>
-                <ul class="dropdown-menu">
-                    <li class="{{ setSidebarActive(['admin.statistics.index']) }}"><a class="nav-link" href="{{ route('admin.statistics.index') }}">Panel General</a></li>
-                </ul>
-            </li>
-
-            @can('menu builder index')
-            <li class="{{ setSidebarActive(['admin.menu-builder.index']) }}"><a class="nav-link" href="{{ route('admin.menu-builder.index') }}"><i class="fas fa-wrench"></i> <span>Menús</span></a></li>
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-gas-pump"></i> <span>Precios Combustibles</span></a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.fuel-terminal.*']) }}"><a class="nav-link" href="{{ route('admin.fuel-terminal.index') }}">Terminales</a></li>
+                        <li class="{{ setSidebarActive(['admin.user-price.*']) }}"><a class="nav-link" href="{{ route('admin.user-price.index') }}">Listas de Precios</a></li>
+                        <li class="{{ setSidebarActive(['admin.price-import.*']) }}"><a class="nav-link" href="{{ route('admin.price-import.index') }}">Importar Excel</a></li>
+                        <li class="{{ setSidebarActive(['admin.default-legend.*']) }}"><a class="nav-link" href="{{ route('admin.default-legend.index') }}">Leyendas por Defecto</a></li>
+                        <li class="{{ setSidebarActive(['admin.user-legend.*']) }}"><a class="nav-link" href="{{ route('admin.user-legend.index') }}">Leyendas por Usuario</a></li>
+                    </ul>
+                </li>
             @endcan
 
-            @can('settings index')
-            <li class="{{ setSidebarActive(['admin.settings.index']) }}" ><a class="nav-link" href="{{ route('admin.settings.index') }}"><i class="fas fa-cogs"></i> <span>Ajustes</span></a></li>
+            @can('access management statics users')
+                <li class="dropdown {{ setSidebarActive(['admin.statistics.*']) }}">
+                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-chart-line"></i> <span>Estadísticas</span></a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ setSidebarActive(['admin.statistics.index']) }}"><a class="nav-link" href="{{ route('admin.statistics.index') }}">Panel General</a></li>
+                    </ul>
+                </li>
+            @endcan
+
+            @can('access management menu builder')
+                <li class="{{ setSidebarActive(['admin.menu-builder.index']) }}"><a class="nav-link" href="{{ route('admin.menu-builder.index') }}"><i class="fas fa-wrench"></i> <span>Menús</span></a></li>
+            @endcan
+
+            @can('access management settings maosa')
+                <li class="{{ setSidebarActive(['admin.settings.index']) }}" ><a class="nav-link" href="{{ route('admin.settings.index') }}"><i class="fas fa-cogs"></i> <span>Ajustes</span></a></li>
             @endcan
         </ul>
     </aside>

@@ -9,7 +9,6 @@ if(!function_exists('setSidebarActive')){
                 return 'active';
             }
         }
-
         return null;
     }
 }

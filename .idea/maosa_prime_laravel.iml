@@ -169,6 +169,9 @@
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/masterminds/html5" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/sabberworm/php-css-parser" />
       <excludeFolder url="file://$MODULE_DIR$/src/vendor/thecodingmachine/safe" />
+      <excludeFolder url="file://$MODULE_DIR$/src/storage/app" />
+      <excludeFolder url="file://$MODULE_DIR$/src/storage/debugbar" />
+      <excludeFolder url="file://$MODULE_DIR$/src/storage/framework" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

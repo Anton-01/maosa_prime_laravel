@@ -15,7 +15,7 @@ class RolePermissionController extends Controller
 {
     function __construct()
     {
-        $this->middleware(['permission:access management index']);
+        $this->middleware(['permission:access management users']);
     }
 
     /**

@@ -15,8 +15,7 @@ class HeroController extends Controller
 
     function __construct()
     {
-        $this->middleware(['permission:section index'])->only(['index']);
-        $this->middleware(['permission:section update'])->only(['update']);
+        $this->middleware(['permission:access management sections content']);
     }
 
     function index() : View {

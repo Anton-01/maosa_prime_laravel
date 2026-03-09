@@ -4,14 +4,14 @@ COPY src .
 COPY dockerfiles/uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
 COPY dockerfiles/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 
-RUN apk add --no-cache mysql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu
+RUN apk add --no-cache postgresql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu
+
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
-    libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev && \
+    libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev postgresql-dev && \
     docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp && \
     docker-php-ext-install gd && \
-    docker-php-ext-install mysqli && \
-    docker-php-ext-install pdo_mysql && \
+    docker-php-ext-install pdo_pgsql pgsql && \
     docker-php-ext-install intl && \
     docker-php-ext-install bcmath && \
     docker-php-ext-install opcache && \

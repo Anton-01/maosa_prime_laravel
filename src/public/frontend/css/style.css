@@ -3814,9 +3814,8 @@ PAGINATION PART END
 .dashboard_sidebar .close_icon:hover {
 	background: var(--colorBlack);
 }
-
 .dashboard_link {
-	margin-top: 50px;
+	margin-top: 25px;
 }
 
 .dashboard_link li a {
@@ -5769,5 +5768,11 @@ AGENT PROFILE END
     justify-content: space-around;
 }
 
+.container-user-simple-info{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 16px;
+}
 
 
