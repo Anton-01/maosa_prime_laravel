@@ -11,7 +11,6 @@
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard.index') }}">Dashboard</a></div>
                 <div class="breadcrumb-item"><a href="{{ route('admin.listing-schedule.index', $listingId) }}">Horario - Proveedor</a></div>
                 <div class="breadcrumb-item">Crear</div>
-
             </div>
         </div>
 

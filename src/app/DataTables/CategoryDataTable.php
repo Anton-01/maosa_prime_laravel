@@ -8,8 +8,6 @@ use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class CategoryDataTable extends DataTable
@@ -35,7 +33,7 @@ class CategoryDataTable extends DataTable
                 return '<img width="80" src="'.asset($query->background_image).'" >';
             })
             ->addColumn('show_at_home', function($query){
-                if($query->show_at_home === 1){
+                if($query->show_at_home){
                     return "<span class='badge badge-primary'>Sí</span>";
                 }else{
                     return "<span class='badge badge-danger'>No</span>";
@@ -43,7 +41,7 @@ class CategoryDataTable extends DataTable
                 }
             })
             ->addColumn('status', function($query){
-                if($query->status === 1){
+                if($query->status){
                     return "<span class='badge badge-primary'>Activo</span>";
                 }else{
                     return "<span class='badge badge-danger'>Inactivo</span>";
@@ -67,19 +65,11 @@ class CategoryDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('category-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
-                    ]);
+            ->setTableId('category-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(0, 'asc')
+            ->selectStyleSingle();
     }
 
     /**
@@ -89,15 +79,13 @@ class CategoryDataTable extends DataTable
     {
         return [
 
-            Column::make('id')->width(100),
-            Column::make('icon')->width(200),
-            Column::make('background')->width(200),
-            Column::make('name'),
-            Column::make('show_at_home'),
-            Column::make('status'),
-            Column::computed('action')
-            ->exportable(false)
-            ->printable(false)
+            Column::make('id')->width(100)->title('ID'),
+            Column::make('icon')->width(200)->title('Icono'),
+            Column::make('background')->width(200)->title('Imagen Fondo'),
+            Column::make('name')->width(200)->title('Nombre'),
+            Column::make('show_at_home')->width(200)->title('Mostrar en Inicio'),
+            Column::make('status')->width(200)->title('Estado'),
+            Column::computed('action')->title('Acciones')
             ->width(150)
             ->addClass('text-center'),
         ];

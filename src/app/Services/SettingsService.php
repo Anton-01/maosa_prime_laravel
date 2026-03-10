@@ -10,12 +10,11 @@ class SettingsService {
         if (!class_exists(Setting::class)) {
             return [];
         }
-
         try {
             return Cache::rememberForever('settings', function () {
                 return Setting::pluck('value', 'key')->toArray();
             });
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [];
         }
     }

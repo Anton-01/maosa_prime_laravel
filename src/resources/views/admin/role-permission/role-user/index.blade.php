@@ -17,21 +17,21 @@
             <div class="row">
                 <div class="col-12">
                     @if(session()->has('statusUsrC'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            ¡Usuario creado correctamente!
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> ¡Usuario creado correctamente!
                             <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
                     @if(session()->has('statusUsrU'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
-                            ¡Actualizado correctamente!
-                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="fas fa-check-circle"></i> ¡Usuario actualizado correctamente!
+                                <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                     @endif
-                        <!-- Import Excel Card -->
+                        {{-- Import Excel Card --}}
                         <div class="card">
                             <div class="card-header">
-                                <h4><i class="fas fa-file-excel text-success"></i> Importar Usuarios desde Excel</h4>
+                                <h4><i class="fas fa-file-excel text-success"></i> Importar usuarios desde Excel</h4>
                             </div>
                             <div class="card-body">
                                 <div class="row align-items-center">
@@ -44,7 +44,7 @@
                                     </div>
                                     <div class="col-md-4 text-right">
                                         <a href="{{ route('admin.user-import.layout') }}" class="btn btn-outline-success btn-sm mr-2">
-                                            <i class="fas fa-download"></i> Descargar Layout
+                                            <i class="fas fa-download"></i> Descargar layout
                                         </a>
                                         <a href="{{ route('admin.user-import.index') }}" class="btn btn-success">
                                             <i class="fas fa-file-upload"></i> Importar Excel
@@ -60,19 +60,19 @@
                                 <a href="{{ route('admin.role-user.export') }}" class="btn btn-success mr-2">
                                     <i class="fas fa-file-excel"></i> Exportar Excel
                                 </a>
-                                <a href="{{ route('admin.statistics.index') }}" class="btn btn-info mr-2">
+                                <a href="{{ route('admin.statistics.index') }}" class="btn btn-info mr-2" title="Estadísticas globales">
                                     <i class="fas fa-chart-line"></i>
                                 </a>
                                 <a href="{{ route('admin.role-user.create') }}" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i>
-                                    Crear
+                                    <i class="fas fa-plus"></i> Crear usuario
                                 </a>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle"></i>
-                                Use el switch en "Acceso Precios" para activar/desactivar la vista de tabla de precios para cada usuario.
+                                Use los switches en <strong>Aprobado</strong> y <strong>Tabla Precios</strong> para activar/desactivar directamente desde esta lista.
+                                El ícono <i class="fas fa-key text-warning"></i> permite asignar permisos directos adicionales al rol.
                             </div>
                             {{ $dataTable->table() }}
                         </div>
@@ -86,82 +86,34 @@
 
 @push('styles')
     <style>
-        .price-access-wrapper {
+        .price-access-wrapper,
+        .approval-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 5px;
         }
-        .price-access-wrapper .custom-switch {
-            padding-left: 2.25rem;
-        }
-        .price-access-wrapper .status-text {
+        .price-access-wrapper .status-text,
+        .approval-wrapper .approval-status-text {
             font-size: 11px;
             font-weight: 600;
             margin-top: 4px;
             transition: all 0.3s ease;
         }
-        .price-access-wrapper .status-text.text-success {
-            color: #28a745 !important;
-        }
-        .price-access-wrapper .status-text.text-secondary {
-            color: #6c757d !important;
-        }
         /* Toast notification styles */
-        .toast-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            min-width: 300px;
-            padding: 15px 20px;
-            border-radius: 8px;
-            color: #fff;
-            font-weight: 500;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            animation: slideIn 0.3s ease-out;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .toast-notification.success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-        .toast-notification.error {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-        }
-        .toast-notification i {
-            font-size: 18px;
-        }
-        .toast-notification .toast-close {
-            margin-left: auto;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-        .toast-notification .toast-close:hover {
-            opacity: 1;
-        }
+        .toast-notification.success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
+        .toast-notification.error   { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+        .toast-notification i { font-size: 18px; }
+        .toast-notification .toast-close { margin-left: auto; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        .toast-notification .toast-close:hover { opacity: 1; }
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to   { transform: translateX(0); opacity: 1; }
         }
         @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
+            from { transform: translateX(0); opacity: 1; }
+            to   { transform: translateX(100%); opacity: 0; }
         }
     </style>
 @endpush
@@ -196,6 +148,7 @@
             }, 4000);
         }
 
+        // Toggle price table access
         $(document).on('change', '.toggle-price-table', function() {
             const userId = $(this).data('user-id');
             const checkbox = $(this);
@@ -204,20 +157,48 @@
             $.ajax({
                 url: `{{ url('admin/role-user') }}/${userId}/toggle-price-table`,
                 type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
+                data: { _token: '{{ csrf_token() }}' },
+                success: function (response) {
                     if (response.status === 'success') {
                         if (response.can_view_price_table) {
                             statusText.removeClass('text-secondary').addClass('text-success').text('Activo');
                         } else {
                             statusText.removeClass('text-success').addClass('text-secondary').text('Inactivo');
                         }
-                        showToast(response.message || 'Acceso actualizado correctamente', 'success');
+                        showToast(response.message, 'success');
+                    }else {
+                        checkbox.prop('checked', !checkbox.prop('checked'));
+                        showToast(response.message || 'Error al actualizar', 'error');
+                    }
+                },
+                error: function () {
+                    checkbox.prop('checked', !checkbox.prop('checked'));
+                    showToast('Error al procesar la solicitud', 'error');
+                }
+            });
+        });
+
+        // Toggle approval status
+        $(document).on('change', '.toggle-approval', function () {
+            const userId = $(this).data('user-id');
+            const checkbox = $(this);
+            const wrapper = checkbox.closest('.approval-wrapper');
+            const statusText = wrapper.find('.approval-status-text');
+            $.ajax({
+                url: `{{ url('admin/role-user') }}/${userId}/toggle-approval`,
+                type: 'POST',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function (response) {
+                    if (response.status === 'success') {
+                        if (response.is_approved) {
+                            statusText.removeClass('text-secondary').addClass('text-success').text('Aprobado');
+                        } else {
+                            statusText.removeClass('text-success').addClass('text-secondary').text('No aprobado');
+                        }
+                        showToast(response.message, 'success');
                     } else {
                         checkbox.prop('checked', !checkbox.prop('checked'));
-                        showToast(response.message || 'Error al actualizar el acceso', 'error');
+                        showToast(response.message || 'Error al actualizar', 'error');
                     }
                 },
                 error: function() {

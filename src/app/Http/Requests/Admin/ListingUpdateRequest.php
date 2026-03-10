@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Admin;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ListingUpdateRequest extends FormRequest
@@ -10,7 +11,7 @@ class ListingUpdateRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
@@ -25,7 +26,6 @@ class ListingUpdateRequest extends FormRequest
             'phone' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255'],
             'website' => ['nullable'],
-            'attachment' => ['nullable','mimes:png,jpg,csv,pdf', 'max:20000'],
             'social_links' => ['nullable', 'array'],
             'social_links.*.social_network_id' => ['nullable', 'integer', 'exists:social_networks,id'],
             'social_links.*.url' => ['nullable', 'url'],

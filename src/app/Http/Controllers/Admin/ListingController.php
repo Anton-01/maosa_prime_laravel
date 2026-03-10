@@ -15,6 +15,7 @@ use App\Models\Location;
 use App\Models\SocialNetwork;
 use App\Traits\FileUploadTrait;
 use Auth;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -57,11 +58,9 @@ class ListingController extends Controller
     {
         $imagePath = $this->uploadImage($request, 'image');
         $thumbnailPath = $this->uploadImage($request, 'thumbnail_image');
-        $attachmentPath = $this->uploadImage($request, 'attachment');
 
         $listing = new Listing();
         $listing->user_id = Auth::user()->id;
-        $listing->package_id = 0;
         $listing->image = $imagePath;
         $listing->thumbnail_image = $thumbnailPath;
         $listing->title = $request->title;
@@ -72,7 +71,6 @@ class ListingController extends Controller
         $listing->phone = $request->phone;
         $listing->email = $request->email;
         $listing->website = $request->website;
-        $listing->file = $attachmentPath;
         $listing->description = $request->description;
         $listing->google_map_embed_code = $request->google_map_embed_code;
         $listing->seo_title = $request->seo_title;
@@ -81,7 +79,6 @@ class ListingController extends Controller
         $listing->is_featured = $request->is_featured;
         $listing->is_verified = $request->is_verified;
         $listing->is_previliged = $request->is_previliged;
-        $listing->expire_date = date('Y-m-d');
         $listing->is_approved = 1;
         $listing->save();
 
@@ -126,10 +123,8 @@ class ListingController extends Controller
 
         $imagePath = $this->uploadImage($request, 'image', $request->old_image);
         $thumbnailPath = $this->uploadImage($request, 'thumbnail_image', $request->old_thumbnail_image);
-        $attachmentPath = $this->uploadImage($request, 'attachment', $request->old_attachment);
 
         $listing->user_id = Auth::user()->id;
-        $listing->package_id = 0;
         $listing->image = !empty($imagePath) ? $imagePath : $request->old_image;
         $listing->thumbnail_image = !empty($thumbnailPath) ? $thumbnailPath : $request->old_thumbnail_image;
         $listing->title = $request->title;
@@ -140,7 +135,6 @@ class ListingController extends Controller
         $listing->phone = $request->phone;
         $listing->email = $request->email;
         $listing->website = $request->website;
-        $listing->file = !empty($attachmentPath) ? $attachmentPath : $request->old_attachment;
         $listing->description = $request->description;
         $listing->google_map_embed_code = $request->google_map_embed_code;
         $listing->seo_title = $request->seo_title;
@@ -149,8 +143,6 @@ class ListingController extends Controller
         $listing->is_featured = $request->is_featured;
         $listing->is_verified = $request->is_verified;
         $listing->is_previliged = $request->is_previliged;
-        $listing->expire_date = date('Y-m-d');
-
         $listing->save();
 
         // Update social links
@@ -180,7 +172,7 @@ class ListingController extends Controller
         try {
             Listing::findOrFail($id)->delete();
             return response(['status' => 'success', 'message' => 'Deleted successfully!']);
-        }catch(\Exception $e){
+        }catch(Exception $e){
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);
         }

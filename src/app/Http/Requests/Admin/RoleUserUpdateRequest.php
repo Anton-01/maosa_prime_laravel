@@ -16,8 +16,8 @@ class RoleUserUpdateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:255'],
-            'email' => ['required', 'max:255', 'email', 'unique:users,email,'.$this->role_user],
-            'password' => ['nullable', 'confirmed', 'min:3'],
+            'email' => ['required', 'max:255', 'email', 'unique:users,email,' . $this->route('role_user')],
+            'password' => ['nullable', 'confirmed', 'min:8'],
             'role' => ['required']
         ];
     }

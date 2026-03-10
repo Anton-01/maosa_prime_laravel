@@ -11,14 +11,12 @@ use App\Models\Listing;
 use App\Models\Location;
 use App\Models\PageVisit;
 use App\Models\User;
-use App\Models\UserActivity;
 use App\Models\UserPriceList;
 use App\Models\UserSession;
 use Carbon\Carbon;
 use Illuminate\View\View;
 
-class DashboardController extends Controller
-{
+class DashboardController extends Controller {
     function index() : View {
 
         $totalListingCount = Listing::count();

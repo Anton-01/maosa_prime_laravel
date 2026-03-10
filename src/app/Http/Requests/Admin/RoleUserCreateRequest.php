@@ -17,7 +17,7 @@ class RoleUserCreateRequest extends FormRequest
         return [
             'name' => ['required', 'max:255'],
             'email' => ['required', 'max:255', 'email', 'unique:users,email'],
-            'password' => ['required', 'confirmed', 'min:3'],
+            'password' => ['required', 'confirmed', 'min:8'],
             'role' => ['required']
         ];
     }

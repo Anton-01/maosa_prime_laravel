@@ -2,7 +2,6 @@
 
 namespace App\DataTables;
 
-use App\Models\RolePermission;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\EloquentDataTable;
@@ -31,7 +30,7 @@ class RolePermissionDataTable extends DataTable
             })->addColumn('permissions', function($query) {
                 $html = '';
                 if($query->name === 'Super Admin'){
-                    $html .= "<span class='badge badge-danger m-1'>All Permissions</span>";
+                    $html .= "<span class='badge badge-danger m-1'>Todos los permisos</span>";
                 }else {
                     foreach($query->permissions as $permission) {
                         $html .= "<span class='badge badge-primary m-1'>".$permission->name."</span>";
@@ -77,10 +76,10 @@ class RolePermissionDataTable extends DataTable
     public function getColumns(): array
     {
         return [
-            Column::make('id'),
-            Column::make('name'),
-            Column::make('permissions')->width(800),
-            Column::computed('action')
+            Column::make('id')->width(50),
+            Column::make('name')->title('Nombre'),
+            Column::make('permissions')->title('Permisos')->width(800),
+            Column::computed('action')->title('Acciones')
             ->exportable(false)
             ->printable(false)
             ->width(100)

@@ -15,7 +15,10 @@ class RolePermissionController extends Controller
 {
     function __construct()
     {
-        $this->middleware(['permission:access management users']);
+        $this->middleware(['permission:access management roles index'])->only(['index']);
+        $this->middleware(['permission:access management roles create'])->only(['create', 'store']);
+        $this->middleware(['permission:access management roles update'])->only(['edit', 'update']);
+        $this->middleware(['permission:access management roles delete'])->only(['destroy']);
     }
 
     /**
@@ -41,14 +44,14 @@ class RolePermissionController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'role_name' => ['required', 'max:40', 'unique:roles,name'],
-            'permissions' => ['required']
+            'role_name'   => ['required', 'max:40', 'unique:roles,name'],
+            'permissions' => ['required', 'array'],
         ]);
 
         $role = Role::create(['name' => $request->role_name]);
         $role->syncPermissions($request->permissions);
 
-        return to_route('admin.role.index');
+        return to_route('admin.role.index')->with('statusRoleC', true);
     }
 
     /**
@@ -65,23 +68,23 @@ class RolePermissionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id): RedirectResponse
     {
         $request->validate([
-            'role_name' => ['required', 'max:40', 'unique:roles,name,' . $id],
-            'permissions' => ['required']
+            'role_name'   => ['required', 'max:40', 'unique:roles,name,' . $id],
+            'permissions' => ['required', 'array'],
         ]);
 
         $role = Role::findOrFail($id);
         if($role->name === 'Super Admin'){
-            abort(403);
+            abort(403, 'No se puede modificar el rol Super Admin.');;
         }
         $role->name = $request->role_name;
         $role->save();
 
         $role->syncPermissions($request->permissions);
 
-        return to_route('admin.role.index');
+        return to_route('admin.role.index')->with('statusRoleU', true);
     }
 
     /**
@@ -95,7 +98,7 @@ class RolePermissionController extends Controller
                 abort(403);
             }
             $role->delete();
-            return response(['status' => 'success', 'message' => 'Deleted successfully!']);
+            return response(['status' => 'success', 'message' => 'Rol eliminado correctamente']);
         } catch (\Exception $e) {
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);

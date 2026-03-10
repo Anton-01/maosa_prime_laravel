@@ -6,10 +6,7 @@ use App\Models\Location;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
-use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class LocationDataTable extends DataTable
@@ -29,14 +26,14 @@ class LocationDataTable extends DataTable
                 return $edit.$delete;
             })
             ->addColumn('show_at_home', function($query){
-                if($query->show_at_home === 1){
+                if($query->show_at_home){
                     return "<span class='badge badge-primary'>Sí</span>";
                 }else{
                     return "<span class='badge badge-danger'>No</span>";
                 }
             })
             ->addColumn('status', function($query){
-                if($query->status === 1){
+                if($query->status){
                     return "<span class='badge badge-primary'>Activo</span>";
                 }else{
                     return "<span class='badge badge-danger'>Inactivo</span>";
@@ -60,11 +57,11 @@ class LocationDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('location-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(0)
-                    ->selectStyleSingle();
+            ->setTableId('location-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(0, 'asc')
+            ->selectStyleSingle();
     }
 
     /**
@@ -74,13 +71,11 @@ class LocationDataTable extends DataTable
     {
         return [
 
-            Column::make('id'),
-            Column::make('name'),
-            Column::make('show_at_home'),
-            Column::make('status'),
-            Column::computed('action')
-            ->exportable(false)
-            ->printable(false)
+            Column::make('id')->title('ID'),
+            Column::make('name')->title('Nombre'),
+            Column::make('show_at_home')->title('Mostrar en Inicio'),
+            Column::make('status')->title('Estado'),
+            Column::computed('action')->title('Acciones')
             ->width(150)
             ->addClass('text-center'),
         ];

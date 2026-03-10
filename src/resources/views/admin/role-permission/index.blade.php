@@ -6,21 +6,36 @@
             <div class="section-header-back">
                 <a href="{{ route('admin.dashboard.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
-            <h1>Role</h1>
+            <h1>Roles</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard.index') }}">Dashboard</a></div>
-                <div class="breadcrumb-item">Role</div>
+                <div class="breadcrumb-item">Roles</div>
             </div>
         </div>
 
         <div class="section-body">
             <div class="row">
                 <div class="col-12">
+                    @if(session()->has('statusRoleC'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> ¡Rol creado correctamente!
+                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+                    @if(session()->has('statusRoleU'))
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> ¡Rol actualizado correctamente!
+                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    @endif
+
                     <div class="card">
                         <div class="card-header">
-                            <h4>All Role</h4>
+                            <h4>Todos los roles</h4>
                             <div class="card-header-action">
-                                <a href="{{ route('admin.role.create') }}" class="btn btn-primary"><i class="fas fa-plus"></i> Create</a>
+                                <a href="{{ route('admin.role.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Crear rol
+                                </a>
                             </div>
                         </div>
                         <div class="card-body">

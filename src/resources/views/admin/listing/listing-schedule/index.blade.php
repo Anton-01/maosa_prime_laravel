@@ -6,12 +6,11 @@
             <div class="section-header-back">
                 <a href="{{ route('admin.listing.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
-            <h1>Horario - Proveedores</h1>
+            <h1>Gestionar Horarios</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard.index') }}">Dashboard</a></div>
-                <div class="breadcrumb-item">Proveedores</div>
-                <div class="breadcrumb-item">Horario - Proveedor</div>
-
+                <div class="breadcrumb-item"><a href="{{ route('admin.listing.index') }}">Proveedores</a></div>
+                <div class="breadcrumb-item">Horarios configurados</div>
             </div>
         </div>
 
@@ -32,7 +31,7 @@
                     @endif
                     <div class="card">
                         <div class="card-header">
-                            <h4>Todos los horarios ( {{ $listingTitle->title }} )</h4>
+                            <h4>Horarios asignados para: {{ $listingTitle->title }}</h4>
                             <div class="card-header-action">
                                 <a href="{{ route('admin.listing-schedule.create', $listingId) }}" class="btn btn-primary"><i class="fas fa-plus"></i> Crear</a>
                             </div>

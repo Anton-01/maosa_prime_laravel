@@ -2,63 +2,75 @@
 
 namespace App\DataTables;
 
-use App\Models\RoleUser;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
-use Yajra\DataTables\Html\Editor\Editor;
-use Yajra\DataTables\Html\Editor\Fields;
 use Yajra\DataTables\Services\DataTable;
 
 class RoleUserDataTable extends DataTable
 {
-    /**
-     * Build the DataTable class.
-     *
-     * @param QueryBuilder $query Results from query() method.
-     */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
-            ->addColumn('action', function($query){
-                if($query->getRoleNames()->first() !== 'Super Admin'){
-                    $edit = '<a href="'.route('admin.role-user.edit', $query->id).'" class="btn btn-sm btn-primary"><i class="fas fa-edit"></i></a>';
-                    $delete = '<a href="'.route('admin.role-user.destroy', $query->id).'" class="delete-item btn btn-sm btn-danger ml-2"><i class="fas fa-trash"></i></a>';
-                    $stats = '<a href="'.route('admin.statistics.show', $query->id).'" class="btn btn-sm btn-info ml-2" title="Ver estadísticas"><i class="fas fa-chart-bar"></i></a>';
+            ->addColumn('action', function ($query) {
+                if ($query->getRoleNames()->first() === 'Super Admin') {
+                    return '';
+                }
+                $show   = '<a href="' . route('admin.role-user.show', $query->id) . '" class="btn btn-sm btn-secondary" title="Ver detalle"><i class="fas fa-eye"></i></a>';
+                $edit   = '<a href="' . route('admin.role-user.edit', $query->id) . '" class="btn btn-sm btn-primary ml-1" title="Editar"><i class="fas fa-edit"></i></a>';
+                $perms  = '<a href="' . route('admin.user-permissions.edit', $query->id) . '" class="btn btn-sm btn-warning ml-1" title="Permisos directos"><i class="fas fa-key"></i></a>';
+                $delete = '<a href="' . route('admin.role-user.destroy', $query->id) . '" class="delete-item btn btn-sm btn-danger ml-1" title="Eliminar"><i class="fas fa-trash"></i></a>';
+                $stats  = '<a href="' . route('admin.statistics.show', $query->id) . '" class="btn btn-sm btn-info ml-1" title="Estadísticas"><i class="fas fa-chart-bar"></i></a>';
+                return $show . $edit . $perms . $delete . $stats;
+            })
+            ->addColumn('role', function ($query) {
+                $role = $query->getRoleNames()->first();
+                return $role
+                    ? "<span class='badge badge-success'>{$role}</span>"
+                    : "<span class='badge badge-secondary'>Sin rol</span>";
+            })
+            ->addColumn('approved', function ($query) {
+                $checked     = $query->is_approved ? 'checked' : '';
+                $statusClass = $query->is_approved ? 'text-success' : 'text-secondary';
+                $statusText  = $query->is_approved ? 'Aprobado' : 'No aprobado';
 
-                    return $edit.$delete.$stats;
-                }
+                return '<div class="approval-wrapper text-center">
+                    <div class="custom-control custom-switch d-inline-block">
+                        <input type="checkbox" class="custom-control-input toggle-approval"
+                               id="approval' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
+                        <label class="custom-control-label" for="approval' . $query->id . '"></label>
+                    </div>
+                    <div class="approval-status-text mt-1 ' . $statusClass . ' font-weight-bold" style="font-size: 11px;">
+                        ' . $statusText . '
+                    </div>
+                </div>';
             })
-            ->addColumn('role', function($query) {
-                return "<span class='badge badge-success'>".$query->getRoleNames()->first()."</span>";
-            })
-            ->addColumn('approved', function($query) {
-                if($query->is_approved == 0){
-                    return "<span class='badge badge-warning'>No aprobado</span>";
-                } else {
-                    return "<span class='badge badge-primary'>Aprobado</span>";
-                }
-            })
-            ->addColumn('price_table_access', function($query) {
-                $checked = $query->can_view_price_table ? 'checked' : '';
+            ->addColumn('price_table_access', function ($query) {
+                $checked     = $query->can_view_price_table ? 'checked' : '';
                 $statusClass = $query->can_view_price_table ? 'text-success' : 'text-secondary';
-                $statusText = $query->can_view_price_table ? 'Activo' : 'Inactivo';
+                $statusText  = $query->can_view_price_table ? 'Activo' : 'Inactivo';
 
                 return '<div class="price-access-wrapper text-center">
                     <div class="custom-control custom-switch d-inline-block">
                         <input type="checkbox" class="custom-control-input toggle-price-table"
-                               id="priceTable'.$query->id.'" data-user-id="'.$query->id.'" '.$checked.'>
-                        <label class="custom-control-label" for="priceTable'.$query->id.'"></label>
+                        id="priceTable' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
+                        <label class="custom-control-label" for="priceTable' . $query->id . '"></label>
                     </div>
-                    <div class="status-text mt-1 '.$statusClass.' font-weight-bold" style="font-size: 11px;">
-                        '.$statusText.'
+                    <div class="status-text mt-1 ' . $statusClass . ' font-weight-bold" style="font-size: 11px;">
+                        ' . $statusText . '
                     </div>
                 </div>';
             })
-            ->rawColumns(['role','approved','action','price_table_access'])
+            ->addColumn('direct_permissions', function ($query) {
+                $count = $query->getDirectPermissions()->count();
+                return $count > 0
+                    ? "<span class='badge badge-warning'>{$count} directo(s)</span>"
+                    : "<span class='badge badge-light text-muted'>Ninguno</span>";
+            })
+            ->rawColumns(['role', 'approved', 'action', 'price_table_access', 'direct_permissions'])
             ->setRowId('id');
     }
 
@@ -76,19 +88,19 @@ class RoleUserDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('roleuser-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(1)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
-                    ]);
+            ->setTableId('roleuser-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(1)
+            ->selectStyleSingle()
+            ->buttons([
+                Button::make('excel'),
+                Button::make('csv'),
+                Button::make('pdf'),
+                Button::make('print'),
+                Button::make('reset'),
+                Button::make('reload'),
+            ]);
     }
 
     /**
@@ -98,17 +110,18 @@ class RoleUserDataTable extends DataTable
     {
         return [
 
-            Column::make('id'),
+            Column::make('id')->width(50),
             Column::make('name')->title('Nombre'),
-            Column::make('email'),
+            Column::make('email')->title('Correo'),
             Column::make('role')->title('Rol'),
-            Column::make('approved')->title('Aprobado'),
-            Column::make('price_table_access')->title('Acceso Precios')->width(120),
+            Column::make('approved')->title('Aprobado')->width(110),
+            Column::make('price_table_access')->title('Tabla Precios')->width(120),
+            Column::make('direct_permissions')->title('Permisos Extra')->width(120),
             Column::computed('action')->title('Acciones')
-            ->exportable(false)
-            ->printable(false)
-            ->width(130)
-            ->addClass('text-center'),
+                ->exportable(false)
+                ->printable(false)
+                ->width(190)
+                ->addClass('text-center'),
         ];
     }
 
@@ -117,6 +130,6 @@ class RoleUserDataTable extends DataTable
      */
     protected function filename(): string
     {
-        return 'RoleUser_' . date('YmdHis');
+        return 'Usuarios_' . date('YmdHis');
     }
 }

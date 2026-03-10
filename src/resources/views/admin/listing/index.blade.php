@@ -6,7 +6,7 @@
             <div class="section-header-back">
                 <a href="{{ route('admin.dashboard.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
-            <h1>Proveedores</h1>
+            <h1>Gestionar Proveedores</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard.index') }}">Dashboard</a></div>
                 <div class="breadcrumb-item">Proveedores</div>
@@ -17,7 +17,7 @@
             <div class="row">
                 <div class="col-12">
                     @if(session()->has('statusCtLts'))
-                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
                             ¡Proveedor creado correctamente!
                             <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>

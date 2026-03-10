@@ -87,20 +87,11 @@ class ListingDataTable extends DataTable
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('listing-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    //->dom('Bfrtip')
-                    ->orderBy(0)
-                    ->selectStyleSingle()
-                    ->buttons([
-                        Button::make('excel'),
-                        Button::make('csv'),
-                        Button::make('pdf'),
-                        Button::make('print'),
-                        Button::make('reset'),
-                        Button::make('reload')
-                    ]);
+            ->setTableId('listing-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(0, 'asc')
+            ->selectStyleSingle();
     }
 
     /**
@@ -110,18 +101,16 @@ class ListingDataTable extends DataTable
     {
         return [
 
-            Column::make('id'),
-            Column::make('image'),
-            Column::make('title'),
-            Column::make('category'),
-            Column::make('location'),
-            Column::make('status'),
-            Column::make('is_featured')->width(80),
-            Column::make('is_verified')->width(80),
-            Column::make('by'),
-            Column::computed('action')
-            ->exportable(false)
-            ->printable(false)
+            Column::make('id')->title('ID'),
+            Column::make('image')->title('Imagen'),
+            Column::make('title')->title('Nombre'),
+            Column::make('category')->title('Categoria'),
+            Column::make('location')->title('Ubicacion'),
+            Column::make('status')->title('Estado'),
+            Column::make('is_featured')->width(80)->title('Destacado'),
+            Column::make('is_verified')->width(80)->title('Verificado'),
+            Column::make('by')->title('Creado por'),
+            Column::computed('action')->title('Acciones')
             ->width(200)
             ->addClass('text-center'),
         ];

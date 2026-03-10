@@ -6,7 +6,7 @@
             <div class="section-header-back">
                 <a href="{{ route('admin.dashboard.index') }}" class="btn btn-icon"><i class="fas fa-arrow-left"></i></a>
             </div>
-            <h1>Ubicaciones</h1>
+            <h1>Gestionar Ubicaciones</h1>
             <div class="section-header-breadcrumb">
                 <div class="breadcrumb-item active"><a href="{{ route('admin.dashboard.index') }}">Dashboard</a></div>
                 <div class="breadcrumb-item">Ubicaciones</div>

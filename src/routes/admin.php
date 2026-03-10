@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
 use App\Http\Controllers\Admin\UserBranchController;
 use App\Http\Controllers\Admin\UserImportController;
+use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\UserPriceController;
 use App\Http\Controllers\Admin\UserPriceLegendController;
 use App\Http\Controllers\Admin\UserStatisticsController;
@@ -174,4 +175,11 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
 
     /** Toggle User Price Table Access */
     Route::post('role-user/{id}/toggle-price-table', [RoleUserController::class, 'togglePriceTable'])->name('role-user.toggle-price-table');
+
+    /** Toggle User Approval */
+    Route::post('role-user/{id}/toggle-approval', [RoleUserController::class, 'toggleApproval'])->name('role-user.toggle-approval');
+
+    /** User Direct Permissions */
+    Route::get('user-permissions/{id}/edit', [UserPermissionController::class, 'edit'])->name('user-permissions.edit');
+    Route::put('user-permissions/{id}', [UserPermissionController::class, 'update'])->name('user-permissions.update');
 });
