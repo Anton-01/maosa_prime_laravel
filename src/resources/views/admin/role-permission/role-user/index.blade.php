@@ -86,34 +86,74 @@
 
 @push('styles')
     <style>
+        /* --- Toggle columns layout --- */
         .price-access-wrapper,
         .approval-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 5px;
+            gap: 4px;
+            padding: 4px 2px;
         }
+
+        /* Bootstrap 5 switch — centrar el input */
+        .price-access-wrapper .form-check,
+        .approval-wrapper .form-check {
+            display: flex;
+            justify-content: center;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+        .price-access-wrapper .form-check-input,
+        .approval-wrapper .form-check-input {
+            margin-left: 0;
+            cursor: pointer;
+            width: 2.2em;
+            height: 1.2em;
+        }
+
+        /* Texto de estado debajo del switch */
         .price-access-wrapper .status-text,
         .approval-wrapper .approval-status-text {
             font-size: 11px;
             font-weight: 600;
-            margin-top: 4px;
-            transition: all 0.3s ease;
+            transition: color 0.25s ease;
+            white-space: nowrap;
         }
+
         /* Toast notification styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out forwards;
+            min-width: 260px;
+            max-width: 380px;
+        }
         .toast-notification.success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
         .toast-notification.error   { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
         .toast-notification i { font-size: 18px; }
         .toast-notification .toast-close { margin-left: auto; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
         .toast-notification .toast-close:hover { opacity: 1; }
+
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to   { transform: translateX(0); opacity: 1; }
+            from { transform: translateX(110%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
         }
         @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to   { transform: translateX(100%); opacity: 0; }
+            from { transform: translateX(0);    opacity: 1; }
+            to   { transform: translateX(110%); opacity: 0; }
         }
     </style>
 @endpush
