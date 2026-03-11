@@ -34,7 +34,7 @@
                             <img src="{{ asset($user->avatar) }}" alt="avatar" class="dashboard-avatar">
                         </div>
                         <div class="dashboard-user-meta">
-                            <h4 class="dashboard-user-name">{{ $user->name }}</h4>
+                            <h5 class="dashboard-user-name">{{ $user->name }} </h5>
                             <p class="dashboard-user-email">
                                 <i class="fas fa-envelope"></i> {{ $user->email }}
                             </p>
@@ -57,21 +57,21 @@
                     <div class="col-sm-4">
                         <a href="{{ route('user.profile.index') }}" class="dash-quick-card dash-quick-primary">
                             <i class="fas fa-user-edit"></i>
-                            <span>Mi Perfil</span>
+                            <span style="color: white;">Mi Perfil</span>
                         </a>
                     </div>
                     @if($user->canViewPriceTable())
                     <div class="col-sm-4">
                         <a href="{{ route('user.price-table.index') }}" class="dash-quick-card dash-quick-warning">
                             <i class="fas fa-gas-pump"></i>
-                            <span>Tabla de Precios</span>
+                            <span style="color: white;">Tabla de Precios</span>
                         </a>
                     </div>
                     @endif
                     <div class="col-sm-4">
                         <a href="{{ route('listings') }}" class="dash-quick-card dash-quick-info">
                             <i class="fas fa-building"></i>
-                            <span>Ver Proveedores</span>
+                            <span style="color: white;">Ver Proveedores</span>
                         </a>
                     </div>
                 </div>
@@ -94,8 +94,7 @@
                                         <div class="col-md-6">
                                             <div class="dash-form-group">
                                                 <label>Nombre <span class="required">*</span></label>
-                                                <input type="text" name="name" value="{{ $user->name }}"
-                                                       placeholder="Tu nombre completo" required>
+                                                <input type="text" name="name" value="{{ $user->name }}" placeholder="Tu nombre completo" required>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
@@ -280,8 +279,8 @@
     flex-shrink: 0;
 }
 .dashboard-avatar {
-    width: 76px;
-    height: 76px;
+    width: 76px !important;
+    height: 76px !important;
     border-radius: 50%;
     border: 4px solid #fff;
     box-shadow: 0 2px 12px rgba(0,0,0,0.18);

@@ -86,40 +86,78 @@
 
 @push('styles')
     <style>
-        /* --- Toggle columns layout --- */
-        .price-access-wrapper,
-        .approval-wrapper {
+        /* --- Contenedores Principales --- */
+        .approval-wrapper,
+        .price-access-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 4px;
+            gap: 6px;
             padding: 4px 2px;
         }
 
-        /* Bootstrap 5 switch — centrar el input */
-        .price-access-wrapper .form-check,
-        .approval-wrapper .form-check {
+        /* --- Reset de Bootstrap para el contenedor del Checkbox --- */
+        .approval-wrapper .form-check,
+        .price-access-wrapper .form-check {
             display: flex;
             justify-content: center;
             padding-left: 0;
             margin-bottom: 0;
         }
-        .price-access-wrapper .form-check-input,
-        .approval-wrapper .form-check-input {
-            margin-left: 0;
+
+        /* --- Estilo Base del Switch (Cápsula) --- */
+        .approval-wrapper .form-check-input,
+        .price-access-wrapper .form-check-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 2.8em;
+            height: 1.4em;
+            background-color: #dee2e6; /* Gris claro (Bootstrap secondary) */
+            border-radius: 50px;
+            position: relative;
             cursor: pointer;
-            width: 2.2em;
-            height: 1.2em;
+            outline: none;
+            border: none;
+            transition: background-color 0.3s ease;
+            margin-left: 0;
         }
 
-        /* Texto de estado debajo del switch */
-        .price-access-wrapper .status-text,
-        .approval-wrapper .approval-status-text {
+        /* --- El "Radio" (Círculo Deslizante) --- */
+        .approval-wrapper .form-check-input::before,
+        .price-access-wrapper .form-check-input::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.1em;
+            height: 1.1em;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* --- Estado: Checked (Activado / Aprobado) --- */
+        .approval-wrapper .form-check-input:checked,
+        .price-access-wrapper .form-check-input:checked {
+            background-color: #198754; /* Verde Success */
+        }
+
+        /* Desplazamiento del círculo al activar */
+        .approval-wrapper .form-check-input:checked::before,
+        .price-access-wrapper .form-check-input:checked::before {
+            transform: translateX(1.4em);
+        }
+
+        /* --- Estilos de los Textos de Estado --- */
+        .approval-wrapper .approval-status-text,
+        .price-access-wrapper .status-text {
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: color 0.25s ease;
-            white-space: nowrap;
         }
 
         /* Toast notification styles */
