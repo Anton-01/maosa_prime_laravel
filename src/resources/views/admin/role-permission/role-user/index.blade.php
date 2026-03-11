@@ -86,34 +86,112 @@
 
 @push('styles')
     <style>
-        .price-access-wrapper,
-        .approval-wrapper {
+        /* --- Contenedores Principales --- */
+        .approval-wrapper,
+        .price-access-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 5px;
+            gap: 6px;
+            padding: 4px 2px;
         }
-        .price-access-wrapper .status-text,
-        .approval-wrapper .approval-status-text {
+
+        /* --- Reset de Bootstrap para el contenedor del Checkbox --- */
+        .approval-wrapper .form-check,
+        .price-access-wrapper .form-check {
+            display: flex;
+            justify-content: center;
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        /* --- Estilo Base del Switch (Cápsula) --- */
+        .approval-wrapper .form-check-input,
+        .price-access-wrapper .form-check-input {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 2.8em;
+            height: 1.4em;
+            background-color: #dee2e6; /* Gris claro (Bootstrap secondary) */
+            border-radius: 50px;
+            position: relative;
+            cursor: pointer;
+            outline: none;
+            border: none;
+            transition: background-color 0.3s ease;
+            margin-left: 0;
+        }
+
+        /* --- El "Radio" (Círculo Deslizante) --- */
+        .approval-wrapper .form-check-input::before,
+        .price-access-wrapper .form-check-input::before {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 1.1em;
+            height: 1.1em;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* --- Estado: Checked (Activado / Aprobado) --- */
+        .approval-wrapper .form-check-input:checked,
+        .price-access-wrapper .form-check-input:checked {
+            background-color: #198754; /* Verde Success */
+        }
+
+        /* Desplazamiento del círculo al activar */
+        .approval-wrapper .form-check-input:checked::before,
+        .price-access-wrapper .form-check-input:checked::before {
+            transform: translateX(1.4em);
+        }
+
+        /* --- Estilos de los Textos de Estado --- */
+        .approval-wrapper .approval-status-text,
+        .price-access-wrapper .status-text {
             font-size: 11px;
-            font-weight: 600;
-            margin-top: 4px;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.25s ease;
         }
+
         /* Toast notification styles */
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out forwards;
+            min-width: 260px;
+            max-width: 380px;
+        }
         .toast-notification.success { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
         .toast-notification.error   { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
         .toast-notification i { font-size: 18px; }
         .toast-notification .toast-close { margin-left: auto; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
         .toast-notification .toast-close:hover { opacity: 1; }
+
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to   { transform: translateX(0); opacity: 1; }
+            from { transform: translateX(110%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
         }
         @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to   { transform: translateX(100%); opacity: 0; }
+            from { transform: translateX(0);    opacity: 1; }
+            to   { transform: translateX(110%); opacity: 0; }
         }
     </style>
 @endpush

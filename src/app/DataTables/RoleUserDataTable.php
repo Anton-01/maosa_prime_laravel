@@ -37,15 +37,12 @@ class RoleUserDataTable extends DataTable
                 $statusClass = $query->is_approved ? 'text-success' : 'text-secondary';
                 $statusText  = $query->is_approved ? 'Aprobado' : 'No aprobado';
 
-                return '<div class="approval-wrapper text-center">
-                    <div class="custom-control custom-switch d-inline-block">
-                        <input type="checkbox" class="custom-control-input toggle-approval"
+                return '<div class="approval-wrapper">
+                    <div class="form-check form-switch justify-content-center">
+                        <input class="form-check-input toggle-approval" type="checkbox" role="switch"
                                id="approval' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
-                        <label class="custom-control-label" for="approval' . $query->id . '"></label>
                     </div>
-                    <div class="approval-status-text mt-1 ' . $statusClass . ' font-weight-bold" style="font-size: 11px;">
-                        ' . $statusText . '
-                    </div>
+                    <div class="approval-status-text ' . $statusClass . '">' . $statusText . '</div>
                 </div>';
             })
             ->addColumn('price_table_access', function ($query) {
@@ -53,15 +50,12 @@ class RoleUserDataTable extends DataTable
                 $statusClass = $query->can_view_price_table ? 'text-success' : 'text-secondary';
                 $statusText  = $query->can_view_price_table ? 'Activo' : 'Inactivo';
 
-                return '<div class="price-access-wrapper text-center">
-                    <div class="custom-control custom-switch d-inline-block">
-                        <input type="checkbox" class="custom-control-input toggle-price-table"
-                        id="priceTable' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
-                        <label class="custom-control-label" for="priceTable' . $query->id . '"></label>
+                return '<div class="price-access-wrapper">
+                    <div class="form-check form-switch justify-content-center">
+                        <input class="form-check-input toggle-price-table" type="checkbox" role="switch"
+                               id="priceTable' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
                     </div>
-                    <div class="status-text mt-1 ' . $statusClass . ' font-weight-bold" style="font-size: 11px;">
-                        ' . $statusText . '
-                    </div>
+                    <div class="status-text ' . $statusClass . '">' . $statusText . '</div>
                 </div>';
             })
             ->addColumn('direct_permissions', function ($query) {
