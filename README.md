@@ -1,7 +1,7 @@
 # MAOSA Prime
 
 <p align="center">
-  <img src="public/uploads/media_6851d26160ca7.png" alt="MAOSA Prime Logo" width="200">
+  <img src="src/public/uploads/media_6851d26160ca7.png" alt="MAOSA Prime Logo" width="200">
 </p>
 
 <p align="center">
