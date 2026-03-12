@@ -22,43 +22,47 @@ use App\Models\TermsAndCondition;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Mail;
-use Illuminate\Support\Facades\Auth;
 class FrontendController extends Controller
 {
+    // TTLs de caché (en segundos)
+    const CACHE_HOME_TTL     = 300;   // 5 minutos - datos del home
+    const CACHE_STATIC_TTL   = 3600;  // 1 hora - páginas estáticas
+    const CACHE_LISTING_TTL  = 60;    // 1 minuto - detalle de proveedor
+
     function index() : View
     {
-        $sectionTitle = SectionTitle::first();
-        $hero = null;
-        if (Auth::check()) {
-            $hero = Hero::where(['type' => 'private', 'active' => 1])->first();
-        } else {
-            $hero = Hero::where(['type' => 'public', 'active' => 1])->first();
-        }
-        $ourFeatures = OurFeature::where('status', 1)->get();
-        $categories = Category::where('status', 1)->get();
-        $locations = Location::where('status', 1)->get();
-        $userCount = User::where(['user_type' => 'user'])->count();
-        $suppliersCount = Listing::count();
+        $isAuthenticated = Auth::check();
+        $heroCacheKey = $isAuthenticated ? 'hero_private' : 'hero_public';
 
-        $featuredCategories = Category::withCount(['listings'=> function($query){
-            $query->where('is_approved', 1);
-        }])->where(['show_at_home' => 1, 'status' => 1])->take(6)->get();
+        $hero = Cache::remember($heroCacheKey, self::CACHE_HOME_TTL, function () use ($isAuthenticated) {
+            $type = $isAuthenticated ? 'private' : 'public';
+            return Hero::where(['type' => $type, 'active' => 1])->first();
+        });
 
-        // Featured location
-        $featuredLocations = Location::with(['listings' => function($query) {
-            $query->where(['status' => 1, 'is_approved' => 1])->orderBy('id', 'desc');
-        }])->where(['show_at_home' => 1, 'status' => 1])->get();
+        $homeData = Cache::remember('home_page_data', self::CACHE_HOME_TTL, function () {
+            return [
+                'sectionTitle'      => SectionTitle::first(),
+                'ourFeatures'       => OurFeature::where('status', 1)->get(),
+                'categories'        => Category::where('status', 1)->get(),
+                'locations'         => Location::where('status', 1)->get(),
+                'userCount'         => User::where(['user_type' => 'user'])->count(),
+                'suppliersCount'    => Listing::count(),
+                'featuredCategories' => Category::withCount(['listings' => function ($query) {
+                    $query->where('is_approved', 1);
+                }])->where(['show_at_home' => 1, 'status' => 1])->take(6)->get(),
+                'featuredLocations' => Location::with(['listings' => function ($query) {
+                    $query->where(['status' => 1, 'is_approved' => 1])->orderBy('id', 'desc');
+                }])->where(['show_at_home' => 1, 'status' => 1])->get(),
+                'featuredListings'  => Listing::where(['status' => 1, 'is_approved' => 1, 'is_featured' => 1])
+                    ->orderBy('id', 'desc')->limit(10)->get(),
+            ];
+        });
 
-        // featured listings
-        $featuredListings = Listing::where(['status' => 1, 'is_approved' => 1, 'is_featured' => 1])
-            ->orderBy('id', 'desc')->limit(10)->get();
-
-        return view('frontend.home.index',
-            compact('hero', 'categories', 'featuredCategories', 'featuredLocations', 'featuredListings', 'locations',
-                'ourFeatures', 'sectionTitle', 'userCount', 'suppliersCount'
-            ));
+        return view('frontend.home.index', array_merge($homeData, compact('hero')));
     }
 
     function listings(Request $request) : View {
@@ -95,8 +99,13 @@ class FrontendController extends Controller
 
         $listings = $listings->orderByDesc('is_previliged')->orderByDesc('is_featured')->paginate(12);
 
-        $categories = Category::where('status', 1)->get();
-        $locations = Location::where('status', 1)->get();
+        // Listas de filtros cacheadas (cambian poco)
+        $categories = Cache::remember('frontend_categories_active', self::CACHE_STATIC_TTL, function () {
+            return Category::where('status', 1)->get();
+        });
+        $locations = Cache::remember('frontend_locations_active', self::CACHE_STATIC_TTL, function () {
+            return Location::where('status', 1)->get();
+        });
 
         return view('frontend.pages.listings', compact('listings', 'categories', 'locations'));
     }
@@ -110,13 +119,22 @@ class FrontendController extends Controller
 
     function showListing(string $slug) : View {
 
-        $listing = Listing::with(['socialNetworks', 'amenities.amenity', 'schedules', 'user', 'location'])
-            ->where(['status' => 1])
-            ->where('slug', $slug)
-            ->firstOrFail();
+        $listing = Cache::remember("listing_detail:{$slug}", self::CACHE_LISTING_TTL, function () use ($slug) {
+            return Listing::with(['socialNetworks', 'amenities.amenity', 'schedules', 'user', 'location'])
+                ->where(['status' => 1])
+                ->where('slug', $slug)
+                ->firstOrFail();
+        });
 
         $openStatus = $this->listingScheduleStatus($listing);
-        $smellerListings = Listing::where('category_id', $listing->category_id)->where('id', '!=', $listing->id)->orderBy('id', 'DESC')->take(4)->get();
+
+        $smellerListings = Cache::remember("listing_related:{$listing->category_id}_{$listing->id}", self::CACHE_LISTING_TTL, function () use ($listing) {
+            return Listing::where('category_id', $listing->category_id)
+                ->where('id', '!=', $listing->id)
+                ->orderBy('id', 'DESC')
+                ->take(4)
+                ->get();
+        });
 
         return view('frontend.pages.listing-view', compact('listing', 'smellerListings', 'openStatus'));
     }
@@ -138,28 +156,41 @@ class FrontendController extends Controller
 
     function blogShow(string $slug) : View {
         $blog = Blog::with(['category', 'comments'])->where(['slug' => $slug, 'status' => 1])->firstOrFail();
-        $popularBlogs = Blog::select(['id', 'title', 'slug', 'created_at', 'image'])->where('id', '!=', $blog->id)
-            ->where('is_popular', 1)->orderBy('id', 'DESC')->take(5)->get();
-        $categories = BlogCategory::withCount(['blogs' => function($query){
-            $query->where('status', 1);
-        }])->where('status', 1)->get();
+        $popularBlogs = Cache::remember('blog_popular', self::CACHE_STATIC_TTL, function () use ($slug) {
+            return Blog::select(['id', 'title', 'slug', 'created_at', 'image'])
+                ->where('is_popular', 1)
+                ->orderBy('id', 'DESC')
+                ->take(5)
+                ->get();
+        });
+        $categories = Cache::remember('blog_categories', self::CACHE_STATIC_TTL, function () {
+            return BlogCategory::withCount(['blogs' => function($query){
+                $query->where('status', 1);
+            }])->where('status', 1)->get();
+        });
 
         return view('frontend.pages.blog-show', compact('blog', 'categories', 'popularBlogs'));
     }
 
     function aboutIndex() : View {
-        $sectionTitle = SectionTitle::first();
-        $about = AboutUs::first();
-        $categories= Category::withCount(['listings'=> function($query){
-            $query->where('is_approved', 1);
-        }])->where(['show_at_home' => 1, 'status' => 1])->take(6)->get();
-        $blogs = Blog::where('status', 1)->orderBy('id', 'Desc')->take(2)->get();
+        $aboutData = Cache::remember('about_page_data', self::CACHE_STATIC_TTL, function () {
+            return [
+                'sectionTitle' => SectionTitle::first(),
+                'about'        => AboutUs::first(),
+                'categories'   => Category::withCount(['listings' => function ($query) {
+                    $query->where('is_approved', 1);
+                }])->where(['show_at_home' => 1, 'status' => 1])->take(6)->get(),
+                'blogs'        => Blog::where('status', 1)->orderBy('id', 'Desc')->take(2)->get(),
+            ];
+        });
 
-        return view('frontend.pages.about', compact('about', 'blogs', 'categories', 'sectionTitle'));
+        return view('frontend.pages.about', $aboutData);
     }
 
     function contactIndex() : View {
-        $contact = Contact::first();
+        $contact = Cache::remember('contact_info', self::CACHE_STATIC_TTL, function () {
+            return Contact::first();
+        });
         return view('frontend.pages.contact', compact('contact'));
     }
 
@@ -181,12 +212,16 @@ class FrontendController extends Controller
     }
 
     function privacyPolicy() : View {
-        $privacyPolicy = PrivacyPolicy::first();
+        $privacyPolicy = Cache::remember('privacy_policy', self::CACHE_STATIC_TTL, function () {
+            return PrivacyPolicy::first();
+        });
         return view('frontend.pages.privacy-policy', compact('privacyPolicy'));
     }
 
     function termsAndCondition() : View {
-        $termsAndCondition = TermsAndCondition::first();
+        $termsAndCondition = Cache::remember('terms_and_condition', self::CACHE_STATIC_TTL, function () {
+            return TermsAndCondition::first();
+        });
         return view('frontend.pages.terms-and-condition', compact('termsAndCondition'));
     }
 }

@@ -35,7 +35,7 @@ Route::middleware(['auth', 'track.user.activity'])->group(function () {
     Route::get('contact', [FrontendController::class, 'contactIndex'])->name('contact.index');
     Route::get('privacy-policy', [FrontendController::class, 'privacyPolicy'])->name('privacy-policy.index');
     Route::get('terms-and-condition', [FrontendController::class, 'termsAndCondition'])->name('terms-and-condition.index');
-    Route::post('contact', [FrontendController::class, 'contactMessage'])->name('contact.message')->middleware('honeypot');
+    Route::post('contact', [FrontendController::class, 'contactMessage'])->name('contact.message')->middleware(['honeypot', 'throttle:contact']);
 });
 
 Route::group(['middleware' => ['auth', 'track.user.activity'], 'prefix' => 'user', 'as' => 'user.'], function() {

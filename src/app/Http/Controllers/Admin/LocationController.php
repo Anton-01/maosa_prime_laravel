@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Str;
 
@@ -48,6 +49,8 @@ class LocationController extends Controller
         $location->status = $request->status;
         $location->save();
 
+        $this->flushLocationCache();
+
         return to_route('admin.location.index')->with('statusCtU', true);
     }
 
@@ -72,6 +75,8 @@ class LocationController extends Controller
         $location->status = $request->status;
         $location->save();
 
+        $this->flushLocationCache();
+
         return to_route('admin.location.index')->with('statusUpU', true);
     }
 
@@ -82,11 +87,21 @@ class LocationController extends Controller
     {
         try {
             Location::findOrFail($id)->delete();
-
+            $this->flushLocationCache();
             return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
         }catch(\Exception $e){
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Flush all location-related cache keys.
+     */
+    private function flushLocationCache(): void
+    {
+        Cache::forget('home_page_data');
+        Cache::forget('frontend_locations_active');
+        Cache::forget('admin_dashboard_stats');
     }
 }

@@ -7,6 +7,7 @@ use App\Models\UserActivity;
 use App\Models\UserNavigationFlow;
 use App\Models\UserSession;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Jenssegers\Agent\Agent;
 
 class UserTrackingService
@@ -84,7 +85,7 @@ class UserTrackingService
     }
 
     /**
-     * Get geo location from IP.
+     * Get geo location from IP, cached in Redis for 24 hours.
      */
     protected function getGeoLocation(string $ip): array
     {
@@ -93,28 +94,29 @@ class UserTrackingService
             return [];
         }
 
-        try {
-            // Using ip-api.com free service (limit 45 requests per minute)
-            $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,lat,lon");
+        return Cache::remember("geo_location:{$ip}", now()->addHours(24), function () use ($ip) {
+            try {
+                // Using ip-api.com free service (limit 45 requests per minute)
+                $response = @file_get_contents("http://ip-api.com/json/{$ip}?fields=status,country,regionName,city,lat,lon");
 
-            if ($response) {
-                $data = json_decode($response, true);
+                if ($response) {
+                    $data = json_decode($response, true);
 
-                if ($data && $data['status'] === 'success') {
-                    return [
-                        'country' => $data['country'] ?? null,
-                        'region' => $data['regionName'] ?? null,
-                        'city' => $data['city'] ?? null,
-                        'latitude' => $data['lat'] ?? null,
-                        'longitude' => $data['lon'] ?? null,
-                    ];
+                    if ($data && $data['status'] === 'success') {
+                        return [
+                            'country' => $data['country'] ?? null,
+                            'region' => $data['regionName'] ?? null,
+                            'city' => $data['city'] ?? null,
+                            'latitude' => $data['lat'] ?? null,
+                            'longitude' => $data['lon'] ?? null,
+                        ];
+                    }
                 }
+            } catch (\Exception $e) {
+                // Silently fail
             }
-        } catch (\Exception $e) {
-            // Silently fail
-        }
-
-        return [];
+            return [];
+        });
     }
 
     /**

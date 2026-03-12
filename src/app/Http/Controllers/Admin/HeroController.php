@@ -7,6 +7,7 @@ use App\Http\Requests\Admin\HeroUpdateRequest;
 use App\Models\Hero;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 class HeroController extends Controller
@@ -40,6 +41,8 @@ class HeroController extends Controller
             'sub_title' => $request->sub_title
         ]);
 
+        Cache::forget('hero_private');
+
         return back()->with('statusHero', true);
     }
 
@@ -54,6 +57,8 @@ class HeroController extends Controller
             'title' => $request->title,
             'sub_title' => $request->sub_title
         ]);
+
+        Cache::forget('hero_public');
 
         return back()->with('statusHeroPublic', true);
     }

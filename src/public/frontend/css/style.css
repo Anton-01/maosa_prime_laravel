@@ -2254,7 +2254,7 @@ footer h3 {
 .breadcrumb-item+.breadcrumb-item::before {
 	float: left;
 	color: var(--colorWhite);
-	content: ">>";
+	content: "/";
 	padding-left: 5px;
 	padding-right: 13px;
 }

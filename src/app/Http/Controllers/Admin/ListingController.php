@@ -18,6 +18,7 @@ use Auth;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 use Str;
 
@@ -95,6 +96,8 @@ class ListingController extends Controller
             }
         }
 
+        $this->flushListingCache($listing->slug, $listing->category_id);
+
         return to_route('admin.listing.index')->with('statusCtLts', true);
     }
 
@@ -161,6 +164,8 @@ class ListingController extends Controller
             }
         }
 
+        $this->flushListingCache($listing->slug, $listing->category_id);
+
         return to_route('admin.listing.index')->with('statusUpLts', true);
     }
 
@@ -170,11 +175,24 @@ class ListingController extends Controller
     public function destroy(string $id)
     {
         try {
-            Listing::findOrFail($id)->delete();
+            $listing = Listing::findOrFail($id);
+            $this->flushListingCache($listing->slug, $listing->category_id);
+            $listing->delete();
             return response(['status' => 'success', 'message' => 'Deleted successfully!']);
         }catch(Exception $e){
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Flush listing-related cache keys.
+     */
+    private function flushListingCache(string $slug, ?int $categoryId): void
+    {
+        Cache::forget("listing_detail:{$slug}");
+        Cache::forget("listing_related:{$categoryId}_*");
+        Cache::forget('home_page_data');
+        Cache::forget('admin_dashboard_stats');
     }
 }

@@ -7,10 +7,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryStoreRequest;
 use App\Http\Requests\Admin\CategoryUpdateRequest;
 use App\Models\Category;
+use Illuminate\Support\Facades\Cache;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Str;
 
@@ -56,6 +56,8 @@ class CategoryController extends Controller
         $category->status = $request->status;
         $category->save();
 
+        $this->flushCategoryCache();
+
         return to_route('admin.category.index')->with('statusCtC', true);
     }
 
@@ -85,6 +87,8 @@ class CategoryController extends Controller
         $category->status = $request->status;
         $category->save();
 
+        $this->flushCategoryCache();
+
         return to_route('admin.category.index')->with('statusCtU', true);
     }
 
@@ -98,8 +102,19 @@ class CategoryController extends Controller
         $this->deleteFile($category->background_image);
 
         $category->delete();
+        $this->flushCategoryCache();
 
         return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
+    }
 
+    /**
+     * Flush all category-related cache keys.
+     */
+    private function flushCategoryCache(): void
+    {
+        Cache::forget('home_page_data');
+        Cache::forget('frontend_categories_active');
+        Cache::forget('about_page_data');
+        Cache::forget('admin_dashboard_stats');
     }
 }
