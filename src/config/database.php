@@ -2,6 +2,46 @@
 
 use Illuminate\Support\Str;
 
+$useTls = filter_var(env('REDIS_TLS', false), FILTER_VALIDATE_BOOLEAN);
+$scheme = $useTls ? 'tls' : 'tcp';
+
+$sslContext = $useTls ? [
+    'verify_peer'      => false,
+    'verify_peer_name' => false,
+] : null;
+
+$options = [
+    'cluster' => env('REDIS_CLUSTER', 'redis'),
+    'prefix'  => env('REDIS_PREFIX', ''),
+];
+
+if ($useTls) {
+    $options['parameters'] = ['scheme' => 'tls'];
+    $options['scheme'] = 'tls';
+    $options['ssl'] = $sslContext;
+}
+
+$defaultConn = [
+    'scheme'   => $scheme,
+    'host'     => env('REDIS_HOST', '127.0.0.1'),
+    'password' => env('REDIS_PASSWORD', null),
+    'port'     => env('REDIS_PORT', '6379'),
+    'database' => env('REDIS_DB', '0'),
+];
+
+$cacheConn = [
+    'scheme'   => $scheme,
+    'host'     => env('REDIS_HOST', '127.0.0.1'),
+    'password' => env('REDIS_PASSWORD', null),
+    'port'     => env('REDIS_PORT', '6379'),
+    'database' => env('REDIS_CACHE_DB', '1'),
+];
+
+if ($sslContext) {
+    $defaultConn['ssl'] = $sslContext;
+    $cacheConn['ssl']   = $sslContext;
+}
+
 return [
 
     /*
@@ -120,32 +160,9 @@ return [
     */
 
     'redis' => [
-
-        'client' => env('REDIS_CLIENT', 'predis'),
-
-        'options' => [
-            'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
-        ],
-
-        'default' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
-        ],
-
-        'cache' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_CACHE_DB', '1'),
-        ],
-
+        'client'  => env('REDIS_CLIENT', 'predis'),
+        'options' => $options,
+        'default' => $defaultConn,
+        'cache'   => $cacheConn,
     ],
-
 ];

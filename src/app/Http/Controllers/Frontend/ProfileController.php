@@ -34,12 +34,6 @@ class ProfileController extends Controller
         $user->phone = $request->phone;
         $user->address = $request->address;
         $user->about = $request->about;
-        $user->website = $request->website;
-        $user->fb_link = $request->fb_link;
-        $user->x_link = $request->x_link;
-        $user->in_link = $request->in_link;
-        $user->wa_link = $request->wa_link;
-        $user->instra_link = $request->instra_link;
         $user->save();
 
         return back()->with('statusUpdUsr', true);

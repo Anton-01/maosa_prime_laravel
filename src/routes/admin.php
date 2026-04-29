@@ -4,13 +4,10 @@ use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\BlogController;
-use App\Http\Controllers\Admin\BulkPriceImportController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\DefaultPriceLegendController;
 use App\Http\Controllers\Admin\FooterInfoController;
-use App\Http\Controllers\Admin\FuelTerminalController;
 use App\Http\Controllers\Admin\HeroController;
 use App\Http\Controllers\Admin\ListingAmenityController;
 use App\Http\Controllers\Admin\ListingController;
@@ -18,7 +15,6 @@ use App\Http\Controllers\Admin\ListingScheduleController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MenuBuilderController;
 use App\Http\Controllers\Admin\OurFeatureController;
-use App\Http\Controllers\Admin\PriceImportController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RolePermissionController;
@@ -27,11 +23,8 @@ use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
-use App\Http\Controllers\Admin\UserBranchController;
 use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\UserPermissionController;
-use App\Http\Controllers\Admin\UserPriceController;
-use App\Http\Controllers\Admin\UserPriceLegendController;
 use App\Http\Controllers\Admin\UserStatisticsController;
 use Illuminate\Support\Facades\Route;
 
@@ -133,38 +126,6 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::post('/general-settings', [SettingController::class, 'updateGeneralSetting'])->name('general-settings.update');
     Route::post('/logo-settings', [SettingController::class, 'logoSettings'])->name('logo-settings.update');
     Route::post('/appearance-settings', [SettingController::class, 'appearanceSetting'])->name('appearance-settings.update');
-
-    /** Fuel Terminal Routes */
-    Route::resource('fuel-terminal', FuelTerminalController::class);
-
-    /** User Price Routes */
-    Route::resource('user-price', UserPriceController::class);
-
-    /** Price Import Routes */
-    Route::get('price-import', [PriceImportController::class, 'index'])->name('price-import.index');
-    Route::post('price-import', [PriceImportController::class, 'import'])->name('price-import.store');
-    Route::get('price-import/layout', [PriceImportController::class, 'downloadLayout'])->name('price-import.layout');
-
-    /** User Branch Routes */
-    Route::resource('user-branch', UserBranchController::class)->except(['show']);
-    Route::get('user-branch/get-branches', [UserBranchController::class, 'getBranchesForUser'])->name('user-branch.get-branches');
-
-    /** Bulk Price Import Routes (Multi-user) */
-    Route::get('bulk-price-import', [BulkPriceImportController::class, 'index'])->name('bulk-price-import.index');
-    Route::post('bulk-price-import', [BulkPriceImportController::class, 'import'])->name('bulk-price-import.store');
-    Route::get('bulk-price-import/layout', [BulkPriceImportController::class, 'downloadLayout'])->name('bulk-price-import.layout');
-    Route::get('bulk-price-import/result', [BulkPriceImportController::class, 'result'])->name('bulk-price-import.result');
-    Route::get('bulk-price-import/download', [BulkPriceImportController::class, 'downloadResult'])->name('bulk-price-import.download');
-
-    /** Default Price Legend Routes */
-    Route::resource('default-legend', DefaultPriceLegendController::class);
-
-    /** User Price Legend Routes */
-    Route::get('user-legend', [UserPriceLegendController::class, 'index'])->name('user-legend.index');
-    Route::post('user-legend', [UserPriceLegendController::class, 'store'])->name('user-legend.store');
-    Route::put('user-legend/{id}', [UserPriceLegendController::class, 'update'])->name('user-legend.update');
-    Route::delete('user-legend/{id}', [UserPriceLegendController::class, 'destroy'])->name('user-legend.destroy');
-    Route::post('user-legend/copy-defaults', [UserPriceLegendController::class, 'copyDefaults'])->name('user-legend.copy-defaults');
 
     /** User Statistics Routes */
     Route::get('statistics', [UserStatisticsController::class, 'index'])->name('statistics.index');

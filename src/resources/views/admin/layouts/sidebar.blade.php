@@ -119,25 +119,6 @@
                 </li>
             @endcan
 
-            @can('access management gas price')
-                <li class="dropdown {{ setSidebarActive([
-                'admin.fuel-terminal.*',
-                'admin.user-price.*',
-                'admin.price-import.*',
-                'admin.default-legend.*',
-                'admin.user-legend.*'
-                ]) }}">
-                    <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-gas-pump"></i> <span>Precios Combustibles</span></a>
-                    <ul class="dropdown-menu">
-                        <li class="{{ setSidebarActive(['admin.fuel-terminal.*']) }}"><a class="nav-link" href="{{ route('admin.fuel-terminal.index') }}">Terminales</a></li>
-                        <li class="{{ setSidebarActive(['admin.user-price.*']) }}"><a class="nav-link" href="{{ route('admin.user-price.index') }}">Listas de Precios</a></li>
-                        <li class="{{ setSidebarActive(['admin.price-import.*']) }}"><a class="nav-link" href="{{ route('admin.price-import.index') }}">Importar Excel</a></li>
-                        <li class="{{ setSidebarActive(['admin.default-legend.*']) }}"><a class="nav-link" href="{{ route('admin.default-legend.index') }}">Leyendas por Defecto</a></li>
-                        <li class="{{ setSidebarActive(['admin.user-legend.*']) }}"><a class="nav-link" href="{{ route('admin.user-legend.index') }}">Leyendas por Usuario</a></li>
-                    </ul>
-                </li>
-            @endcan
-
             @can('access management statics users')
                 <li class="dropdown {{ setSidebarActive(['admin.statistics.*']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-chart-line"></i> <span>Estadísticas</span></a>

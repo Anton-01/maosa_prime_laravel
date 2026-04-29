@@ -1,3 +1,4 @@
+# Git y entornos de desarrollo
 .git
 .gitignore
 .gitattributes
@@ -6,26 +7,39 @@
 .vscode
 *.md
 *.txt
-docker-compose.yml
-#dockerfiles/
-#nginx/
-mysql/
-mysql_data/
 
-# Laravel specific
-/vendor
-/node_modules
-/public/hot
-/public/storage
-/storage/*.key
-/storage/logs/*
-/storage/framework/cache/*
-/storage/framework/sessions/*
-/storage/framework/views/*
-.env
-.env.backup
-.phpunit.result.cache
+# Archivos de entorno y locales de Laravel
+src/.env
+src/.env.*
+src/.env.backup
+src/.phpunit.result.cache
 Homestead.json
 Homestead.yaml
+
+# Dependencias (se instalan durante el multi-stage build)
+src/vendor/
+src/node_modules/
 npm-debug.log
 yarn-error.log
+
+# Assets compilados localmente
+src/public/build/
+src/public/hot
+
+# Almacenamiento y cachés de Laravel (evita subir basura local)
+src/storage/*.key
+src/storage/logs/*
+src/storage/framework/cache/*
+src/storage/framework/sessions/*
+src/storage/framework/views/*
+
+# Infraestructura local (¡Ojo! NO incluimos dockerfiles/ aquí)
+docker-compose.yml
+docker-compose.yaml
+mysql/
+mysql_data/
+postgres/
+nginx/
+
+# Cache
+src/bootstrap/cache/*.php

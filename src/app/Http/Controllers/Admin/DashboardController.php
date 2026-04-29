@@ -6,12 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Amenity;
 use App\Models\Blog;
 use App\Models\Category;
-use App\Models\FuelTerminal;
 use App\Models\Listing;
 use App\Models\Location;
 use App\Models\PageVisit;
 use App\Models\User;
-use App\Models\UserPriceList;
 use App\Models\UserSession;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -42,10 +40,8 @@ class DashboardController extends Controller {
                 'usersCount'             => User::whereNot('user_type', 'admin')->count(),
                 'verifiedListingsCount'  => Listing::where('is_verified', 1)->count(),
                 'activeListingsCount'    => Listing::where('status', 1)->count(),
-                'fuelTerminalsCount'     => FuelTerminal::where('status', 1)->count(),
                 'amenitiesCount'         => Amenity::count(),
                 'blogsCount'             => Blog::count(),
-                'activePriceListsCount'  => UserPriceList::where('is_active', 1)->count(),
                 'usersWithPriceAccess'   => User::where('can_view_price_table', 1)->whereNot('user_type', 'admin')->count(),
                 'sessionsLastWeek'       => UserSession::where('created_at', '>=', $lastWeek)->count(),
                 'pageVisitsLastWeek'     => PageVisit::where('created_at', '>=', $lastWeek)->count(),

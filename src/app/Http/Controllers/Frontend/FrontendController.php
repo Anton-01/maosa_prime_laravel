@@ -8,7 +8,6 @@ use App\Mail\ContactMail;
 use App\Models\AboutUs;
 use App\Models\Amenity;
 use App\Models\Blog;
-use App\Models\BlogCategory;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Hero;
@@ -155,7 +154,7 @@ class FrontendController extends Controller
     }
 
     function blogShow(string $slug) : View {
-        $blog = Blog::with(['category', 'comments'])->where(['slug' => $slug, 'status' => 1])->firstOrFail();
+        $blog = Blog::where(['slug' => $slug, 'status' => 1])->firstOrFail();
         $popularBlogs = Cache::remember('blog_popular', self::CACHE_STATIC_TTL, function () use ($slug) {
             return Blog::select(['id', 'title', 'slug', 'created_at', 'image'])
                 ->where('is_popular', 1)
@@ -163,13 +162,7 @@ class FrontendController extends Controller
                 ->take(5)
                 ->get();
         });
-        $categories = Cache::remember('blog_categories', self::CACHE_STATIC_TTL, function () {
-            return BlogCategory::withCount(['blogs' => function($query){
-                $query->where('status', 1);
-            }])->where('status', 1)->get();
-        });
-
-        return view('frontend.pages.blog-show', compact('blog', 'categories', 'popularBlogs'));
+        return view('frontend.pages.blog-show', compact('blog', 'popularBlogs'));
     }
 
     function aboutIndex() : View {

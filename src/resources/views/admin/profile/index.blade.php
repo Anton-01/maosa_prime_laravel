@@ -45,7 +45,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="">Banner</label>
-                                            <div id="image-preview-2" class="image-preview banner-preview"">
+                                            <div id="image-preview-2" class="image-preview banner-preview">
                                                 <label for="image-upload-2" id="image-label-2">Choose File</label>
                                                 <input type="file" name="banner" id="image-upload-2" />
                                                 <input type="hidden" name="old_banner" value="{{ $user->banner }}">
@@ -85,52 +85,6 @@
                                         <div class="form-group">
                                             <label for="">Sobre mi <span class="text-danger">*</span></label>
                                             <textarea name="about" class="form-control" required>{!! $user->about !!}</textarea>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">Website</label>
-                                            <input type="text" class="form-control" name="website"
-                                                value="{{ $user->website }}">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">Facebook</label>
-                                            <input type="text" class="form-control" name="fb_link"
-                                                value="{{ $user->fb_link }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">X</label>
-                                            <input type="text" class="form-control" name="x_link"
-                                                value="{{ $user->x_link }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">Linkedin</label>
-                                            <input type="text" class="form-control" name="in_link"
-                                                value="{{ $user->in_link }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">Whatsapp</label>
-                                            <input type="text" class="form-control" name="wa_link"
-                                                value="{{ $user->wa_link }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="">Instragram</label>
-                                            <input type="text" class="form-control" name="instra_link"
-                                                value="{{ $user->insta_link }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">

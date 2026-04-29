@@ -16,6 +16,7 @@
     <!-- Custom Styles -->
     <link rel="stylesheet" href="{{ asset('frontend/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('frontend/css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('frontend/css/maosa/table-prices.css') }}">
     <style>
         :root {--colorPrimary: {{ config('settings.site_default_color') }};}
     </style>

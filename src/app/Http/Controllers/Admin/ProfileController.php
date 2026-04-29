@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProfileUpdateRequest;
-use App\Models\User;
 use App\Traits\FileUploadTrait;
 use Auth;
 use Illuminate\Http\RedirectResponse;
@@ -33,12 +32,6 @@ class ProfileController extends Controller
         $user->phone = $request->phone;
         $user->address = $request->address;
         $user->about = $request->about;
-        $user->website = $request->website;
-        $user->fb_link = $request->fb_link;
-        $user->x_link = $request->x_link;
-        $user->in_link = $request->in_link;
-        $user->wa_link = $request->wa_link;
-        $user->instra_link = $request->instra_link;
         $user->save();
 
         return back()->with('statusUsrAdm', true);
@@ -46,9 +39,7 @@ class ProfileController extends Controller
 
     function passwordUpdate(Request $request) : RedirectResponse
     {
-        $request->validate([
-            'password' => ['required', 'min:5', 'confirmed']
-        ]);
+        $request->validate(['password' => ['required', 'min:5', 'confirmed']]);
 
         $user = Auth::user();
         $user->password = bcrypt($request->password);

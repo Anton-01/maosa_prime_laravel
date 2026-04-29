@@ -7,10 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BlogCreateRequest;
 use App\Http\Requests\Admin\BlogUpdateRequest;
 use App\Models\Blog;
-use App\Models\BlogCategory;
 use App\Traits\FileUploadTrait;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class BlogController extends Controller
@@ -39,8 +37,7 @@ class BlogController extends Controller
      */
     public function create() :View
     {
-        $categories = BlogCategory::where('status', 1)->get();
-        return view('admin.blog.create', compact('categories'));
+        return view('admin.blog.create');
     }
 
     /**
@@ -70,9 +67,8 @@ class BlogController extends Controller
      */
     public function edit(string $id) : View
     {
-        $categories = BlogCategory::where('status', 1)->get();
         $blog = Blog::findOrFail($id);
-        return view('admin.blog.edit', compact('categories', 'blog'));
+        return view('admin.blog.edit', compact('blog'));
     }
 
     /**

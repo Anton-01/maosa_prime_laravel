@@ -93,30 +93,30 @@
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
             <div class="card card-statistic-1">
-                <div class="card-icon bg-secondary">
-                    <i class="fas fa-gas-pump"></i>
+                <div class="card-icon bg-warning">
+                    <i class="fas fa-eye"></i>
                 </div>
                 <div class="card-wrap">
                     <div class="card-header">
-                        <h4>Terminales Combustible</h4>
+                        <h4>Acceso a Precios</h4>
                     </div>
                     <div class="card-body">
-                        {{ $fuelTerminalsCount }}
+                        {{ $usersWithPriceAccess }}
                     </div>
                 </div>
             </div>
         </div>
         <div class="col-lg-3 col-md-6 col-sm-6 col-12">
             <div class="card card-statistic-1">
-                <div class="card-icon bg-primary">
-                    <i class="fas fa-file-invoice-dollar"></i>
+                <div class="card-icon bg-info">
+                    <i class="fas fa-newspaper"></i>
                 </div>
                 <div class="card-wrap">
                     <div class="card-header">
-                        <h4>Listas de Precios Activas</h4>
+                        <h4>Publicaciones Blog</h4>
                     </div>
                     <div class="card-body">
-                        {{ $activePriceListsCount }}
+                        {{ $blogsCount }}
                     </div>
                 </div>
             </div>
@@ -166,36 +166,6 @@
                     </div>
                     <div class="card-body">
                         {{ $usersCount }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
-                <div class="card-icon bg-warning">
-                    <i class="fas fa-eye"></i>
-                </div>
-                <div class="card-wrap">
-                    <div class="card-header">
-                        <h4>Acceso a Precios</h4>
-                    </div>
-                    <div class="card-body">
-                        {{ $usersWithPriceAccess }}
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
-            <div class="card card-statistic-1">
-                <div class="card-icon bg-info">
-                    <i class="fas fa-newspaper"></i>
-                </div>
-                <div class="card-wrap">
-                    <div class="card-header">
-                        <h4>Publicaciones Blog</h4>
-                    </div>
-                    <div class="card-body">
-                        {{ $blogsCount }}
                     </div>
                 </div>
             </div>
@@ -355,12 +325,6 @@
                             </a>
                         </div>
                         <div class="col-6 col-sm-4 col-lg-4 mb-4">
-                            <a href="{{ route('admin.user-price.create') }}" class="btn btn-outline-success btn-block py-3">
-                                <i class="fas fa-dollar-sign d-block mb-2" style="font-size: 24px;"></i>
-                                Nueva Lista Precios
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-lg-4 mb-4">
                             <a href="{{ route('admin.role-user.create') }}" class="btn btn-outline-info btn-block py-3">
                                 <i class="fas fa-user-plus d-block mb-2" style="font-size: 24px;"></i>
                                 Nuevo Usuario
@@ -376,12 +340,6 @@
                             <a href="{{ route('admin.statistics.index') }}" class="btn btn-outline-danger btn-block py-3">
                                 <i class="fas fa-chart-bar d-block mb-2" style="font-size: 24px;"></i>
                                 Estadísticas
-                            </a>
-                        </div>
-                        <div class="col-6 col-sm-4 col-lg-4 mb-4">
-                            <a href="{{ route('admin.fuel-terminal.index') }}" class="btn btn-outline-secondary btn-block py-3">
-                                <i class="fas fa-gas-pump d-block mb-2" style="font-size: 24px;"></i>
-                                Terminales
                             </a>
                         </div>
                     </div>

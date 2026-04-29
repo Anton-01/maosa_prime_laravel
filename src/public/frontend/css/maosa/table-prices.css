@@ -1,0 +1,99 @@
+
+.precio-layout {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* Watermark */
+.precio-layout .wm {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    overflow: hidden;
+}
+.precio-layout .wm span {
+    font-size: 100px;
+    font-weight: 900;
+    color: #cbd5e1;
+    user-select: none;
+    transform: rotate(-30deg);
+}
+
+/* Header */
+.precio-layout .pl-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    position: relative;
+}
+.precio-layout .pl-header h2 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.precio-layout .pl-header .tipo {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.precio-layout .pl-header .fecha {
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* Table */
+.precio-layout table {
+    width: 100%;
+    border-collapse: collapse;
+    position: relative;
+}
+.precio-layout th,
+.precio-layout td {
+    padding: 4px 8px;
+}
+.precio-layout th {
+    font-weight: 600;
+}
+.precio-layout th.prod-h {
+    text-align: center;
+    font-weight: 700;
+    color: #fff;
+}
+.precio-layout td {
+    white-space: nowrap;
+}
+.precio-layout td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Notes */
+.precio-layout .pl-notas {
+    margin-top: 16px;
+    border-radius: 4px;
+    padding: 10px 14px;
+    padding-right: 120px;
+    line-height: 1.5;
+    position: relative;
+}
+
+/* Footer */
+.precio-layout .pl-footer {
+    margin-top: 16px;
+    position: relative;
+    min-height: 40px;
+}
+.precio-layout .pl-footer .logo {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+.precio-layout .pl-footer .logo img {
+    object-fit: contain;
+}

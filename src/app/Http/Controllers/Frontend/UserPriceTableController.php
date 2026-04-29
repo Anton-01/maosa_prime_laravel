@@ -23,21 +23,7 @@ class UserPriceTableController extends Controller
             abort(403, 'No tiene permiso para ver la tabla de precios');
         }
 
-        // Get all active price lists for the user (grouped by branch)
-        $priceLists = UserPriceList::with(['items', 'branch'])
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->orderBy('user_branch_id')
-            ->orderByDesc('price_date')
-            ->get();
-
-        // Get legends
-        $legends = UserPriceLegend::getForUser($user->id);
-
-        // Check if user has branches
-        $hasBranches = $priceLists->whereNotNull('user_branch_id')->isNotEmpty();
-
-        return view('frontend.price-table.index', compact('user', 'priceLists', 'legends', 'hasBranches'));
+        return view('frontend.price-table.index', compact('user'));
     }
 
     /**

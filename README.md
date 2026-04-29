@@ -413,10 +413,6 @@ UserPriceList
  ├── belongsTo: User
  ├── hasMany: UserPriceItem, UserPriceLegend
  └── belongsTo: FuelTerminal
-
-Blog
- ├── belongsTo: BlogCategory, User (author)
- └── hasMany: BlogComment
 ```
 
 ---
