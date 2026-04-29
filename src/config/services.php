@@ -31,4 +31,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'maosa_api' => [
+        'base_url' => env('MAOSA_API_BASE_URL', 'https://maosa-layout-precios-api-659469608146.us-central1.run.app'),
+        'token' => env('MAOSA_API_TOKEN', ''),
+    ],
+
 ];
