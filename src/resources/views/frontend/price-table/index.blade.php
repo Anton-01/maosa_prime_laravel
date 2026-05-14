@@ -25,7 +25,7 @@
 
                     <div class="dashboard_content" data-content-reference="price-table-content-maosa-api">
                         <div class="text-center py-5 px-4 rounded-3" style="background: rgba(20, 20, 30, 0.78);">
-                            <img src="{{ config('settings.logo') }}" alt="Maosa Prime" class="mb-4" style="max-height: 56px; width: auto;">
+                            <img src="{{ config('settings.logo') }}" alt="Maosa Prime" class="mb-4 d-block mx-auto" style="height: auto; max-height: 40px; max-width: min(160px, 80%); width: auto; object-fit: contain;">
                             <div>
                                 <div class="spinner-border text-light" role="status" style="width: 2.5rem; height: 2.5rem;">
                                     <span class="visually-hidden">Cargando...</span>
@@ -73,7 +73,7 @@
 
         container.innerHTML = `
             <div class="text-center py-5 px-4 rounded-3" style="background: rgba(20, 20, 30, 0.78);">
-                <img src="${logoUrl}" alt="Maosa Prime" class="mb-4" style="max-height: 56px; width: auto;">
+                <img src="${logoUrl}" alt="Maosa Prime" class="mb-4 d-block mx-auto" style="height: auto; max-height: 40px; max-width: min(160px, 80%); width: auto; object-fit: contain;">
                 <div>
                     <div class="spinner-border text-light" role="status" style="width: 2rem; height: 2rem;">
                         <span class="visually-hidden">Cargando...</span>
