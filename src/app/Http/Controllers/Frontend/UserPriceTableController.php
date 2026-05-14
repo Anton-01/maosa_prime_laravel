@@ -3,61 +3,112 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\UserPriceLegend;
-use App\Models\UserPriceList;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\MaosaPriceApiService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class UserPriceTableController extends Controller
 {
-    /**
-     * Display the price table for the authenticated user.
-     */
+    public function __construct(private MaosaPriceApiService $apiService) {}
+
     public function index(): View
     {
         $user = auth()->user();
 
-        // Check if user can view price table
         if (!$user->canViewPriceTable()) {
             abort(403, 'No tiene permiso para ver la tabla de precios');
         }
 
-        return view('frontend.price-table.index', compact('user'));
+        $stations = $this->resolveStations($user);
+
+        return view('frontend.price-table.index', compact('user', 'stations'));
     }
 
-    /**
-     * Export the price table to PDF.
-     */
-    public function exportPdf(): Response
+    public function loadPriceHtml(Request $request): Response
     {
         $user = auth()->user();
 
-        // Check if user can view price table
+        if (!$user->canViewPriceTable()) {
+            abort(403);
+        }
+
+        $idStations = (int) $request->get('estacion_id');
+        $effectiveDate = $request->get('fecha_vigencia');
+
+        if (!$idStations) {
+            return response('<p class="text-center text-muted py-4">Seleccione una estación.</p>', 200)
+                ->header('Content-Type', 'text/html');
+        }
+
+
+        if ($effectiveDate) {
+            $date = Carbon::parse($effectiveDate)->startOfDay();
+            $today = Carbon::today();
+            $diff = $today->diffInDays($date, false);
+            if ($diff < -1 || $diff > 1) {
+                return response('<p class="text-center text-danger py-4">Fecha no permitida.</p>', 200)
+                    ->header('Content-Type', 'text/html');
+            }
+        }
+
+        if (!$this->userOwnsStation($user, $idStations)) {
+            abort(403, 'No tiene acceso a esta estación');
+        }
+
+        $apiResponse = $this->apiService->getPriceHtml($idStations, $effectiveDate ?: null);
+
+        if ($apiResponse->status() === 404) {
+            return response('<p class="text-center text-muted py-4">Sin precios disponibles para la fecha seleccionada.</p>', 200)->header('Content-Type', 'text/html');
+        }
+
+        if ($apiResponse->status() === 401) {
+            return response('<p class="text-center text-danger py-4">Error de autenticación con la API de precios.</p>', 200)->header('Content-Type', 'text/html');
+        }
+
+        if (!$apiResponse->successful()) {
+            return response('<p class="text-center text-danger py-4">Error al obtener precios. Intente más tarde.</p>', 200)->header('Content-Type', 'text/html');
+        }
+
+        return response($apiResponse->body(), 200)->header('Content-Type', 'text/html; charset=utf-8');
+    }
+
+    public function exportPdf(): void
+    {
+        $user = auth()->user();
+
         if (!$user->canViewPriceTable()) {
             abort(403, 'No tiene permiso para ver la tabla de precios');
         }
+    }
 
-        // Get all active price lists for the user (grouped by branch)
-        $priceLists = UserPriceList::with(['items', 'branch'])
-            ->where('user_id', $user->id)
-            ->where('is_active', true)
-            ->orderBy('user_branch_id')
-            ->orderByDesc('price_date')
-            ->get();
+    private function resolveStations($user): array
+    {
+        if ($user->id_socio) {
+            return $this->apiService->getEstacionesPorSocio($user->id_socio);
+        }
 
-        // Get legends
-        $legends = UserPriceLegend::getForUser($user->id);
+        if ($user->id_estacion) {
+            $station = $this->apiService->getEstacion($user->id_estacion);
+            return [$station];
+        }
 
-        // Check if user has branches
-        $hasBranches = $priceLists->whereNotNull('user_branch_id')->isNotEmpty();
+        return [];
+    }
 
-        $pdf = Pdf::loadView('frontend.price-table.pdf', compact('user', 'priceLists', 'legends', 'hasBranches'));
+    private function userOwnsStation($user, int $idStations): bool
+    {
+        if ($user->id_estacion) {
+            return $user->id_estacion === $idStations;
+        }
 
-        $pdf->setPaper('letter', 'portrait');
+        if ($user->id_socio) {
+            $stations = $this->apiService->getEstacionesPorSocio($user->id_socio);
+            $ids = array_column($stations, 'id_estacion');
+            return in_array($idStations, $ids);
+        }
 
-        $filename = 'precios_' . date('Y-m-d') . '.pdf';
-
-        return $pdf->download($filename);
+        return false;
     }
 }

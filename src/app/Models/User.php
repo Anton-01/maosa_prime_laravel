@@ -21,6 +21,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'password', 'can_view_price_table', 'is_approved', 'user_type',
+        'id_socio', 'id_estacion',
     ];
 
     /**
@@ -38,7 +39,11 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime', 'password' => 'hashed', 'can_view_price_table' => 'boolean',
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'can_view_price_table' => 'boolean',
+        'id_socio' => 'integer',
+        'id_estacion' => 'integer',
     ];
 
     /**
