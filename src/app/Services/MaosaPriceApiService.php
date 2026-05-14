@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -16,14 +17,9 @@ class MaosaPriceApiService
         $this->token = config('services.maosa_api.token', '');
     }
 
-    /**
-     * Obtiene las estaciones de un socio.
-     * Retorna array de estaciones: [['id' => int, 'nombre' => string], ...]
-     */
     public function getEstacionesPorSocio(int $idSocio): array
     {
-        $response = Http::withHeaders($this->jsonHeaders())
-            ->get("{$this->baseUrl}/api/precio_importado/catalogos/socios/{$idSocio}");
+        $response = Http::withHeaders($this->jsonHeaders())->get("{$this->baseUrl}/api/precio_importado/catalogos/socios/{$idSocio}");
 
         if (!$response->successful()) {
             return [];
@@ -31,13 +27,9 @@ class MaosaPriceApiService
 
         $data = $response->json();
 
-        return $data['estaciones'] ?? [];
+        return $data ?? [];
     }
 
-    /**
-     * Obtiene el detalle de una estación específica.
-     * Retorna array con los datos de la estación.
-     */
     public function getEstacion(int $idEstacion): array
     {
         $response = Http::withHeaders($this->jsonHeaders())
@@ -50,10 +42,7 @@ class MaosaPriceApiService
         return $response->json() ?? ['id' => $idEstacion, 'nombre' => "Estación {$idEstacion}"];
     }
 
-    /**
-     * Obtiene el layout HTML de precios para una estación.
-     */
-    public function getPrecioHtml(int $idEstacion, ?string $fechaVigencia = null): Response
+    public function getPriceHtml(int $idEstacion, ?string $fechaVigencia = null): Response
     {
         $url = "{$this->baseUrl}/api/precio_importado/layout/estacion/{$idEstacion}/html";
 
@@ -62,10 +51,7 @@ class MaosaPriceApiService
             $query['fecha_vigencia'] = $fechaVigencia;
         }
 
-        return Http::withHeaders([
-            'Authorization' => "Bearer {$this->token}",
-            'Accept' => 'text/html',
-        ])->get($url, $query);
+        return Http::withHeaders(['Authorization' => "Bearer {$this->token}", 'Accept' => 'text/html',])->get($url, $query);
     }
 
     private function jsonHeaders(): array

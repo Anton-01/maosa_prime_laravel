@@ -97,3 +97,50 @@
 .precio-layout .pl-footer .logo img {
     object-fit: contain;
 }
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 16px;
+}
+
+.precio-layout table {
+    min-width: 600px;
+}
+
+@media screen and (max-width: 768px) {
+    .precio-layout {
+        padding: 16px;
+    }
+
+    .precio-layout .wm span {
+        font-size: 60px;
+    }
+
+    .precio-layout .pl-notas {
+        padding-right: 14px;
+    }
+}
+
+.precio-layout table th:first-child,
+.precio-layout table td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #ffffff;
+    z-index: 2;
+}
+
+.precio-layout table th:first-child {
+    z-index: 3;
+}
+
+.precio-layout table th:first-child::after,
+.precio-layout table td:first-child::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-right: 1px solid #e2e8f0;
+}

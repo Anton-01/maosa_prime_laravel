@@ -11,41 +11,31 @@
                 <div class="col-lg-9">
 
                     <div class="row mb-4 align-items-end g-3">
-                        @if(count($estaciones) > 1)
+                        @if(count($stations) > 1)
                             <div class="col-md-6">
                                 <label class="form-label fw-bold text-uppercase letter-spacing-2 small">
                                     ESTACIONES
                                 </label>
-                                <select id="select-estacion" class="form-select form-select-lg shadow-sm">
-                                    @foreach($estaciones as $estacion)
-                                        <option value="{{ $estacion['id'] }}">
-                                            {{ $estacion['nombre'] ?? $estacion['razon_social'] ?? 'Estación ' . $estacion['id'] }}
+                                <select id="select-station" class="form-select form-select-lg shadow-sm">
+                                    @foreach($stations as $item)
+                                        <option value="{{ $item['id_estacion'] }}">
+                                            {{ $item['estacion'] ?? $item['id_socio'] ?? 'Estación ' . $item['id_estacion'] }}
                                         </option>
                                     @endforeach
                                 </select>
                             </div>
                         @else
-                            @if(count($estaciones) === 1)
-                                <input type="hidden"
-                                       id="select-estacion"
-                                       value="{{ $estaciones[0]['id'] }}">
+                            @if(count($stations) === 1)
+                                <input type="hidden" id="select-station" value="{{ $stations[0]['id_estacion'] }}">
                             @endif
                         @endif
 
-                        <div class="{{ count($estaciones) > 1 ? 'col-md-6' : 'col-md-6' }}">
+                        <div class="{{ count($stations) > 1 ? 'col-md-6' : 'col-md-6' }}">
                             <label class="form-label fw-bold text-uppercase letter-spacing-2 small">
                                 FECHA DE VIGENCIA
                             </label>
                             <div class="input-group input-group-lg shadow-sm">
-                                <input type="date"
-                                       id="input-fecha-vigencia"
-                                       class="form-control form-control-lg"
-                                       min="{{ \Carbon\Carbon::yesterday()->format('Y-m-d') }}"
-                                       max="{{ \Carbon\Carbon::tomorrow()->format('Y-m-d') }}"
-                                       value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}">
-                                <span class="input-group-text bg-white">
-                                    <i class="bi bi-calendar3"></i>
-                                </span>
+                                <input type="date" id="input-effective-date" class="form-control form-control-lg" value="{{ Carbon\Carbon::today()->format('Y-m-d') }}">
                             </div>
                         </div>
                     </div>
@@ -71,18 +61,18 @@
     const priceHtmlUrl = '{{ route('user.price-table.html') }}';
     const container = document.querySelector('[data-content-reference="price-table-content-maosa-api"]');
 
-    @if(count($estaciones) === 0)
+    @if(count($stations) === 0)
         container.innerHTML = '<p class="text-center text-muted py-4">No tiene estaciones asignadas.</p>';
         return;
     @endif
 
-    function getEstacionId() {
-        const el = document.getElementById('select-estacion');
+    function getStationId() {
+        const el = document.getElementById('select-station');
         return el ? el.value : null;
     }
 
-    function getFechaVigencia() {
-        const el = document.getElementById('input-fecha-vigencia');
+    function getEffectiveDate() {
+        const el = document.getElementById('input-effective-date');
         return el ? el.value : null;
     }
 
@@ -97,13 +87,13 @@
     }
 
     async function loadPrices() {
-        const estacionId = getEstacionId();
-        if (!estacionId) return;
+        const stationId = getStationId();
+        if (!stationId) return;
 
-        const fecha = getFechaVigencia();
+        const effectiveDate = getEffectiveDate();
 
-        const params = new URLSearchParams({ estacion_id: estacionId });
-        if (fecha) params.append('fecha_vigencia', fecha);
+        const params = new URLSearchParams({ estacion_id: stationId });
+        if (effectiveDate) params.append('fecha_vigencia', effectiveDate);
 
         showLoading();
 
@@ -112,25 +102,22 @@
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             });
 
-            const html = await response.text();
-            container.innerHTML = html;
+            container.innerHTML = await response.text();
         } catch (e) {
             container.innerHTML = '<p class="text-center text-danger py-4">Error de conexión. Intente más tarde.</p>';
         }
     }
 
-    // Eventos
-    const selectEstacion = document.getElementById('select-estacion');
-    if (selectEstacion && selectEstacion.tagName === 'SELECT') {
-        selectEstacion.addEventListener('change', loadPrices);
+    const selectStation = document.getElementById('select-station');
+    if (selectStation && selectStation.tagName === 'SELECT') {
+        selectStation.addEventListener('change', loadPrices);
     }
 
-    const inputFecha = document.getElementById('input-fecha-vigencia');
-    if (inputFecha) {
-        inputFecha.addEventListener('change', loadPrices);
+    const inputDate = document.getElementById('input-effective-date');
+    if (inputDate) {
+        inputDate.addEventListener('change', loadPrices);
     }
 
-    // Carga inicial
     loadPrices();
 })();
 </script>

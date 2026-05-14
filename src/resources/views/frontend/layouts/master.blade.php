@@ -26,38 +26,24 @@
 
 <body>
 
-    <!--==========================
-        Navbar Start
-    ===========================-->
+    <!-- Navbar Start -->
     @include('frontend.layouts.navbar')
-    <!--==========================
-        Navbar End
-    ===========================-->
+    <!-- Navbar End -->
 
-    <!--==========================
-        Contents Start
-    ===========================-->
+    <!-- Contents Start -->
     @yield('contents')
-    <!--==========================
-        Contents End
-    ===========================-->
+    <!-- Contents End -->
 
-    <!--==========================
-        FOOTER PART START
-    ===========================-->
+    <!-- FOOTER PART START -->
     @guest
         @include('frontend.layouts.footer-guest')
     @endguest
     @auth
         @include('frontend.layouts.footer')
     @endauth
-    <!--==========================
-        FOOTER PART END
-    ===========================-->
+    <!-- FOOTER PART END -->
 
-    <!--==========================
-        Listing Modal
-    ===========================-->
+    <!-- Provider Modal -->
     <section id="wsus__map_popup">
         <div class="modal fade" id="lintening-previw-maosa-prime" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -71,9 +57,7 @@
             </div>
         </div>
     </section>
-    <!--==========================
-        Listing Modal END
-    ===========================-->
+    <!-- Provider Modal End -->
 
 
     <!--=============SCROLL BTN==============-->
@@ -108,14 +92,6 @@
     <script src="{{ asset('frontend/js/main.js') }}"></script>
 
     <script>
-        @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                toastr.error("{{ $error }}")
-            @endforeach
-        @endif
-    </script>
-
-    <script>
         function showListingModal(id){
             const modal = new bootstrap.Modal(document.getElementById('lintening-previw-maosa-prime'));
 
@@ -125,7 +101,7 @@
                 data: {},
                 beforeSend: function(){
                     $('.modal-listing-content').html(`<div class="spinner-border" role="status">
-                        <span class="visually-hidden">Cargando...</span>
+                        <span class="visually-hidden">Maosa - Cargando...</span>
                     </div>`)
 
                     modal.show();
