@@ -21,9 +21,20 @@ class UserPriceTableController extends Controller
             abort(403, 'No tiene permiso para ver la tabla de precios');
         }
 
+        return view('frontend.price-table.index', compact('user'));
+    }
+
+    public function loadStations(): \Illuminate\Http\JsonResponse
+    {
+        $user = auth()->user();
+
+        if (!$user->canViewPriceTable()) {
+            abort(403);
+        }
+
         $stations = $this->resolveStations($user);
 
-        return view('frontend.price-table.index', compact('user', 'stations'));
+        return response()->json($stations);
     }
 
     public function loadPriceHtml(Request $request): Response
