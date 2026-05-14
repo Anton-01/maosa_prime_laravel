@@ -24,12 +24,15 @@
                     </div>
 
                     <div class="dashboard_content" data-content-reference="price-table-content-maosa-api">
-                        <div class="text-center py-5">
-                            <div class="spinner-border text-secondary" role="status" style="width: 2.5rem; height: 2.5rem;">
-                                <span class="visually-hidden">Cargando...</span>
+                        <div class="text-center py-5 px-4 rounded-3" style="background: rgba(20, 20, 30, 0.78);">
+                            <img src="{{ config('settings.logo') }}" alt="Maosa Prime" class="mb-4" style="max-height: 56px; width: auto;">
+                            <div>
+                                <div class="spinner-border text-light" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                    <span class="visually-hidden">Cargando...</span>
+                                </div>
                             </div>
-                            <p class="mt-3 text-muted fw-semibold">Cargando tu configuración de precios asignada...</p>
-                            <p class="text-muted small">Esto puede tomar unos segundos.</p>
+                            <p class="mt-3 text-white fw-semibold mb-1">Cargando tu configuración de precios asignada...</p>
+                            <p class="text-white-50 small mb-0">Esto puede tomar unos segundos.</p>
                         </div>
                     </div>
 
@@ -44,6 +47,7 @@
 (function () {
     const stationsUrl   = '{{ route('user.price-table.stations') }}';
     const priceHtmlUrl  = '{{ route('user.price-table.html') }}';
+    const logoUrl       = '{{ config('settings.logo') }}';
     const container     = document.querySelector('[data-content-reference="price-table-content-maosa-api"]');
     const controls      = document.getElementById('price-table-controls');
     const stationWrapper = document.getElementById('station-selector-wrapper');
@@ -68,11 +72,14 @@
             : 'Cargando datos de precios...';
 
         container.innerHTML = `
-            <div class="text-center py-5">
-                <div class="spinner-border text-secondary" role="status" style="width: 2rem; height: 2rem;">
-                    <span class="visually-hidden">Cargando...</span>
+            <div class="text-center py-5 px-4 rounded-3" style="background: rgba(20, 20, 30, 0.78);">
+                <img src="${logoUrl}" alt="Maosa Prime" class="mb-4" style="max-height: 56px; width: auto;">
+                <div>
+                    <div class="spinner-border text-light" role="status" style="width: 2rem; height: 2rem;">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
                 </div>
-                <p class="mt-3 text-muted fw-semibold">${label}</p>
+                <p class="mt-3 text-white fw-semibold mb-0">${label}</p>
             </div>`;
     }
 
