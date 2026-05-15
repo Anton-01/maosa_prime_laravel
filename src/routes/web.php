@@ -55,6 +55,7 @@ Route::group(['middleware' => ['auth', 'track.user.activity'], 'prefix' => 'user
 
     /** User Price Table Routes */
     Route::get('/price-table', [UserPriceTableController::class, 'index'])->name('price-table.index');
+    Route::get('/price-table/stations', [UserPriceTableController::class, 'loadStations'])->name('price-table.stations');
     Route::get('/price-table/pdf', [UserPriceTableController::class, 'exportPdf'])->name('price-table.pdf');
     Route::get('/price-table/html', [UserPriceTableController::class, 'loadPriceHtml'])->name('price-table.html');
 });
