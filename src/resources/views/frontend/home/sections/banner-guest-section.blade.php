@@ -1,285 +1,340 @@
-<section class="hero-guest-section">
-    <div class="hero-guest-container">
-        <div class="container-fluid p-0">
-            <div class="row g-0 hero-guest-row">
-                <!-- Imagen lado izquierdo -->
-                <div class="col-xl-6 col-lg-6 hero-guest-image-col">
-                    <div class="hero-guest-image" style="background-image: url({{ asset(@$hero->background) }});">
-                        <div class="hero-image-overlay"></div>
-                        <div class="hero-floating-elements">
-                            <div class="floating-badge badge-1">
-                                <i class="fas fa-shield-alt"></i>
-                                <span>Proveedores Verificados</span>
-                            </div>
-                            <div class="floating-badge badge-2">
-                                <i class="fas fa-handshake"></i>
-                                <span>Servicio de Calidad</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Contenido lado derecho -->
-                <div class="col-xl-6 col-lg-6 hero-guest-content-col">
-                    <div class="hero-guest-content">
-                        <div class="hero-content-inner">
-                            <div class="hero-badge-top">
-                                <span><i class="fas fa-star"></i> Bienvenido a nuestra plataforma</span>
-                            </div>
-                            <h1 class="hero-title">{!! @$hero->title !!}</h1>
-                            <div class="hero-subtitle">
-                                {!! @$hero->sub_title !!}
-                            </div>
-                            <div class="hero-cta-buttons">
-                                <a href="{{ route('login') }}" class="btn hero-btn-primary">
-                                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                                </a>
-                            </div>
-                            <div class="hero-features-list">
-                                <div class="hero-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Acceso a proveedores exclusivos</span>
-                                </div>
-                                <div class="hero-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Precios actualizados</span>
-                                </div>
-                                <div class="hero-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Soporte personalizado</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<section class="hg-section">
+    <div class="hg-wrapper">
+
+        {{-- ======= LEFT PANEL — Hero image with industrial overlay ======= --}}
+        <div class="hg-left">
+
+            {{-- Background: image from admin (configurable) with dark overlay --}}
+            @if(@$hero->background)
+                <div class="hg-bg-img" style="background-image: url({{ asset(@$hero->background) }});"></div>
+            @endif
+            <div class="hg-bg-overlay"></div>
+
+            {{-- Subtle refinery wave decoration at bottom (matches auth layout) --}}
+            <svg class="hg-wave-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120"
+                 preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,60 Q72,42 145,55 Q218,68 290,50 Q362,32 435,48 Q507,62 580,46 L580,120 L0,120 Z"
+                      fill="#1a2870" opacity="0.5"/>
+                <path d="M0,80 Q90,62 180,74 Q270,86 360,68 Q450,52 540,66 Q560,70 580,62 L580,120 L0,120 Z"
+                      fill="#1a2870" opacity="0.38"/>
+            </svg>
+
+            {{-- Floating decorative badges --}}
+            <div class="hg-badge hg-badge-1">
+                <i class="fas fa-shield-alt"></i>
+                <span>Proveedores Verificados</span>
+            </div>
+            <div class="hg-badge hg-badge-2">
+                <i class="fas fa-handshake"></i>
+                <span>Servicio de Calidad</span>
+            </div>
+
+            {{-- Bottom left brand label --}}
+            <div class="hg-left-footer">
+                <p>Plataforma integral para la gestión y monitoreo<br>de precios y proveedores.</p>
             </div>
         </div>
+        {{-- /.hg-left --}}
+
+        {{-- ======= RIGHT PANEL — Welcome content ======= --}}
+        <div class="hg-right">
+
+            {{-- Welcome pill badge --}}
+            <div class="hg-welcome-badge">
+                <i class="fas fa-star"></i>
+                <span>Bienvenido a nuestra plataforma</span>
+            </div>
+
+            {{-- Title from hero model --}}
+            <h1 class="hg-title">{!! @$hero->title ?? config('settings.site_name') !!}</h1>
+
+            {{-- Subtitle from hero model --}}
+            @if(@$hero->sub_title)
+                <div class="hg-subtitle">{!! @$hero->sub_title !!}</div>
+            @endif
+
+            {{-- CTA --}}
+            <div class="hg-cta">
+                <a href="{{ route('login') }}" class="hg-btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión
+                </a>
+            </div>
+
+            {{-- Feature checklist --}}
+            <div class="hg-features">
+                <div class="hg-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Acceso a proveedores exclusivos</span>
+                </div>
+                <div class="hg-feature-item">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Precios de combustibles actualizados día con día</span>
+                </div>
+            </div>
+
+        </div>
+        {{-- /.hg-right --}}
+
     </div>
 </section>
 
 <style>
-    .hero-guest-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        overflow: hidden;
+/* ============================================================
+   HERO GUEST SECTION — same visual language as auth pages
+   ============================================================ */
+.hg-section {
+    background: linear-gradient(145deg, #0f1c52 0%, #1a0b50 45%, #0a1035 100%);
+    overflow: hidden;
+}
+
+.hg-wrapper {
+    display: flex;
+    min-height: calc(100vh - 120px);
+    width: 100%;
+}
+
+/* ---- Left panel ---- */
+.hg-left {
+    flex: 1 1 55%;
+    position: relative;
+    background: #070e30;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.hg-bg-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.28;
+}
+
+.hg-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(7, 14, 48, 0.55) 0%,
+        rgba(7, 14, 48, 0.2)  40%,
+        rgba(7, 14, 48, 0.7)  80%,
+        rgba(7, 14, 48, 0.92) 100%
+    );
+    z-index: 1;
+}
+
+.hg-wave-svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+    z-index: 2;
+}
+
+/* Floating badges */
+.hg-badge {
+    position: absolute;
+    z-index: 3;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    padding: 12px 22px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    animation: hgFloat 3.5s ease-in-out infinite;
+}
+.hg-badge i {
+    color: var(--colorPrimary);
+    font-size: 18px;
+}
+.hg-badge span {
+    font-weight: 600;
+    color: #1a1f5e;
+    font-size: 13.5px;
+    white-space: nowrap;
+}
+.hg-badge-1 {
+    top: 22%;
+    right: 8%;
+    animation-delay: 0s;
+}
+.hg-badge-2 {
+    bottom: 28%;
+    left: 6%;
+    animation-delay: 1.8s;
+}
+@keyframes hgFloat {
+    0%, 100% { transform: translateY(0);    }
+    50%       { transform: translateY(-12px); }
+}
+
+/* Bottom brand text */
+.hg-left-footer {
+    position: relative;
+    z-index: 3;
+    padding: 0 40px 36px;
+}
+.hg-left-footer p {
+    font-size: 13px;
+    color: rgba(200, 215, 255, 0.55);
+    line-height: 1.75;
+    margin: 0;
+}
+
+/* ---- Right panel ---- */
+.hg-right {
+    flex: 0 0 420px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 52px 46px;
+    overflow-y: auto;
+}
+
+/* Welcome pill */
+.hg-welcome-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    color: var(--colorPrimary);
+    padding: 9px 18px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 22px;
+    align-self: flex-start;
+}
+.hg-welcome-badge i {
+    font-size: 12px;
+}
+
+/* Title */
+.hg-title {
+    font-size: 34px;
+    font-weight: 800;
+    color: #1a1f5e;
+    line-height: 1.2;
+    margin-bottom: 16px;
+}
+.hg-title strong,
+.hg-title b { color: var(--colorPrimary); font-weight: 800; }
+
+/* Subtitle */
+.hg-subtitle {
+    font-size: 15px;
+    color: #777;
+    line-height: 1.72;
+    margin-bottom: 32px;
+}
+.hg-subtitle p { margin: 0; }
+
+/* CTA */
+.hg-cta {
+    margin-bottom: 36px;
+}
+.hg-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--colorPrimary);
+    color: #fff;
+    padding: 14px 32px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: filter 0.25s, transform 0.2s, box-shadow 0.25s;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+    border: none;
+}
+.hg-btn-primary:hover {
+    color: #fff;
+    filter: brightness(1.12);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+    text-decoration: none;
+}
+
+/* Features */
+.hg-features {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.hg-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 14.5px;
+    color: #555;
+}
+.hg-feature-item i {
+    color: #22c55e;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+    .hg-right {
+        flex: 0 0 380px;
+        padding: 44px 36px;
     }
-    .hero-guest-container {
-        min-height: 85vh;
-    }
-    .hero-guest-row {
-        min-height: 85vh;
-    }
-    .hero-guest-image-col {
-        position: relative;
-    }
-    .hero-guest-image {
-        height: 100%;
-        min-height: 85vh;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        position: relative;
-    }
-    .hero-image-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, rgba(246, 101, 66, 0.1) 0%, rgba(0, 0, 0, 0.3) 100%);
-    }
-    .hero-floating-elements {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        pointer-events: none;
-    }
-    .floating-badge {
-        position: absolute;
-        background: #fff;
-        padding: 15px 25px;
-        border-radius: 50px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-        animation: float 3s ease-in-out infinite;
-    }
-    .floating-badge i {
-        color: #f66542;
-        font-size: 20px;
-    }
-    .floating-badge span {
-        font-weight: 600;
-        color: #333;
-        font-size: 14px;
-    }
-    .floating-badge.badge-1 {
-        top: 20%;
-        right: 10%;
-        animation-delay: 0s;
-    }
-    .floating-badge.badge-2 {
-        bottom: 25%;
-        left: 5%;
-        animation-delay: 1.5s;
-    }
-    @keyframes float {
-        0%, 100% {
-            transform: translateY(0px);
-        }
-        50% {
-            transform: translateY(-15px);
-        }
-    }
-    .hero-guest-content-col {
-        display: flex;
-        align-items: center;
-        background: #fff;
-    }
-    .hero-guest-content {
-        width: 100%;
-        padding: 60px 80px;
-    }
-    .hero-content-inner {
-        max-width: 550px;
-        margin: 0 auto;
-    }
-    .hero-badge-top {
-        margin-bottom: 25px;
-    }
-    .hero-badge-top span {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: linear-gradient(135deg, #fff5f2 0%, #ffe8e2 100%);
-        color: #f66542;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-size: 14px;
-        font-weight: 600;
-    }
-    .hero-badge-top i {
-        font-size: 12px;
-    }
-    .hero-title {
-        font-size: 42px;
-        font-weight: 700;
-        color: #1a1a2e;
-        line-height: 1.2;
-        margin-bottom: 20px;
-    }
-    .hero-subtitle {
-        font-size: 16px;
-        color: #666;
-        line-height: 1.7;
-        margin-bottom: 35px;
-    }
-    .hero-subtitle p {
-        margin-bottom: 0;
-    }
-    .hero-cta-buttons {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 40px;
-        flex-wrap: wrap;
-    }
-    .hero-btn-primary {
-        background: linear-gradient(135deg, #f66542 0%, #ff8a65 100%);
-        color: #fff;
-        padding: 15px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 15px;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        border: none;
-        box-shadow: 0 5px 20px rgba(246, 101, 66, 0.3);
-    }
-    .hero-btn-primary:hover {
-        background: linear-gradient(135deg, #e55a38 0%, #f66542 100%);
-        color: #fff;
-        transform: translateY(-3px);
-        box-shadow: 0 10px 30px rgba(246, 101, 66, 0.4);
-    }
-    .hero-btn-secondary {
-        background: #fff;
-        color: #333;
-        padding: 15px 35px;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 15px;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        border: 2px solid #e0e0e0;
-    }
-    .hero-btn-secondary:hover {
-        background: #f8f9fa;
-        color: #f66542;
-        border-color: #f66542;
-        transform: translateY(-3px);
-    }
-    .hero-features-list {
-        display: flex;
+    .hg-title { font-size: 28px; }
+}
+
+@media (max-width: 860px) {
+    .hg-wrapper {
         flex-direction: column;
-        gap: 15px;
+        min-height: auto;
     }
-    .hero-feature-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        color: #555;
-        font-size: 15px;
+    .hg-left {
+        flex: 0 0 240px;
+        height: 240px;
     }
-    .hero-feature-item i {
-        color: #28a745;
-        font-size: 16px;
+    .hg-left-footer { display: none; }
+    .hg-badge-2 { display: none; }
+    .hg-badge-1 {
+        top: auto;
+        bottom: 16px;
+        right: 16px;
+        animation: none;
     }
-    /* Responsive */
-    @media (max-width: 1199px) {
-        .hero-guest-content {
-            padding: 50px 50px;
-        }
-        .hero-title {
-            font-size: 36px;
-        }
+    .hg-right {
+        flex: 0 0 auto;
+        width: 100%;
+        padding: 36px 32px 44px;
     }
-    @media (max-width: 991px) {
-        .hero-guest-image {
-            min-height: 400px;
-        }
-        .hero-guest-container,
-        .hero-guest-row {
-            min-height: auto;
-        }
-        .hero-guest-content {
-            padding: 50px 30px;
-        }
-        .hero-title {
-            font-size: 32px;
-        }
-        .floating-badge {
-            display: none;
-        }
+    .hg-title { font-size: 26px; }
+}
+
+@media (max-width: 580px) {
+    .hg-left { height: 190px; }
+    .hg-badge { display: none; }
+    .hg-right { padding: 30px 22px 40px; }
+    .hg-title { font-size: 24px; }
+    .hg-subtitle { font-size: 14px; }
+    .hg-btn-primary {
+        width: 100%;
+        justify-content: center;
     }
-    @media (max-width: 575px) {
-        .hero-guest-content {
-            padding: 40px 20px;
-        }
-        .hero-title {
-            font-size: 28px;
-        }
-        .hero-cta-buttons {
-            flex-direction: column;
-        }
-        .hero-btn-primary,
-        .hero-btn-secondary {
-            width: 100%;
-            justify-content: center;
-        }
-    }
+}
+
+@media (max-width: 400px) {
+    .hg-left { display: none; }
+    .hg-right { padding: 28px 18px; }
+}
 </style>

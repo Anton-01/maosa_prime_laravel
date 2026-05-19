@@ -1,68 +1,73 @@
-@extends('frontend.layouts.master')
+@extends('auth.layouts.auth')
 
-@section('contents')
-    <!--==========================
-            BREADCRUMB PART START
-        ===========================-->
-        <div id="breadcrumb_part">
-            <div class="bread_overlay">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-12 text-center text-white">
-                            <h4>¿Ha olvidado su contraseña?</h4>
-                            <nav style="--bs-breadcrumb-divider: '';" aria-label="breadcrumb">
-                                <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="#"> Inicio </a></li>
-                                    <li class="breadcrumb-item active" aria-current="page"> ¿Ha olvidado su contraseña? </li>
-                                </ol>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
+@section('auth-content')
+
+    <div class="auth-form-header">
+        <p class="auth-greeting">Recuperación de acceso</p>
+        <h2>¿Olvidó su<br>contraseña?</h2>
+        <p class="auth-subtitle" style="margin-top:10px;">
+            No se preocupe. Ingrese su correo electrónico y le enviaremos un enlace para restablecer su contraseña.
+        </p>
+    </div>
+
+    @if(session()->has('status'))
+        <div class="auth-alerts">
+            <div class="auth-alert auth-alert-success">
+                <i class="fas fa-check-circle"></i>
+                {{ session('status') }}
             </div>
         </div>
-        <!--==========================
-                BREADCRUMB PART END
-        ===========================-->
+    @endif
 
-
-        <!--=========================
-                SIGN IN START
-        ==========================-->
-        <section class="wsus__login_page">
-            <div class="container">
-                <div class="row">
-                    <div class="col-xxl-5 col-xl-6 col-md-9 col-lg-7 m-auto">
-                        @if(session()->has('status'))
-                            <x-alert-message />
-                        @endif
-                        <div class="wsus__login_area">
-                            <p>¿Ha olvidado su contraseña? No se preocupe. <br> Indíquenos su dirección de correo electrónico y le enviaremos un enlace para restablecer la contraseña que le permitirá elegir una nueva.</p>
-                            <form method="POST" action="{{ route('password.email') }}">
-                                @csrf
-                                <div class="row">
-                                    <div class="col-xl-12">
-                                        <div class="wsus__login_imput">
-                                            <label>Correo electrónico</label>
-                                            <input type="email" placeholder="Email" name="email" value="{{ old('email') }}" required>
-                                        </div>
-                                    </div>
-                                    <div style="display:none;"><input type="text" name="honeypot" id="honeypot" value=""></div>
-
-                                    <div class="col-xl-12">
-                                        <div class="wsus__login_imput">
-                                            <button type="submit">Enlace de restablecimiento de contraseña</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </form>
-
-                        </div>
-                    </div>
+    @if($errors->any())
+        <div class="auth-alerts">
+            @foreach($errors->all() as $error)
+                <div class="auth-alert auth-alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ $error }}
                 </div>
+            @endforeach
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('password.email') }}">
+        @csrf
+
+        {{-- Honeypot --}}
+        <div class="auth-honeypot">
+            <input type="text" name="honeypot" id="honeypot" value="" tabindex="-1" autocomplete="off">
+        </div>
+
+        {{-- Email --}}
+        <div class="auth-form-group">
+            <label class="auth-label" for="auth-email">Correo Electrónico</label>
+            <div class="auth-input-wrapper">
+                <input
+                    id="auth-email"
+                    class="auth-input"
+                    type="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    placeholder="correo@empresa.com"
+                    required
+                    autofocus>
+                <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
             </div>
-        </section>
-        <!--=========================
-                SIGN IN END
-        ==========================-->
+        </div>
+
+        <button type="submit" class="auth-btn">
+            Enviar enlace de recuperación
+        </button>
+
+        <p class="auth-secondary-link">
+            ¿Recordó su contraseña?
+            <a href="{{ route('login') }}">Iniciar Sesión</a>
+        </p>
+
+    </form>
+
 @endsection
