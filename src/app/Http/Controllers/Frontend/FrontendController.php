@@ -34,12 +34,16 @@ class FrontendController extends Controller
 
     function index() : View
     {
-        $isAuthenticated = Auth::check();
-        $heroCacheKey = $isAuthenticated ? 'hero_private' : 'hero_public';
+        // Guest users get their own standalone view (no footer, full-screen split layout)
+        if (!Auth::check()) {
+            $hero = Cache::remember('hero_public', self::CACHE_HOME_TTL, function () {
+                return Hero::where(['type' => 'public', 'active' => 1])->first();
+            });
+            return view('frontend.home.guest', compact('hero'));
+        }
 
-        $hero = Cache::remember($heroCacheKey, self::CACHE_HOME_TTL, function () use ($isAuthenticated) {
-            $type = $isAuthenticated ? 'private' : 'public';
-            return Hero::where(['type' => $type, 'active' => 1])->first();
+        $hero = Cache::remember('hero_private', self::CACHE_HOME_TTL, function () {
+            return Hero::where(['type' => 'private', 'active' => 1])->first();
         });
 
         $homeData = Cache::remember('home_page_data', self::CACHE_HOME_TTL, function () {
