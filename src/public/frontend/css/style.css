@@ -306,7 +306,7 @@ button {
 	left: 0;
 	width: 100%;
 	height: 80px;
-	background: var(--colorWhite);
+	background: #efeffd;
 	z-index: 99;
 	border-bottom: 1px solid #eee !important;
 	transition: all linear .3s;

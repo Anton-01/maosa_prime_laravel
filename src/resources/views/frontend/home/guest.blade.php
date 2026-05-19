@@ -84,24 +84,13 @@
 /* ---- Right panel ---- */
 .ghero-right {
     flex: 0 0 42%;
-    background: #ffffff;
+    background: #ded9f3;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 50px 48px;
     overflow-y: auto;
     min-width: 0;
-}
-
-/* Logo */
-.ghero-logo {
-    display: block;
-    margin-bottom: 28px;
-}
-.ghero-logo img {
-    max-height: 46px;
-    max-width: 160px;
-    object-fit: contain;
 }
 
 /* Welcome pill */
@@ -187,7 +176,6 @@
     .ghero-badge-2   { display: none; }
     .ghero-badge-1   { top: auto; bottom: 14px; right: 14px; animation: none; }
     .ghero-right     { flex: 1 1 0; width: 100%; padding: 30px 28px; justify-content: flex-start; padding-top: 28px; }
-    .ghero-logo      { margin-bottom: 18px; }
     .ghero-welcome-pill { margin-bottom: 14px; }
 }
 
@@ -553,20 +541,13 @@
 
         {{-- Bottom label --}}
         <div class="ghero-left-label">
-            <p>Plataforma integral para la gestión y monitoreo<br>de plantas de tratamiento de hidrocarburos.</p>
+            <p>Plataforma integral para la gestión y monitoreo<br>de precios y proveedores.</p>
         </div>
     </div>
     {{-- /.ghero-left --}}
 
     {{-- ======== RIGHT PANEL — Welcome content ======== --}}
     <div class="ghero-right">
-
-        {{-- Logo --}}
-        @if(config('settings.logo'))
-            <a href="#" class="ghero-logo">
-                <img src="{{ config('settings.logo') }}" alt="{{ config('settings.site_name') }}">
-            </a>
-        @endif
 
         {{-- Welcome pill --}}
         <div class="ghero-welcome-pill">
@@ -602,11 +583,7 @@
             </div>
             <div class="ghero-feature">
                 <i class="fas fa-check-circle"></i>
-                <span>Precios actualizados en tiempo real</span>
-            </div>
-            <div class="ghero-feature">
-                <i class="fas fa-check-circle"></i>
-                <span>Soporte personalizado 24/7</span>
+                <span>Precios de combustibles actualizados en día con día</span>
             </div>
         </div>
 

@@ -31,7 +31,7 @@
 
             {{-- Bottom left brand label --}}
             <div class="hg-left-footer">
-                <p>Plataforma integral para la gestión y monitoreo<br>de plantas de tratamiento de hidrocarburos.</p>
+                <p>Plataforma integral para la gestión y monitoreo<br>de precios y proveedores.</p>
             </div>
         </div>
         {{-- /.hg-left --}}
@@ -69,11 +69,7 @@
                 </div>
                 <div class="hg-feature-item">
                     <i class="fas fa-check-circle"></i>
-                    <span>Precios actualizados en tiempo real</span>
-                </div>
-                <div class="hg-feature-item">
-                    <i class="fas fa-check-circle"></i>
-                    <span>Soporte personalizado</span>
+                    <span>Precios de combustibles actualizados día con día</span>
                 </div>
             </div>
 

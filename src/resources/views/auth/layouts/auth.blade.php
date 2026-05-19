@@ -389,8 +389,8 @@
                     <img src="{{ config('settings.logo') }}" alt="{{ config('settings.site_name') }}">
                 </a>
             @endif
-            <h3>Procesamiento de Hidrocarburos</h3>
-            <p>Plataforma integral para la gestión y monitoreo de plantas de tratamiento de hidrocarburos.</p>
+            <h3>Maosa Prime</h3>
+            <p>Plataforma integral para la gestión de proveedores y precios de combustible.</p>
         </div>
     </div>
     {{-- /.auth-panel-left --}}

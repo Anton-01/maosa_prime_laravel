@@ -60,7 +60,7 @@
         </div>
 
         <button type="submit" class="auth-btn">
-            Enviar Enlace de Recuperación
+            Enviar enlace de recuperación
         </button>
 
         <p class="auth-secondary-link">

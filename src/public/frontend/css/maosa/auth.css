@@ -7,7 +7,7 @@
 
 .auth-body {
     min-height: 100vh;
-    background: linear-gradient(145deg, #0f1c52 0%, #1a0b50 45%, #0a1035 100%);
+    background: linear-gradient(145deg, #efeffd 0%, #ded9f3 45%, #ded9f3 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -294,7 +294,6 @@
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 1.5px;
-    text-transform: uppercase;
     cursor: pointer;
     transition: filter 0.25s, transform 0.2s, box-shadow 0.25s;
     margin-bottom: 22px;
