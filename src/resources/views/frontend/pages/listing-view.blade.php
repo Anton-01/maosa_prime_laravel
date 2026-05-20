@@ -5,20 +5,22 @@
         BREADCRUMB PART START
     ===========================-->
     <div id="breadcrumb_part" class="listing-breadcrumb" style="
-    background: url({{ $listing->thumbnail_image }});
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
+        background: url({{ $listing->thumbnail_image }});
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
     ">
         <div class="bread_overlay listing-overlay">
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-12 text-center text-white">
-                        <h4>{{ $listing->title }}</h4>
-                        <nav style="--bs-breadcrumb-divider: '';" aria-label="breadcrumb">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h4 style="color:#fff; border-left-color:#fff;">{{ $listing->title }}</h4>
+                    </div>
+                    <div class="col-md-4">
+                        <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ url('/') }}"> Inicio </a></li>
-                                <li class="breadcrumb-item active" aria-current="page"> Detalles - Proveedor </li>
+                                <li class="breadcrumb-item"><a href="{{ url('/') }}" style="color:rgba(255,255,255,.8);">Inicio</a></li>
+                                <li class="breadcrumb-item active" aria-current="page" style="color:#fff;">Detalles - Proveedor</li>
                             </ol>
                         </nav>
                     </div>

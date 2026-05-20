@@ -19,9 +19,9 @@
                             </label>
                             <div class="input-group input-group-lg shadow-sm">
                                 <input type="date" id="input-effective-date" class="form-control form-control-lg"
-                                       min="{{ Carbon::yesterday()->format('Y-m-d') }}"
+                                       min="{{ Carbon\Carbon::yesterday()->format('Y-m-d') }}"
                                        value="{{ Carbon\Carbon::today()->format('Y-m-d') }}"
-                                       max="{{ Carbon::tomorrow()->format('Y-m-d') }}">
+                                       max="{{ Carbon\Carbon::tomorrow()->format('Y-m-d') }}">
                             </div>
                         </div>
                     </div>

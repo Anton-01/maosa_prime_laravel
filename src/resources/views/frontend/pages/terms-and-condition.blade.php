@@ -7,12 +7,14 @@
     <div id="breadcrumb_part">
         <div class="bread_overlay">
             <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-12 text-center text-white">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
                         <h4>Términos y Condiciones</h4>
-                        <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                    </div>
+                    <div class="col-md-4">
+                        <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ url('/') }}"> Inicio </a></li>
+                                <li class="breadcrumb-item"><a href="{{ url('/') }}">Inicio</a></li>
                                 <li class="breadcrumb-item active" aria-current="page">Términos y Condiciones</li>
                             </ol>
                         </nav>

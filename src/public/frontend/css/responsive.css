@@ -384,12 +384,17 @@
 	}
 
 	/* ABOUT PAGE START */
-	.bread_overlay {
-		padding: 55px 0px 45px 0px;
+	#breadcrumb_part h4 {
+		font-size: 17px;
 	}
 
 	#breadcrumb_part nav {
-		margin-top: 15px;
+		justify-content: flex-start;
+		margin-top: 6px;
+	}
+
+	#breadcrumb_part .breadcrumb {
+		justify-content: flex-start;
 	}
 
 	.about_text h4 {
@@ -786,15 +791,11 @@
 
 	/* ABOUT PAGE START  */
 	#breadcrumb_part h4 {
-		font-size: 35px;
-	}
-
-	.bread_overlay {
-		padding: 55px 0px 45px 0px;
+		font-size: 18px;
 	}
 
 	#breadcrumb_part nav {
-		margin-top: 15px;
+		margin-top: 0;
 	}
 
 	/* BLOG DETAILS PAGE START */
@@ -1387,15 +1388,16 @@
 
 	/* ABOUT PAGE START */
 	#breadcrumb_part h4 {
-		font-size: 30px;
-	}
-
-	.bread_overlay {
-		padding: 55px 0px 45px 0px;
+		font-size: 18px;
 	}
 
 	#breadcrumb_part nav {
-		margin-top: 15px;
+		justify-content: flex-start;
+		margin-top: 6px;
+	}
+
+	#breadcrumb_part .breadcrumb {
+		justify-content: flex-start;
 	}
 
 	#about_page {
@@ -2216,19 +2218,20 @@
 
 	/* ABOUT PAGE START */
 	#breadcrumb_part h4 {
-		font-size: 30px;
-	}
-
-	.bread_overlay {
-		padding: 55px 0px 45px 0px;
+		font-size: 17px;
 	}
 
 	#breadcrumb_part nav {
-		margin-top: 15px;
+		justify-content: flex-start;
+		margin-top: 6px;
+	}
+
+	#breadcrumb_part .breadcrumb {
+		justify-content: flex-start;
 	}
 
 	#breadcrumb_part li {
-		font-size: 14px;
+		font-size: 13px;
 	}
 
 	#about_page {
