@@ -162,9 +162,10 @@ class UserTrackingService
             $previousVisit = PageVisit::find($previousVisitId);
 
             if ($previousVisit && !$previousVisit->left_at) {
+                $timeOnPage = (int) now()->diffInSeconds($previousVisit->visited_at);
                 $previousVisit->update([
                     'left_at' => now(),
-                    'time_on_page' => now()->diffInSeconds($previousVisit->visited_at),
+                    'time_on_page' => $timeOnPage,
                 ]);
             }
         }
