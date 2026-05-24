@@ -29,6 +29,15 @@
                          style="background-image: url('{{ $user->banner ? asset($user->banner) : '' }}');">
                         <div class="dashboard-banner-overlay"></div>
                     </div>
+                    @php
+                        $tzKey     = config('settings.site_timezone') ?: config('app.timezone', 'America/Mexico_City');
+                        $tzList    = config('time-zone', []);
+                        $tzFull    = $tzList[$tzKey] ?? $tzKey;
+                        // Extract "(GMT±X:XX)" and the descriptive name in parentheses
+                        preg_match('/(\(GMT[^)]+\))\s*[^\s(]+\s*\(([^)]+)\)/', $tzFull, $m);
+                        $tzDisplay = isset($m[1], $m[2]) ? $m[1] . ' · ' . $m[2] : $tzFull;
+                        $tzNow     = now()->setTimezone($tzKey)->format('H:i');
+                    @endphp
                     <div class="dashboard-user-info">
                         <div class="dashboard-avatar-wrap">
                             <img src="{{ asset($user->avatar) }}" alt="avatar" class="dashboard-avatar">
@@ -37,6 +46,11 @@
                             <h5 class="dashboard-user-name">{{ $user->name }} </h5>
                             <p class="dashboard-user-email">
                                 <i class="fas fa-envelope"></i> {{ $user->email }}
+                            </p>
+                            <p class="dashboard-user-timezone">
+                                <i class="fas fa-clock"></i>
+                                <span class="tz-label">{{ $tzDisplay }}</span>
+                                <span class="tz-time">{{ $tzNow }}</span>
                             </p>
                             <div class="dashboard-badges">
                                 <span class="dash-badge dash-badge-type">
@@ -300,7 +314,40 @@
 .dashboard-user-email {
     font-size: 13px;
     color: #888;
+    margin-bottom: 4px;
+}
+.dashboard-user-timezone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #6c757d;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 20px;
+    padding: 3px 10px 3px 8px;
     margin-bottom: 8px;
+    line-height: 1.4;
+}
+.dashboard-user-timezone i {
+    color: #16a34a;
+    font-size: 11px;
+    flex-shrink: 0;
+}
+.tz-label {
+    color: #374151;
+    font-weight: 500;
+}
+.tz-time {
+    background: #16a34a;
+    color: #fff;
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-left: 2px;
+    flex-shrink: 0;
 }
 .dashboard-badges {
     display: flex;
