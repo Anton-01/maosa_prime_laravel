@@ -78,7 +78,9 @@ class UserStatisticsController extends Controller
             ->withCount(['sessions' => function ($query) use ($dateFrom, $dateTo) {
                 $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
             }])
-            ->having('page_visits_count', '>', 0)
+            ->whereHas('pageVisits', function ($query) use ($dateFrom, $dateTo) {
+                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
+            })
             ->orderByDesc('page_visits_count')
             ->limit(10)
             ->get();
@@ -134,7 +136,7 @@ class UserStatisticsController extends Controller
         $avgSessionDuration = UserSession::forUser($userId)
             ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
             ->whereNotNull('ended_at')
-            ->selectRaw('AVG(TIMESTAMPDIFF(SECOND, started_at, ended_at)) as avg_duration')
+            ->selectRaw('AVG(EXTRACT(EPOCH FROM (ended_at - started_at))) as avg_duration')
             ->value('avg_duration');
 
         // Most visited pages by this user

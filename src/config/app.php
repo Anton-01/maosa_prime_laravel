@@ -70,8 +70,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
-
+    'timezone' => env('APP_TIMEZONE', 'America/Mexico_City'),
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

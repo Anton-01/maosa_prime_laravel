@@ -28,11 +28,11 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        config()->set('app.timezone', env('APP_TIMEZONE'));
+        date_default_timezone_set(config('app.timezone'));
         // set default pagination design
         Paginator::useBootstrap();
 
-        // Configurar rate limiters con Redis como backend de caché
+        // Config rate limiters with Redis like as cache
         $this->configureRateLimiting();
     }
 
