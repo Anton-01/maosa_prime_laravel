@@ -29,6 +29,49 @@
                          style="background-image: url('{{ $user->banner ? asset($user->banner) : '' }}');">
                         <div class="dashboard-banner-overlay"></div>
                     </div>
+                    @php
+                        $tzKey = config('settings.site_timezone') ?: config('app.timezone', 'America/Mexico_City');
+                        $tzFriendlyMap = [
+                            'America/Mexico_City'            => 'México · Hora Central',
+                            'America/Monterrey'              => 'México · Hora Central',
+                            'America/Merida'                 => 'México · Hora Central',
+                            'America/Cancun'                 => 'México · Hora del Este',
+                            'America/Chihuahua'              => 'México · Hora de la Montaña',
+                            'America/Mazatlan'               => 'México · Hora de la Montaña',
+                            'America/Hermosillo'             => 'México · Hora del Noroeste',
+                            'America/Tijuana'                => 'México · Hora del Pacífico',
+                            'America/Bogota'                 => 'Colombia · Hora Colombia',
+                            'America/Lima'                   => 'Perú · Hora Perú',
+                            'America/Santiago'               => 'Chile · Hora Chile',
+                            'America/Buenos_Aires'           => 'Argentina · Hora Argentina',
+                            'America/Argentina/Buenos_Aires' => 'Argentina · Hora Argentina',
+                            'America/Caracas'                => 'Venezuela · Hora Venezuela',
+                            'America/Guayaquil'              => 'Ecuador · Hora Ecuador',
+                            'America/La_Paz'                 => 'Bolivia · Hora Bolivia',
+                            'America/Asuncion'               => 'Paraguay · Hora Paraguay',
+                            'America/Montevideo'             => 'Uruguay · Hora Uruguay',
+                            'America/Guatemala'              => 'Guatemala · Hora Guatemala',
+                            'America/Costa_Rica'             => 'Costa Rica · Hora Costa Rica',
+                            'America/Panama'                 => 'Panamá · Hora Panamá',
+                            'America/Managua'                => 'Nicaragua · Hora Nicaragua',
+                            'America/Tegucigalpa'            => 'Honduras · Hora Honduras',
+                            'America/El_Salvador'            => 'El Salvador · Hora El Salvador',
+                            'America/Santo_Domingo'          => 'Rep. Dominicana · Hora del Caribe',
+                            'America/Havana'                 => 'Cuba · Hora Cuba',
+                            'America/New_York'               => 'EE.UU. · Hora del Este',
+                            'America/Chicago'                => 'EE.UU. · Hora Central',
+                            'America/Denver'                 => 'EE.UU. · Hora de la Montaña',
+                            'America/Los_Angeles'            => 'EE.UU. · Hora del Pacífico',
+                            'America/Phoenix'                => 'EE.UU. · Hora de Arizona',
+                            'Europe/Madrid'                  => 'España · Hora de Europa Central',
+                            'UTC'                            => 'UTC · Tiempo Universal',
+                        ];
+                        $tzFriendly = $tzFriendlyMap[$tzKey]
+                            ?? str_replace('_', ' ', preg_replace('/^[^\/]+\//', '', $tzKey));
+                        $tzObj = new DateTimeZone($tzKey);
+                        $tzOffsetSeconds = $tzObj->getOffset(new DateTime('now', new DateTimeZone('UTC')));
+                        $tzNow = now()->setTimezone($tzKey)->format('g:i a');
+                    @endphp
                     <div class="dashboard-user-info">
                         <div class="dashboard-avatar-wrap">
                             <img src="{{ asset($user->avatar) }}" alt="avatar" class="dashboard-avatar">
@@ -48,6 +91,11 @@
                                     </span>
                                 @endif
                             </div>
+                        </div>
+                        <div class="dashboard-tz-block">
+                            <i class="fas fa-clock"></i>
+                            <span class="tz-name">{{ $tzFriendly }}</span>
+                            <span class="tz-pill" id="tz-live-time">{{ $tzNow }}</span>
                         </div>
                     </div>
                 </div>
@@ -302,6 +350,35 @@
     color: #888;
     margin-bottom: 8px;
 }
+.dashboard-tz-block {
+    margin-left: auto;
+    align-self: flex-start;
+    padding-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+.dashboard-tz-block i {
+    font-size: 10px;
+    color: #c0c7d4;
+}
+.tz-name {
+    font-size: 10.5px;
+    color: #b8bfcc;
+    font-weight: 400;
+    letter-spacing: 0.1px;
+}
+.tz-pill {
+    background: #f1f3f7;
+    color: #7a8599;
+    border-radius: 8px;
+    padding: 2px 7px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
+}
 .dashboard-badges {
     display: flex;
     flex-wrap: wrap;
@@ -514,6 +591,34 @@
     .dashboard-avatar-wrap {
         margin-top: -36px;
     }
+    .dashboard-tz-block {
+        margin-left: 0;
+        padding-top: 4px;
+        padding-bottom: 4px;
+    }
 }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+(function () {
+    var offsetSeconds = {{ $tzOffsetSeconds ?? 0 }};
+    var el = document.getElementById('tz-live-time');
+    if (!el) return;
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function tick() {
+        var now = new Date();
+        var utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+        var local = new Date(utcMs + offsetSeconds * 1000);
+        var h = local.getHours();
+        var m = pad(local.getMinutes());
+        var ampm = h >= 12 ? 'pm' : 'am';
+        var h12 = h % 12 || 12;
+        el.textContent = h12 + ':' + m + ' ' + ampm;
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>
 @endpush
