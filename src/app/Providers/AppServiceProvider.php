@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        config()->set('app.timezone', env('APP_TIMEZONE'));
+        date_default_timezone_set(config('app.timezone'));
         // set default pagination design
         Paginator::useBootstrap();
 
