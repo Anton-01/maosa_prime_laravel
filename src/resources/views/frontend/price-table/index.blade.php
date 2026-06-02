@@ -1,6 +1,40 @@
 @extends('frontend.layouts.master')
 
 @section('contents')
+    <style>
+        .price-table-download-overlay {
+            align-items: center;
+            background: rgba(9, 14, 24, 0.68);
+            bottom: 0;
+            display: none;
+            justify-content: center;
+            left: 0;
+            position: fixed;
+            right: 0;
+            top: 0;
+            z-index: 9999;
+        }
+
+        .price-table-download-overlay.is-active {
+            display: flex;
+        }
+
+        .price-table-download-panel {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+            max-width: 360px;
+            padding: 26px;
+            text-align: center;
+            width: calc(100% - 32px);
+        }
+
+        .price-table-download-panel p {
+            color: #4f5965;
+            margin: 10px 0 0;
+        }
+    </style>
+
     <section id="dashboard">
         <div class="container">
             <div class="row">
@@ -13,7 +47,7 @@
                     <div id="price-table-controls" class="row mb-4 align-items-end g-3" style="display: none !important;">
                         <div id="station-selector-wrapper" class="col-md-6" style="display: none;"></div>
 
-                        <div id="date-picker-wrapper" class="col-md-6">
+                        <div id="date-picker-wrapper" class="col-md-4">
                             <label class="form-label fw-bold text-uppercase letter-spacing-2 small">
                                 FECHA DE VIGENCIA
                             </label>
@@ -23,6 +57,16 @@
                                        value="{{ Carbon\Carbon::today()->format('Y-m-d') }}"
                                        max="{{ Carbon\Carbon::tomorrow()->format('Y-m-d') }}">
                             </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <a href="{{ route('user.price-table.pdf') }}"
+                               id="download-price-pdf"
+                               class="btn btn-danger btn-lg w-100 shadow-sm"
+                               rel="noopener">
+                                <i class="fas fa-file-pdf"></i>
+                                PDF
+                            </a>
                         </div>
                     </div>
 
@@ -42,6 +86,16 @@
             </div>
         </div>
     </section>
+
+    <div id="price-table-download-overlay" class="price-table-download-overlay" aria-hidden="true">
+        <div class="price-table-download-panel" role="status" aria-live="polite">
+            <div class="spinner-border text-danger" role="status" style="width: 2.75rem; height: 2.75rem;">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <p class="fw-bold mb-0">Generando PDF</p>
+            <p>Preparando la descarga de la tabla de precios.</p>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -54,9 +108,12 @@
     const controls      = document.getElementById('price-table-controls');
     const stationWrapper = document.getElementById('station-selector-wrapper');
     const datePicker    = document.getElementById('input-effective-date');
+    const downloadPdfBtn = document.getElementById('download-price-pdf');
+    const downloadOverlay = document.getElementById('price-table-download-overlay');
 
     let stationSelectEl = null;
     let hiddenStationEl = null;
+    let isDownloadingPdf = false;
 
     function getStationId() {
         if (stationSelectEl) return stationSelectEl.value;
@@ -66,6 +123,74 @@
 
     function getEffectiveDate() {
         return datePicker ? datePicker.value : null;
+    }
+
+    function updatePdfUrl() {
+        const effectiveDate = getEffectiveDate();
+        const params = new URLSearchParams();
+
+        if (effectiveDate) params.append('fecha_vigencia', effectiveDate);
+
+        downloadPdfBtn.href = `{{ route('user.price-table.pdf') }}?${params.toString()}`;
+    }
+
+    function setPdfDownloadState(isLoading) {
+        isDownloadingPdf = isLoading;
+        downloadPdfBtn.classList.toggle('disabled', isLoading);
+        downloadPdfBtn.setAttribute('aria-disabled', isLoading ? 'true' : 'false');
+
+        if (datePicker) datePicker.disabled = isLoading;
+        if (stationSelectEl) stationSelectEl.disabled = isLoading;
+
+        if (downloadOverlay) {
+            downloadOverlay.classList.toggle('is-active', isLoading);
+            downloadOverlay.setAttribute('aria-hidden', isLoading ? 'false' : 'true');
+        }
+    }
+
+    function fileNameFromDisposition(disposition) {
+        if (!disposition) return null;
+
+        const utf8Match = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+        if (utf8Match) return decodeURIComponent(utf8Match[1].replace(/['"]/g, ''));
+
+        const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
+        return filenameMatch ? filenameMatch[1] : null;
+    }
+
+    async function downloadPdf(event) {
+        event.preventDefault();
+
+        if (isDownloadingPdf) return;
+
+        updatePdfUrl();
+        setPdfDownloadState(true);
+
+        try {
+            const response = await fetch(downloadPdfBtn.href, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            });
+
+            if (!response.ok) {
+                throw new Error('No fue posible generar el PDF.');
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = fileNameFromDisposition(response.headers.get('Content-Disposition'))
+                || `maosa-prime-precios-combustible-${getEffectiveDate() || 'consulta'}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (e) {
+            alert('No fue posible descargar el PDF. Intente más tarde.');
+        } finally {
+            setPdfDownloadState(false);
+        }
     }
 
     function showContentLoader(stationName) {
@@ -163,7 +288,12 @@
                 stationWrapper.appendChild(hiddenStationEl);
             }
 
-            datePicker.addEventListener('change', loadPrices);
+            updatePdfUrl();
+            downloadPdfBtn.addEventListener('click', downloadPdf);
+            datePicker.addEventListener('change', function () {
+                updatePdfUrl();
+                loadPrices();
+            });
 
             loadPrices();
 

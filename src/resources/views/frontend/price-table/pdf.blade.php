@@ -2,207 +2,220 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Tabla de Precios - {{ $user->name }}</title>
+    <title>Tabla de Precios - {{ $effectiveDate->format('Y-m-d') }}</title>
+    @if(!empty($tablePricesCss))
+        <style>
+            {!! $tablePricesCss !!}
+        </style>
+    @endif
     <style>
+        @page {
+            margin: 24px;
+        }
+
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            font-family: Arial, sans-serif;
+            margin: 0;
+            font-family: DejaVu Sans, Arial, sans-serif;
             font-size: 11px;
-            color: #333;
-            padding: 15px;
+            color: #202124;
+            /* El fondo del body puede seguir siendo blanco, la marca de agua va encima pero detrás del texto */
+            background: #ffffff;
         }
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        .header h1 {
-            font-size: 16px;
-            color: #1a472a;
-            margin-bottom: 5px;
-        }
-        .price-table {
+
+        #watermark-fondo {
+            position: fixed;
+            top: 15%;
+            left: 0;
             width: 100%;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #watermark-fondo img {
+            width: 800px; /* Tamaño estático del logo */
+            opacity: 0.35; /* Nivel de transparencia */
+            margin: 0 auto;
+        }
+
+        /* ==========================================================================
+           2. FORZAR TRANSPARENCIA EN EL CONTENIDO DE LA API
+           ========================================================================== */
+        .station-content,
+        .station-content .precio-layout,
+        .station-content table,
+        .station-content tr,
+        .station-content td,
+        .station-content th {
+            background: transparent !important;
+            background-color: transparent !important;
+        }
+
+        /* Estilos originales de tu documento */
+        .document-header {
+            border-bottom: 2px solid #1f5f3a;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+        }
+
+        .document-title {
+            color: #1f5f3a;
+            font-size: 19px;
+            font-weight: bold;
+            margin: 0 0 6px;
+        }
+
+        .document-meta {
+            color: #4f5965;
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .notice {
+            background: #fff7e6;
+            border: 1px solid #f0c36d;
+            color: #5f3b00;
+            font-size: 10px;
+            line-height: 1.45;
+            margin: 0 0 16px;
+            padding: 9px 11px;
+        }
+
+        .station-section {
+            margin-bottom: 18px;
+            page-break-inside: avoid;
+        }
+
+        .station-content table {
+            width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
         }
-        .price-table .title-row {
-            background: #1a472a;
-            color: white;
+
+        .station-content thead th,
+        .station-content thead td,
+        .station-content .header-row th,
+        .station-content .header-row td,
+        .station-content .terminal-col,
+        .station-content .flete-col,
+        .station-content .magna-col,
+        .station-content .premium-col,
+        .station-content .diesel-col,
+        .station-content table > tbody > tr:first-child > th {
+            color: #ffffff !important;
         }
-        .price-table .title-row td {
-            padding: 10px;
+
+        .empty-state {
+            border: 1px solid #d9dfe7;
+            color: #5f6875;
+            padding: 18px;
             text-align: center;
-            font-weight: bold;
-            font-size: 14px;
         }
-        .price-table .branch-name {
-            font-size: 12px;
-            font-weight: normal;
-        }
-        .price-table .date-row {
-            background: #1a472a;
-            color: white;
-        }
-        .price-table .date-row td {
-            padding: 5px;
-            text-align: center;
-            font-size: 10px;
-        }
-        .price-table .header-row th {
-            padding: 8px 5px;
-            text-align: center;
-            font-weight: bold;
-            color: white;
-            border: 1px solid #ddd;
-            font-size: 10px;
-        }
-        .price-table .header-row .terminal-col {
-            background: #333;
-            text-align: left;
-        }
-        .price-table .header-row .magna-col {
-            background: #2e7d32;
-        }
-        .price-table .header-row .premium-col {
-            background: #c62828;
-        }
-        .price-table .header-row .diesel-col {
-            background: #424242;
-        }
-        .price-table tbody tr:nth-child(even) {
-            background: #f5f5f5;
-        }
-        .price-table tbody td {
-            padding: 6px 5px;
-            border: 1px solid #ddd;
-            font-size: 10px;
-        }
-        .price-table tbody .terminal-name {
-            font-weight: 500;
-        }
-        .price-table tbody .price {
-            text-align: right;
-        }
-        .price-table tbody .price-flete {
-            color: #5c6bc0;
-        }
-        .price-table tbody .price-magna {
-            color: #2e7d32;
-        }
-        .price-table tbody .price-premium {
-            color: #c62828;
-        }
-        .legends {
-            margin-top: 15px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 3px;
-        }
-        .legends p {
-            margin: 3px 0;
-            font-size: 9px;
-            color: #555;
-        }
-        .legends p.warning {
-            color: #c62828;
-            font-weight: 500;
-        }
+
         .footer {
-            margin-top: 15px;
-            text-align: center;
+            border-top: 1px solid #d9dfe7;
+            color: #6b7280;
             font-size: 9px;
-            color: #999;
+            margin-top: 18px;
+            padding-top: 8px;
+            text-align: center;
+            /* Importante para que el footer no se superponga si la página está muy llena */
+            position: relative;
+            background: #ffffff;
         }
+
         .page-break {
             page-break-after: always;
         }
+
+        /* ==========================================================================
+           3. RECUPERAR COLORES ORIGINALES DEL ENCABEZADO (Sobreescritura forzada)
+           ========================================================================== */
+
+        /* Columnas 1, 2 y 3: Terminal, Calidad, Flete (Gris Oscuro) */
+        .station-content table thead th:nth-child(1),
+        .station-content table thead th:nth-child(2),
+        .station-content table thead th:nth-child(3) {
+            background-color: #4A4A4A !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Columna 4: MAGNA (Verde) */
+        .station-content table thead th:nth-child(4) {
+            background-color: #00B050 !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Columna 5: PREMIUM (Rojo) */
+        .station-content table thead th:nth-child(5) {
+            background-color: #FF0000 !important;
+            color: #FFFFFF !important;
+        }
+
+        /* Columna 6: DIESEL (Negro) */
+        .station-content table thead th:nth-child(6) {
+            background-color: #000000 !important;
+            color: #FFFFFF !important;
+        }
+
     </style>
 </head>
 <body>
-@if($priceLists->count() > 0)
-    @foreach($priceLists as $priceList)
-        <table class="price-table">
-            <thead>
-            <tr class="title-row">
-                <td colspan="5">
-                    ESTIMADO {{ strtoupper($user->name) }}
-                    @if($priceList->branch)
-                        <br><span class="branch-name">{{ $priceList->branch->name }}</span>
-                    @endif
-                </td>
-            </tr>
-            <tr class="date-row">
-                <td colspan="5">Vigencia de los costos asignados: {{ $priceList->price_date->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}</td>
-            </tr>
-            <tr class="header-row">
-                <th class="terminal-col" style="width: 35%;">TERMINAL</th>
-                <th class="flete-col" style="width: 15%;">FLETE</th>
-                <th class="magna-col" style="width: 17%;">MAGNA</th>
-                <th class="premium-col" style="width: 17%;">PREMIUM</th>
-                <th class="diesel-col" style="width: 16%;">DIESEL</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach($priceList->items as $item)
-                <tr>
-                    <td class="terminal-name">{{ $item->terminal_name }}</td>
-                    <td class="price price-flete">
-                        @if($item->shipping_price)
-                            $ {{ number_format($item->shipping_price, 4) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="price price-magna">
-                        @if($item->magna_price)
-                            $ {{ number_format($item->magna_price, 4) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="price price-premium">
-                        @if($item->premium_price)
-                            $ {{ number_format($item->premium_price, 4) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                    <td class="price">
-                        @if($item->diesel_price)
-                            $ {{ number_format($item->diesel_price, 4) }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
 
-        @if(!$loop->last)
-            <div style="margin-bottom: 25px;"></div>
+<div id="watermark-fondo">
+    <img src="https://storage.googleapis.com/maosa-public-assets/img/maosa-logo-n.png" alt="Marca de agua">
+</div>
+
+<header class="document-header">
+    <h1 class="document-title">Tabla de Precios</h1>
+    <p class="document-meta">
+        Usuario: {{ $user->name }}<br>
+        Fecha de vigencia consultada: {{ $effectiveDate->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY') }}<br>
+        Descargado: {{ $downloadedAt->locale('es')->isoFormat('dddd, D [de] MMMM [de] YYYY [a las] HH:mm:ss') }}
+    </p>
+</header>
+
+<div class="notice">
+    La relación de precios descargada es una representación visual de la fecha y hora de los precios.
+    Estos pueden variar de manera constante, por lo tanto solo la consulta en el sitio web se considera válida.
+</div>
+
+@forelse($priceTables as $entry)
+    <section class="station-section">
+        @if(!empty($entry['html']))
+            <div class="station-content">
+                {!! $entry['html'] !!}
+            </div>
+        @elseif(($entry['status'] ?? null) === 404)
+            <div class="empty-state">
+                Sin precios disponibles para {{ $entry['station_name'] }} en la fecha seleccionada.
+            </div>
+        @elseif(($entry['status'] ?? null) === 401)
+            <div class="empty-state">
+                No fue posible autenticar la consulta de precios para {{ $entry['station_name'] }}.
+            </div>
+        @else
+            <div class="empty-state">
+                No fue posible obtener precios para {{ $entry['station_name'] }}. Intente más tarde.
+            </div>
         @endif
-    @endforeach
+    </section>
 
-    @if($legends->count() > 0)
-        <div class="legends">
-            @foreach($legends as $index => $legend)
-                <p class="{{ $loop->last ? 'warning' : '' }}">{{ $legend->legend_text }}</p>
-            @endforeach
-        </div>
+    @if(!$loop->last)
+        <div class="page-break"></div>
     @endif
+@empty
+    <div class="empty-state">
+        No hay estaciones asignadas para generar la tabla de precios.
+    </div>
+@endforelse
 
-    <div class="footer">
-        Generado el {{ now()->locale('es')->isoFormat('D [de] MMMM [de] YYYY [a las] HH:mm') }}
-    </div>
-@else
-    <div style="text-align: center; padding: 50px;">
-        <h2>No hay lista de precios disponible</h2>
-    </div>
-@endif
+<div class="footer">
+    Documento protegido contra edición. Generado por {{ config('app.name') }}.
+</div>
+
 </body>
 </html>

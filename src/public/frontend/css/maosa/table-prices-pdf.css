@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Estilos de estructura para el HTML inyectado de la API (.precio-layout)
+   ========================================================================== */
+
+.precio-layout {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Header de la API (Títulos: 1973-DLT SAN MATEO, etc.)
+   ========================================================================== */
+.precio-layout .pl-header {
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    position: relative;
+}
+
+.precio-layout .pl-header h2 {
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.precio-layout .pl-header .tipo {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.precio-layout .pl-header .fecha {
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* ==========================================================================
+   Estructura de la Tabla (Tipografía, bordes y alineaciones)
+   ========================================================================== */
+.table-responsive {
+    width: 100%;
+    margin-bottom: 20px;
+    clear: both;
+}
+
+.precio-layout table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.precio-layout th {
+    padding: 10px 6px !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+.precio-layout th.prod-h {
+    text-align: center !important;
+}
+
+.precio-layout td {
+    padding: 12px 8px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+}
+
+.precio-layout td.num {
+    text-align: right !important;
+}
+
+/* ==========================================================================
+   Distribución proporcional de columnas (¡CRÍTICO PARA QUE NO SE DEFORME!)
+   ========================================================================== */
+.precio-layout table th:nth-child(1), .precio-layout table td:nth-child(1) { width: 38%; }
+.precio-layout table th:nth-child(2), .precio-layout table td:nth-child(2) { width: 10%; }
+.precio-layout table th:nth-child(3), .precio-layout table td:nth-child(3) { width: 12%; }
+.precio-layout table th:nth-child(4), .precio-layout table td:nth-child(4) { width: 13.33%; }
+.precio-layout table th:nth-child(5), .precio-layout table td:nth-child(5) { width: 13.33%; }
+.precio-layout table th:nth-child(6), .precio-layout table td:nth-child(6) { width: 13.33%; }
+
+/* ==========================================================================
+   Notes (Bloque contenedor inferior gris)
+   ========================================================================== */
+.precio-layout .pl-footer {
+    margin-top: 20px;
+    position: relative;
+    page-break-inside: avoid;
+}
+
+.precio-layout .pl-notas {
+    border-radius: 6px !important;
+    padding: 16px 20px !important;
+    background-color: #d9d4ce !important; /* DomPDF respetará este fondo porque no lo forzamos transparente en Blade */
+}
+
+.precio-layout .pl-notas div {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    line-height: 1.6 !important;
+    color: #2b2b2b !important;
+    margin-bottom: 4px;
+}
