@@ -94,14 +94,13 @@ class UserPriceTableController extends Controller
         }
 
         $effectiveDate = $this->resolveEffectiveDate($request->get('fecha_vigencia'));
-        $unaHojaA4 = filter_var($request->get('una_hoja_a4', false), FILTER_VALIDATE_BOOLEAN);
 
         $stationId = (int) $request->get('estacion_id');
         if (!$stationId || !$this->userOwnsStation($user, $stationId)) {
             abort(403, 'No tiene acceso a esta estación');
         }
 
-        $apiResponse = $this->apiService->getPricePdf($stationId, $effectiveDate->toDateString(), $unaHojaA4);
+        $apiResponse = $this->apiService->getPricePdf($stationId, $effectiveDate->toDateString());
 
         if (!$apiResponse->successful()) {
             $statusCode = $apiResponse->status();

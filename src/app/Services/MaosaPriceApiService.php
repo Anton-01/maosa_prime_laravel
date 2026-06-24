@@ -54,22 +54,19 @@ class MaosaPriceApiService
         return Http::withHeaders(['Authorization' => "Bearer {$this->token}", 'Accept' => 'text/html',])->get($url, $query);
     }
 
-    public function getPricePdf(int $idEstacion, ?string $fechaVigencia = null, bool $unaHojaA4 = false): Response
+    public function getPricePdf(int $idEstacion, ?string $fechaVigencia = null): Response
     {
         $url = "{$this->baseUrl}/api/precio_importado/layout/estacion/{$idEstacion}/pdf";
 
-        $query = [];
+        $query = ['una_hoja_a4' => 'true'];
         if ($fechaVigencia) {
             $query['fecha_vigencia'] = $fechaVigencia;
-        }
-        if ($unaHojaA4) {
-            $query['una_hoja_a4'] = 'true';
         }
 
         return Http::withHeaders([
             'Authorization' => "Bearer {$this->token}",
             'Accept' => 'application/json',
-        ])->timeout(30)->get($url, $query);
+        ])->timeout(60)->get($url, $query);
     }
 
     private function jsonHeaders(): array
