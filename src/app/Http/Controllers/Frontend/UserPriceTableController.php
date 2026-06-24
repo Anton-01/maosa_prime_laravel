@@ -144,11 +144,21 @@ class UserPriceTableController extends Controller
 
         try {
             foreach ($pdfContents as $i => $content) {
-                $path = sys_get_temp_dir() . '/maosa_pdf_' . uniqid() . "_{$i}.pdf";
-                file_put_contents($path, $content);
-                $tempFiles[] = $path;
+                $encPath = sys_get_temp_dir() . '/maosa_pdf_enc_' . uniqid() . "_{$i}.pdf";
+                $decPath = sys_get_temp_dir() . '/maosa_pdf_dec_' . uniqid() . "_{$i}.pdf";
+                file_put_contents($encPath, $content);
+                $tempFiles[] = $encPath;
+                $tempFiles[] = $decPath;
 
-                $pageCount = $merger->setSourceFile($path);
+                exec(sprintf(
+                    'qpdf --decrypt %s %s 2>&1',
+                    escapeshellarg($encPath),
+                    escapeshellarg($decPath)
+                ), $output, $exitCode);
+
+                $sourcePath = ($exitCode === 0 && is_file($decPath)) ? $decPath : $encPath;
+
+                $pageCount = $merger->setSourceFile($sourcePath);
                 for ($p = 1; $p <= $pageCount; $p++) {
                     $tpl = $merger->importPage($p);
                     $size = $merger->getTemplateSize($tpl);

@@ -4,7 +4,7 @@ COPY src .
 COPY dockerfiles/uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
 COPY dockerfiles/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 
-RUN apk add --no-cache postgresql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu
+RUN apk add --no-cache postgresql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu qpdf
 
 RUN apk add --no-cache --virtual build-essentials \
     icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev \
