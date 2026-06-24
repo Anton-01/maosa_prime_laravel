@@ -139,35 +139,25 @@ class UserPriceTableController extends Controller
 
     private function mergePdfs(array $pdfContents): string
     {
-        $tempDir = sys_get_temp_dir();
+        $merger = new \setasign\Fpdi\Fpdi();
         $tempFiles = [];
 
         try {
             foreach ($pdfContents as $i => $content) {
-                $path = $tempDir . '/maosa_pdf_' . uniqid() . "_{$i}.pdf";
+                $path = sys_get_temp_dir() . '/maosa_pdf_' . uniqid() . "_{$i}.pdf";
                 file_put_contents($path, $content);
                 $tempFiles[] = $path;
+
+                $pageCount = $merger->setSourceFile($path);
+                for ($p = 1; $p <= $pageCount; $p++) {
+                    $tpl = $merger->importPage($p);
+                    $size = $merger->getTemplateSize($tpl);
+                    $merger->AddPage($size['orientation'], [$size['width'], $size['height']]);
+                    $merger->useTemplate($tpl);
+                }
             }
 
-            $outputPath = $tempDir . '/maosa_pdf_merged_' . uniqid() . '.pdf';
-            $inputFiles = implode(' ', array_map('escapeshellarg', $tempFiles));
-
-            $command = sprintf(
-                'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=%s %s 2>&1',
-                escapeshellarg($outputPath),
-                $inputFiles
-            );
-
-            exec($command, $output, $exitCode);
-
-            if ($exitCode !== 0 || !is_file($outputPath)) {
-                abort(502, 'Error al fusionar los PDF.');
-            }
-
-            $merged = file_get_contents($outputPath);
-            $tempFiles[] = $outputPath;
-
-            return $merged;
+            return $merger->Output('S');
         } finally {
             foreach ($tempFiles as $file) {
                 @unlink($file);
