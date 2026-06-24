@@ -94,31 +94,85 @@ class UserPriceTableController extends Controller
         }
 
         $effectiveDate = $this->resolveEffectiveDate($request->get('fecha_vigencia'));
+        $dateString = $effectiveDate->toDateString();
 
-        $stationId = (int) $request->get('estacion_id');
-        if (!$stationId || !$this->userOwnsStation($user, $stationId)) {
-            abort(403, 'No tiene acceso a esta estación');
+        if ($user->id_socio) {
+            $stations = $this->resolveStations($user);
+            $stationIds = array_column($stations, 'id_estacion');
+        } else {
+            $stationIds = [$user->id_estacion];
         }
 
-        $apiResponse = $this->apiService->getPricePdf($stationId, $effectiveDate->toDateString());
+        if (empty($stationIds)) {
+            abort(404, 'No tiene estaciones asignadas.');
+        }
 
-        if (!$apiResponse->successful()) {
-            $statusCode = $apiResponse->status();
-            if ($statusCode === 404) {
-                abort(404, 'Sin precios disponibles para la fecha seleccionada.');
+        $pdfContents = [];
+        foreach ($stationIds as $stationId) {
+            $apiResponse = $this->apiService->getPricePdf((int) $stationId, $dateString);
+
+            if ($apiResponse->successful()) {
+                $pdfContents[] = $apiResponse->body();
             }
-            if ($statusCode === 401) {
-                abort(401, 'Error de autenticación con la API de precios.');
-            }
-            abort(502, 'Error al obtener el PDF de precios. Intente más tarde.');
+        }
+
+        if (empty($pdfContents)) {
+            abort(502, 'No fue posible obtener los PDF de precios. Intente más tarde.');
         }
 
         $filename = 'maosa-prime-precios-combustible-' . $effectiveDate->format('Y-m-d') . '.pdf';
 
-        return response($apiResponse->body(), 200, [
+        if (count($pdfContents) === 1) {
+            return response($pdfContents[0], 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            ]);
+        }
+
+        $mergedPdf = $this->mergePdfs($pdfContents);
+
+        return response($mergedPdf, 200, [
             'Content-Type' => 'application/pdf',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ]);
+    }
+
+    private function mergePdfs(array $pdfContents): string
+    {
+        $tempDir = sys_get_temp_dir();
+        $tempFiles = [];
+
+        try {
+            foreach ($pdfContents as $i => $content) {
+                $path = $tempDir . '/maosa_pdf_' . uniqid() . "_{$i}.pdf";
+                file_put_contents($path, $content);
+                $tempFiles[] = $path;
+            }
+
+            $outputPath = $tempDir . '/maosa_pdf_merged_' . uniqid() . '.pdf';
+            $inputFiles = implode(' ', array_map('escapeshellarg', $tempFiles));
+
+            $command = sprintf(
+                'gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=%s %s 2>&1',
+                escapeshellarg($outputPath),
+                $inputFiles
+            );
+
+            exec($command, $output, $exitCode);
+
+            if ($exitCode !== 0 || !is_file($outputPath)) {
+                abort(502, 'Error al fusionar los PDF.');
+            }
+
+            $merged = file_get_contents($outputPath);
+            $tempFiles[] = $outputPath;
+
+            return $merged;
+        } finally {
+            foreach ($tempFiles as $file) {
+                @unlink($file);
+            }
+        }
     }
 
     private function resolveStations($user): array
