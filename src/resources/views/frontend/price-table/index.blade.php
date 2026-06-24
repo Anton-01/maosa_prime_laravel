@@ -127,9 +127,11 @@
 
     function updatePdfUrl() {
         const effectiveDate = getEffectiveDate();
+        const stationId = getStationId();
         const params = new URLSearchParams();
 
         if (effectiveDate) params.append('fecha_vigencia', effectiveDate);
+        if (stationId) params.append('estacion_id', stationId);
 
         downloadPdfBtn.href = `{{ route('user.price-table.pdf') }}?${params.toString()}`;
     }
@@ -275,7 +277,10 @@
                 label.textContent = 'ESTACIONES';
 
                 stationSelectEl = buildStationSelect(stations);
-                stationSelectEl.addEventListener('change', loadPrices);
+                stationSelectEl.addEventListener('change', function () {
+                    updatePdfUrl();
+                    loadPrices();
+                });
 
                 stationWrapper.appendChild(label);
                 stationWrapper.appendChild(stationSelectEl);
