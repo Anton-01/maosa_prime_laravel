@@ -17,6 +17,8 @@
         "mews/purifier": "^3.4",
         "predis/predis": "^2.2",
         "razorpay/razorpay": "2.*",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.6",
         "spatie/laravel-permission": "^6.1",
         "yajra/laravel-datatables": "^11.0"
     },
