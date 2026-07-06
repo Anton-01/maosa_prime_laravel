@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
 /**
- * Catálogo de socios/estaciones importado (schema maosa_internal).
- * Tabla de solo lectura administrada por procesos externos de importación.
+ * Catálogo de socios/estaciones importado (schema maosa_internal, fuera del
+ * search_path por defecto de la aplicación, por eso la tabla se referencia
+ * calificada con el schema).
+ *
+ * Estructura real: id_estacion, estacion, id_socio, socio, activo (boolean),
+ * fecha_creacion, fecha_actualizacion. Tabla de solo lectura administrada
+ * por procesos externos de importación.
  */
 class CatUsuarioImportado extends Model
 {
@@ -16,7 +21,7 @@ class CatUsuarioImportado extends Model
     public $timestamps = false;
 
     /**
-     * Estaciones con estatus activo, únicas y ordenadas por nombre,
+     * Estaciones activas (activo = true), únicas y ordenadas por nombre,
      * para poblar el select de "Mostrar tabla de precios".
      */
     public static function estacionesActivas(): Collection
@@ -25,7 +30,7 @@ class CatUsuarioImportado extends Model
             return static::query()
                 ->select('id_estacion', 'estacion')
                 ->whereNotNull('id_estacion')
-                ->where('estatus', true)
+                ->where('activo', true)
                 ->distinct()
                 ->orderBy('estacion')
                 ->get();
@@ -44,7 +49,7 @@ class CatUsuarioImportado extends Model
         try {
             return static::query()
                 ->where('id_estacion', $idEstacion)
-                ->where('estatus', true)
+                ->where('activo', true)
                 ->exists();
         } catch (\Throwable $e) {
             logger($e);

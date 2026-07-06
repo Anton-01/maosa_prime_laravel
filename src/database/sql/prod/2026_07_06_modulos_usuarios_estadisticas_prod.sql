@@ -13,14 +13,14 @@
 BEGIN;
 
 -- ----------------------------------------------------------------------------
--- 1. Índice para el filtro "estaciones activas" del select en Gestión de
---    Accesos > Usuarios. Se omite silenciosamente si la tabla no existe.
+-- 1. Índice para el filtro "estaciones activas" (columna activo) del select
+--    en Gestión de Accesos > Usuarios. Se omite si la tabla no existe.
 -- ----------------------------------------------------------------------------
 DO $$
 BEGIN
     IF to_regclass('maosa_internal.cat_usuarios_importado') IS NOT NULL THEN
-        CREATE INDEX IF NOT EXISTS idx_cat_usuarios_importado_estatus_estacion
-            ON maosa_internal.cat_usuarios_importado (estatus, id_estacion);
+        CREATE INDEX IF NOT EXISTS idx_cat_usuarios_importado_activo_estacion
+            ON maosa_internal.cat_usuarios_importado (activo, id_estacion);
     ELSE
         RAISE NOTICE 'maosa_internal.cat_usuarios_importado no existe; revisar el proceso de importación.';
     END IF;
@@ -45,7 +45,7 @@ COMMIT;
 -- Verificación posterior (opcional):
 -- SELECT indexname FROM pg_indexes
 --  WHERE indexname IN (
---    'idx_cat_usuarios_importado_estatus_estacion',
+--    'idx_cat_usuarios_importado_activo_estacion',
 --    'user_sessions_user_id_created_at_index',
 --    'page_visits_user_id_created_at_index',
 --    'users_id_estacion_index'
