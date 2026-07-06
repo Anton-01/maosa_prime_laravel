@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -84,5 +86,36 @@ class User extends Authenticatable
     public function canViewPriceTable(): bool
     {
         return (bool) $this->can_view_price_table;
+    }
+
+    /**
+     * Join the user's most recent session as "last_session"
+     * (last_session_at, city, region, country).
+     */
+    public function scopeWithLastSession(Builder $query): Builder
+    {
+        $lastSession = DB::table('user_sessions')
+            ->select('user_id', 'created_at as last_session_at', 'city', 'region', 'country')
+            ->distinct('user_id')
+            ->orderBy('user_id')
+            ->orderByDesc('created_at');
+
+        return $query->leftJoinSub($lastSession, 'last_session', 'last_session.user_id', '=', 'users.id');
+    }
+
+    /**
+     * Users without activity since the given cutoff: their last session is
+     * older than the cutoff, or they never had a session and were created
+     * before the cutoff. Requires scopeWithLastSession().
+     */
+    public function scopeInactiveSince(Builder $query, $cutoff): Builder
+    {
+        return $query->where(function (Builder $q) use ($cutoff) {
+            $q->where('last_session.last_session_at', '<', $cutoff)
+                ->orWhere(function (Builder $q2) use ($cutoff) {
+                    $q2->whereNull('last_session.last_session_at')
+                        ->where('users.created_at', '<', $cutoff);
+                });
+        });
     }
 }

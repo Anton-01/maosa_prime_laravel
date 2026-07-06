@@ -89,8 +89,85 @@
                 </div>
             </div>
 
+            {{-- Fila principal: métricas en dos columnas --}}
             <div class="row">
-                <!-- Top Pages -->
+                {{-- Columna 1: Dispositivos, Navegadores y Países (cada una en su propia fila interna) --}}
+                <div class="col-lg-6">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Dispositivos</h4>
+                                </div>
+                                <div class="card-body">
+                                    @forelse($deviceBreakdown as $device)
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span>{{ ucfirst($device->device_type ?? 'Desconocido') }}</span>
+                                                <span>{{ number_format($device->count) }}</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar" style="width: {{ $totalSessions > 0 ? ($device->count / $totalSessions * 100) : 0 }}%"></div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <p class="text-center text-muted">Sin datos</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Navegadores</h4>
+                                </div>
+                                <div class="card-body">
+                                    @forelse($browserBreakdown as $browser)
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span>{{ $browser->browser ?? 'Desconocido' }}</span>
+                                                <span>{{ number_format($browser->count) }}</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-success" style="width: {{ $totalSessions > 0 ? ($browser->count / $totalSessions * 100) : 0 }}%"></div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <p class="text-center text-muted">Sin datos</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4>Países</h4>
+                                </div>
+                                <div class="card-body">
+                                    @forelse($countryBreakdown as $country)
+                                        <div class="mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <span>{{ $country->country ?? 'Desconocido' }}</span>
+                                                <span>{{ number_format($country->count) }}</span>
+                                            </div>
+                                            <div class="progress" style="height: 5px;">
+                                                <div class="progress-bar bg-warning" style="width: {{ $totalSessions > 0 ? ($country->count / $totalSessions * 100) : 0 }}%"></div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <p class="text-center text-muted">Sin datos</p>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Columna 2: Páginas más visitadas --}}
                 <div class="col-lg-6">
                     <div class="card">
                         <div class="card-header">
@@ -122,116 +199,19 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Top Users -->
-                <div class="col-lg-6">
+            {{-- Usuarios más activos: fila propia, una sola columna --}}
+            <div class="row">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <h4>Usuarios más Activos</h4>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-striped table-sm">
-                                    <thead>
-                                    <tr>
-                                        <th>Usuario</th>
-                                        <th class="text-right">Visitas</th>
-                                        <th class="text-right">Sesiones</th>
-                                        <th class="text-center">Acción</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @forelse($topUsers as $user)
-                                        <tr>
-                                            <td>{{ $user->name }}</td>
-                                            <td class="text-right">{{ number_format($user->page_visits_count) }}</td>
-                                            <td class="text-right">{{ number_format($user->sessions_count) }}</td>
-                                            <td class="text-center">
-                                                <a href="{{ route('admin.statistics.show', $user->id) }}" class="btn btn-sm btn-info">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr><td colspan="4" class="text-center">Sin datos</td></tr>
-                                    @endforelse
-                                    </tbody>
-                                </table>
+                                {{ $dataTable->table(['class' => 'table table-striped', 'style' => 'width: 100%']) }}
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <!-- Device Breakdown -->
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Dispositivos</h4>
-                        </div>
-                        <div class="card-body">
-                            @forelse($deviceBreakdown as $device)
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <span>{{ ucfirst($device->device_type ?? 'Desconocido') }}</span>
-                                        <span>{{ number_format($device->count) }}</span>
-                                    </div>
-                                    <div class="progress" style="height: 5px;">
-                                        <div class="progress-bar" style="width: {{ $totalSessions > 0 ? ($device->count / $totalSessions * 100) : 0 }}%"></div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-center text-muted">Sin datos</p>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Browser Breakdown -->
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Navegadores</h4>
-                        </div>
-                        <div class="card-body">
-                            @forelse($browserBreakdown as $browser)
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <span>{{ $browser->browser ?? 'Desconocido' }}</span>
-                                        <span>{{ number_format($browser->count) }}</span>
-                                    </div>
-                                    <div class="progress" style="height: 5px;">
-                                        <div class="progress-bar bg-success" style="width: {{ $totalSessions > 0 ? ($browser->count / $totalSessions * 100) : 0 }}%"></div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-center text-muted">Sin datos</p>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Country Breakdown -->
-                <div class="col-lg-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Países</h4>
-                        </div>
-                        <div class="card-body">
-                            @forelse($countryBreakdown as $country)
-                                <div class="mb-2">
-                                    <div class="d-flex justify-content-between">
-                                        <span>{{ $country->country ?? 'Desconocido' }}</span>
-                                        <span>{{ number_format($country->count) }}</span>
-                                    </div>
-                                    <div class="progress" style="height: 5px;">
-                                        <div class="progress-bar bg-warning" style="width: {{ $totalSessions > 0 ? ($country->count / $totalSessions * 100) : 0 }}%"></div>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-center text-muted">Sin datos</p>
-                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -239,3 +219,7 @@
         </div>
     </section>
 @endsection
+
+@push('scripts')
+    {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+@endpush

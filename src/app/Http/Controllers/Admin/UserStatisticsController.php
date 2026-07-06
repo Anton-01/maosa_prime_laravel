@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\ActiveUsersDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PageVisit;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserNavigationFlow;
 use App\Models\UserSession;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -23,9 +25,15 @@ class UserStatisticsController extends Controller
     /**
      * Display statistics overview.
      */
-    public function index(Request $request): View
+    public function index(ActiveUsersDataTable $dataTable, Request $request): View | JsonResponse
     {
-        $dateFrom = $request->get('date_from', now()->subDays(30)->format('Y-m-d'));
+        // Peticiones ajax del DataTable "Usuarios más activos": solo devolver JSON
+        if ($request->ajax()) {
+            return $dataTable->render('admin.statistics.index');
+        }
+
+        // Por defecto: últimos 7 días (NOW() - 7 días → NOW())
+        $dateFrom = $request->get('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
 
         // General stats
@@ -70,21 +78,6 @@ class UserStatisticsController extends Controller
             ->limit(5)
             ->get();
 
-        // Top users by activity
-        $topUsers = User::select('users.*')
-            ->withCount(['pageVisits' => function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            }])
-            ->withCount(['sessions' => function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            }])
-            ->whereHas('pageVisits', function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            })
-            ->orderByDesc('page_visits_count')
-            ->limit(10)
-            ->get();
-
         // Country breakdown
         $countryBreakdown = UserSession::select('country', DB::raw('COUNT(*) as count'))
             ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
@@ -94,7 +87,7 @@ class UserStatisticsController extends Controller
             ->limit(10)
             ->get();
 
-        return view('admin.statistics.index', compact(
+        return $dataTable->render('admin.statistics.index', compact(
             'dateFrom',
             'dateTo',
             'totalSessions',
@@ -105,7 +98,6 @@ class UserStatisticsController extends Controller
             'activityByDay',
             'deviceBreakdown',
             'browserBreakdown',
-            'topUsers',
             'countryBreakdown'
         ));
     }

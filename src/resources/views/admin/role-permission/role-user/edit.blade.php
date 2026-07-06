@@ -109,6 +109,8 @@
                                     </select>
                                 </div>
 
+                                @include('admin.role-permission.role-user.partials.price-table-toggle', ['user' => $user])
+
                                 <div class="form-group mt-3">
                                     <button type="submit" class="btn btn-primary">
                                         <i class="fas fa-save"></i> Actualizar usuario

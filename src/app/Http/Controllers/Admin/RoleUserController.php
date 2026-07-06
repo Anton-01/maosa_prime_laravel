@@ -6,6 +6,7 @@ use App\DataTables\RoleUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleUserCreateRequest;
 use App\Http\Requests\Admin\RoleUserUpdateRequest;
+use App\Models\CatUsuarioImportado;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -43,7 +44,8 @@ class RoleUserController extends Controller
     public function create() : View
     {
         $roles = Role::all();
-        return view('admin.role-permission.role-user.create', compact('roles'));
+        $estaciones = CatUsuarioImportado::estacionesActivas();
+        return view('admin.role-permission.role-user.create', compact('roles', 'estaciones'));
     }
 
     /**
@@ -57,6 +59,7 @@ class RoleUserController extends Controller
         $user->password = bcrypt($request->password);
         $user->user_type = 'admin';
         $user->is_approved = $request->is_approved ?? 0;
+        $this->applyPriceTableSettings($user, $request);
         $user->save();
 
         $user->syncRoles($request->role);
@@ -95,7 +98,8 @@ class RoleUserController extends Controller
     {
         $roles = Role::all();
         $user = User::findOrFail($id);
-        return view('admin.role-permission.role-user.edit', compact('roles', 'user'));
+        $estaciones = CatUsuarioImportado::estacionesActivas();
+        return view('admin.role-permission.role-user.edit', compact('roles', 'user', 'estaciones'));
     }
 
     /**
@@ -118,6 +122,7 @@ class RoleUserController extends Controller
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
+        $this->applyPriceTableSettings($user, $request);
         $user->save();
 
         $user->syncRoles($request->role);
@@ -188,6 +193,24 @@ class RoleUserController extends Controller
         } catch(\Exception $e) {
             logger($e);
             return response(['status' => 'error', 'message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Apply the "Mostrar tabla de precios" toggle and station selection.
+     * When enabled with a station, the station is assigned respecting the
+     * check_socio_estacion_exclusivo constraint (id_socio and id_estacion
+     * cannot coexist). When the toggle is off the station is cleared.
+     */
+    private function applyPriceTableSettings(User $user, Request $request): void
+    {
+        $user->can_view_price_table = $request->boolean('can_view_price_table');
+
+        if ($user->can_view_price_table && $request->filled('id_estacion')) {
+            $user->id_estacion = (int) $request->input('id_estacion');
+            $user->id_socio = null;
+        } elseif (!$user->can_view_price_table) {
+            $user->id_estacion = null;
         }
     }
 

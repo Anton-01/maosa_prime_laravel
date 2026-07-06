@@ -96,6 +96,7 @@
                                     </select>
                                 </div>
 
+                                @include('admin.role-permission.role-user.partials.price-table-toggle')
 
                                 <div class="form-group mt-3">
                                     <button type="submit" class="btn btn-primary">

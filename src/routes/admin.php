@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FooterInfoController;
 use App\Http\Controllers\Admin\HeroController;
+use App\Http\Controllers\Admin\InactiveUserController;
 use App\Http\Controllers\Admin\ListingAmenityController;
 use App\Http\Controllers\Admin\ListingController;
 use App\Http\Controllers\Admin\ListingScheduleController;
@@ -113,6 +114,11 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::resource('role', RolePermissionController::class);
     Route::resource('role-user', RoleUserController::class);
     Route::get('role-user-export', [RoleUserController::class, 'exportExcel'])->name('role-user.export');
+
+    /** Inactive Users Routes */
+    Route::get('inactive-users', [InactiveUserController::class, 'index'])->name('inactive-users.index');
+    Route::get('inactive-users/export', [InactiveUserController::class, 'export'])->name('inactive-users.export');
+    Route::delete('inactive-users', [InactiveUserController::class, 'destroy'])->name('inactive-users.destroy');
 
     /** User Import Routes */
     Route::get('user-import', [UserImportController::class, 'index'])->name('user-import.index');
