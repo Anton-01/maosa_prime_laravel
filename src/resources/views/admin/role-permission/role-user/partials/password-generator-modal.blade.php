@@ -68,6 +68,13 @@
     <script>
         $(function () {
             const modal = $('#password-generator-modal');
+
+            // La plantilla Stisla define `.section { position: relative; z-index: 1 }`,
+            // lo que crea un stacking context que deja la modal por debajo del
+            // .modal-backdrop (agregado al <body>). Reparentamos la modal al body
+            // para que el velo oscuro no bloquee la interacción.
+            modal.appendTo('body');
+
             const output = $('#generated-password');
             const lengthInput = $('#pg-length');
             const lengthValue = $('#pg-length-value');

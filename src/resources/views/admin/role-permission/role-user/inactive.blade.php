@@ -94,6 +94,11 @@
         $(function () {
             const deleteBtn = $('#delete-selected');
             const modal = $('#confirm-delete-modal');
+
+            // `.section { position: relative; z-index: 1 }` de la plantilla deja
+            // la modal por debajo del .modal-backdrop. La reparentamos al body.
+            modal.appendTo('body');
+
             const passwordInput = $('#admin-password');
             const passwordError = $('#password-error');
 
