@@ -74,6 +74,21 @@
                                 Use los switches en <strong>Aprobado</strong> y <strong>Tabla Precios</strong> para activar/desactivar directamente desde esta lista.
                                 El ícono <i class="fas fa-key text-warning"></i> permite asignar permisos directos adicionales al rol.
                             </div>
+
+                            {{-- Filtro por Estación (maosa_internal.cat_usuarios_importado) --}}
+                            <div class="row mb-3">
+                                <div class="col-md-5">
+                                    <label for="filter-estacion" class="mb-1">Filtrar por Estación</label>
+                                    <select id="filter-estacion" class="form-control"
+                                            data-placeholder="-- Todas las estaciones --">
+                                        <option value="">-- Todas las estaciones --</option>
+                                        @foreach ($estaciones as $estacion)
+                                            <option value="{{ $estacion->id_estacion }}">{{ $estacion->estacion }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                             {{ $dataTable->table() }}
                         </div>
                     </div>
@@ -199,6 +214,19 @@
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
     <script>
+        $(function () {
+            // Select con buscador para el filtro de estación; recarga el DataTable al cambiar
+            $('#filter-estacion').select2({
+                width: '100%',
+                allowClear: true,
+                placeholder: $('#filter-estacion').data('placeholder')
+            }).on('change', function () {
+                if (window.LaravelDataTables && window.LaravelDataTables['roleuser-table']) {
+                    window.LaravelDataTables['roleuser-table'].ajax.reload();
+                }
+            });
+        });
+
         // Custom toast notification function
         function showToast(message, type = 'success') {
             // Remove any existing toast

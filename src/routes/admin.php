@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StatisticsExportController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
 use App\Http\Controllers\Admin\UserImportController;
@@ -135,6 +136,8 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
 
     /** User Statistics Routes */
     Route::get('statistics', [UserStatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/data/{type}', [UserStatisticsController::class, 'breakdownData'])->name('statistics.data');
+    Route::get('statistics/export/{type}', [StatisticsExportController::class, 'export'])->name('statistics.export');
     Route::get('statistics/user/{userId}', [UserStatisticsController::class, 'show'])->name('statistics.show');
     Route::get('statistics/user/{userId}/sessions', [UserStatisticsController::class, 'sessions'])->name('statistics.sessions');
     Route::get('statistics/session/{sessionId}', [UserStatisticsController::class, 'sessionDetail'])->name('statistics.session-detail');

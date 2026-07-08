@@ -15,6 +15,9 @@ class ActiveUsersDataTable extends DataTable
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
+            ->addColumn('checkbox', function ($user) {
+                return '<input type="checkbox" class="stat-row-check" value="' . $user->id . '">';
+            })
             ->editColumn('last_session_at', function ($user) {
                 return $user->last_session_at
                     ? Carbon::parse($user->last_session_at)->format('d/m/Y H:i')
@@ -38,7 +41,7 @@ class ActiveUsersDataTable extends DataTable
             ->addColumn('action', function ($user) {
                 return '<a href="' . route('admin.statistics.show', $user->id) . '" class="btn btn-sm btn-info" title="Ver estadísticas"><i class="fas fa-eye"></i></a>';
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['checkbox', 'action'])
             ->setRowId('id');
     }
 
@@ -49,9 +52,19 @@ class ActiveUsersDataTable extends DataTable
     {
         $dateFrom = request('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = request('date_to', now()->format('Y-m-d'));
+
+        return static::baseQuery($dateFrom, $dateTo);
+    }
+
+    /**
+     * Base query shared by the DataTable and the Excel export: users with page
+     * visits in range, with their visit/session counts and last-session data.
+     */
+    public static function baseQuery(string $dateFrom, string $dateTo): QueryBuilder
+    {
         $range = [$dateFrom, $dateTo . ' 23:59:59'];
 
-        return $model->newQuery()
+        return (new User)->newQuery()
             ->select('users.id', 'users.name', 'users.email')
             ->selectRaw('last_session.last_session_at')
             ->selectRaw("NULLIF(CONCAT_WS(', ', last_session.city, last_session.region, last_session.country), '') as last_session_location")
@@ -78,7 +91,7 @@ class ActiveUsersDataTable extends DataTable
                     d.date_to = $('input[name=date_to]').val();
                 }",
             ])
-            ->orderBy(1, 'desc')
+            ->orderBy(2, 'desc')
             ->parameters([
                 'lengthMenu' => [[10, 20, 50], [10, 20, 50]],
                 'pageLength' => 10,
@@ -109,6 +122,14 @@ class ActiveUsersDataTable extends DataTable
     public function getColumns(): array
     {
         return [
+            Column::computed('checkbox')
+                ->title('<input type="checkbox" class="stat-check-all">')
+                ->exportable(false)
+                ->printable(false)
+                ->orderable(false)
+                ->searchable(false)
+                ->width(30)
+                ->addClass('text-center'),
             Column::make('name')->title('Usuario')->orderable(false)->searchable(true),
             Column::make('page_visits_count')->title('Visitas')->orderable(true)->searchable(false)->addClass('text-right'),
             Column::make('sessions_count')->title('Sesiones')->orderable(true)->searchable(false)->addClass('text-right'),

@@ -35,7 +35,9 @@ class RoleUserController extends Controller
      */
     public function index(RoleUserDataTable $dataTable) : View | JsonResponse
     {
-        return $dataTable->render('admin.role-permission.role-user.index');
+        return $dataTable->render('admin.role-permission.role-user.index', [
+            'estaciones' => CatUsuarioImportado::estacionesActivas(),
+        ]);
     }
 
     /**

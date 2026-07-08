@@ -73,7 +73,12 @@ class RoleUserDataTable extends DataTable
      */
     public function query(User $model): QueryBuilder
     {
-        return $model->newQuery();
+        return $model->newQuery()
+            // Filtro por estación (maosa_internal.cat_usuarios_importado) enviado
+            // desde el select superior del listado.
+            ->when(request('estacion_id'), function ($query, $estacionId) {
+                $query->where('id_estacion', $estacionId);
+            });
     }
 
     /**
@@ -84,7 +89,10 @@ class RoleUserDataTable extends DataTable
         return $this->builder()
             ->setTableId('roleuser-table')
             ->columns($this->getColumns())
-            ->minifiedAjax()
+            ->ajax([
+                // Reenvía el filtro de estación seleccionado en cada petición ajax
+                'data' => 'function(d){ var e = document.querySelector("#filter-estacion"); d.estacion_id = e ? e.value : ""; }',
+            ])
             ->orderBy(1)
             ->selectStyleSingle()
             ->buttons([
