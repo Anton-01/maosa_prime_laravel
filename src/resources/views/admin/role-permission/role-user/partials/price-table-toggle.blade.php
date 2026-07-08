@@ -7,39 +7,44 @@
     $selectedEstacion = old('id_estacion', isset($user) ? $user->id_estacion : null);
 @endphp
 
-<div class="form-group">
-    <label class="d-block text-uppercase font-weight-bold" for="can_view_price_table">Mostrar tabla de precios</label>
-    <input type="hidden" name="can_view_price_table" value="0">
-    <label class="price-table-switch mb-0">
-        <input type="checkbox" name="can_view_price_table" id="can_view_price_table" value="1" @checked($priceTableOn)>
-        <span class="price-table-slider"></span>
-    </label>
-    <small class="form-text text-muted">
-        Al activarlo podrá asignar la estación cuya tabla de precios verá el usuario.
-    </small>
-</div>
-
-<div class="form-group" id="estacion-wrapper" @if(!$priceTableOn) style="display: none" @endif>
-    <label for="id_estacion">Estación <small class="text-muted">(solo estaciones activas)</small></label>
-    <select name="id_estacion" id="id_estacion"
-            class="form-control @error('id_estacion') is-invalid @enderror"
-            data-placeholder="-- Buscar y seleccionar estación --">
-        <option value=""></option>
-        @foreach ($estaciones as $estacion)
-            <option value="{{ $estacion->id_estacion }}" @selected((string) $selectedEstacion === (string) $estacion->id_estacion)>
-                {{ $estacion->estacion }}
-            </option>
-        @endforeach
-    </select>
-    @error('id_estacion')
-    <div class="invalid-feedback d-block">{{ $message }}</div>
-    @enderror
-    @if ($estaciones->isEmpty())
-        <small class="form-text text-warning">
-            <i class="fas fa-exclamation-triangle"></i>
-            No hay estaciones activas disponibles en el catálogo (maosa_internal.cat_usuarios_importado).
-        </small>
-    @endif
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="d-block text-uppercase font-weight-bold" for="can_view_price_table">Mostrar tabla de precios</label>
+            <input type="hidden" name="can_view_price_table" value="0">
+            <label class="price-table-switch mb-0">
+                <input type="checkbox" name="can_view_price_table" id="can_view_price_table" value="1" @checked($priceTableOn)>
+                <span class="price-table-slider"></span>
+            </label>
+            <small class="form-text text-muted">
+                Al activarlo podrá asignar la estación cuya tabla de precios verá el usuario.
+            </small>
+        </div>
+    </div>
+    <div class="col-md-6" id="estacion-wrapper" @if(!$priceTableOn) style="display: none" @endif>
+        <div class="form-group">
+            <label for="id_estacion">Estación <small class="text-muted">(solo estaciones activas)</small></label>
+            <select name="id_estacion" id="id_estacion"
+                    class="form-control @error('id_estacion') is-invalid @enderror"
+                    data-placeholder="-- Buscar y seleccionar estación --">
+                <option value=""></option>
+                @foreach ($estaciones as $estacion)
+                    <option value="{{ $estacion->id_estacion }}" @selected((string) $selectedEstacion === (string) $estacion->id_estacion)>
+                        {{ $estacion->estacion }}
+                    </option>
+                @endforeach
+            </select>
+            @error('id_estacion')
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+            @if ($estaciones->isEmpty())
+                <small class="form-text text-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    No hay estaciones activas disponibles en el catálogo (maosa_internal.cat_usuarios_importado).
+                </small>
+            @endif
+        </div>
+    </div>
 </div>
 
 @push('styles')
