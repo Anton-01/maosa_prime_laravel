@@ -143,9 +143,6 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::get('statistics/session/{sessionId}', [UserStatisticsController::class, 'sessionDetail'])->name('statistics.session-detail');
     Route::get('statistics/user/{userId}/activities', [UserStatisticsController::class, 'activities'])->name('statistics.activities');
 
-    /** Toggle User Price Table Access */
-    Route::post('role-user/{id}/toggle-price-table', [RoleUserController::class, 'togglePriceTable'])->name('role-user.toggle-price-table');
-
     /** Toggle User Approval */
     Route::post('role-user/{id}/toggle-approval', [RoleUserController::class, 'toggleApproval'])->name('role-user.toggle-approval');
 

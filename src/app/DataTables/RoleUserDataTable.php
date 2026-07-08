@@ -19,12 +19,32 @@ class RoleUserDataTable extends DataTable
                 if ($query->getRoleNames()->first() === 'Super Admin') {
                     return '';
                 }
-                $show   = '<a href="' . route('admin.role-user.show', $query->id) . '" class="btn btn-sm btn-secondary" title="Ver detalle"><i class="fas fa-eye"></i></a>';
-                $edit   = '<a href="' . route('admin.role-user.edit', $query->id) . '" class="btn btn-sm btn-primary ml-1" title="Editar"><i class="fas fa-edit"></i></a>';
-                $perms  = '<a href="' . route('admin.user-permissions.edit', $query->id) . '" class="btn btn-sm btn-warning ml-1" title="Permisos directos"><i class="fas fa-key"></i></a>';
-                $delete = '<a href="' . route('admin.role-user.destroy', $query->id) . '" class="delete-item btn btn-sm btn-danger ml-1" title="Eliminar"><i class="fas fa-trash"></i></a>';
-                $stats  = '<a href="' . route('admin.statistics.show', $query->id) . '" class="btn btn-sm btn-info ml-1" title="Estadísticas"><i class="fas fa-chart-bar"></i></a>';
-                return $show . $edit . $perms . $delete . $stats;
+
+                // Todas las acciones agrupadas en un dropdown con etiquetas de texto
+                return '<div class="dropdown">
+                    <button class="btn btn-sm btn-primary dropdown-toggle" type="button"
+                            data-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-cog"></i> Acciones
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="' . route('admin.role-user.show', $query->id) . '">
+                            <i class="fas fa-eye text-secondary"></i> Ver detalle
+                        </a>
+                        <a class="dropdown-item" href="' . route('admin.role-user.edit', $query->id) . '">
+                            <i class="fas fa-edit text-primary"></i> Editar
+                        </a>
+                        <a class="dropdown-item" href="' . route('admin.user-permissions.edit', $query->id) . '">
+                            <i class="fas fa-key text-warning"></i> Permisos directos
+                        </a>
+                        <a class="dropdown-item" href="' . route('admin.statistics.show', $query->id) . '">
+                            <i class="fas fa-chart-bar text-info"></i> Estadísticas
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item text-danger delete-item" href="' . route('admin.role-user.destroy', $query->id) . '">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>';
             })
             ->addColumn('role', function ($query) {
                 $role = $query->getRoleNames()->first();
@@ -45,26 +65,13 @@ class RoleUserDataTable extends DataTable
                     <div class="approval-status-text ' . $statusClass . '">' . $statusText . '</div>
                 </div>';
             })
-            ->addColumn('price_table_access', function ($query) {
-                $checked     = $query->can_view_price_table ? 'checked' : '';
-                $statusClass = $query->can_view_price_table ? 'text-success' : 'text-secondary';
-                $statusText  = $query->can_view_price_table ? 'Activo' : 'Inactivo';
-
-                return '<div class="price-access-wrapper">
-                    <div class="form-check form-switch justify-content-center">
-                        <input class="form-check-input toggle-price-table" type="checkbox" role="switch"
-                               id="priceTable' . $query->id . '" data-user-id="' . $query->id . '" ' . $checked . '>
-                    </div>
-                    <div class="status-text ' . $statusClass . '">' . $statusText . '</div>
-                </div>';
-            })
             ->addColumn('direct_permissions', function ($query) {
                 $count = $query->getDirectPermissions()->count();
                 return $count > 0
                     ? "<span class='badge badge-warning'>{$count} directo(s)</span>"
                     : "<span class='badge badge-light text-muted'>Ninguno</span>";
             })
-            ->rawColumns(['role', 'approved', 'action', 'price_table_access', 'direct_permissions'])
+            ->rawColumns(['role', 'approved', 'action', 'direct_permissions'])
             ->setRowId('id');
     }
 
@@ -117,12 +124,13 @@ class RoleUserDataTable extends DataTable
             Column::make('email')->title('Correo'),
             Column::make('role')->title('Rol'),
             Column::make('approved')->title('Aprobado')->width(110),
-            Column::make('price_table_access')->title('Tabla Precios')->width(120),
             Column::make('direct_permissions')->title('Permisos Extra')->width(120),
             Column::computed('action')->title('Acciones')
                 ->exportable(false)
                 ->printable(false)
-                ->width(190)
+                ->searchable(false)
+                ->orderable(false)
+                ->width(130)
                 ->addClass('text-center'),
         ];
     }
