@@ -76,7 +76,7 @@
                             </div>
 
                             {{-- Filtro por Estación (maosa_internal.cat_usuarios_importado) --}}
-                            <div class="row mb-3">
+                            <div class="row mb-3 align-items-end">
                                 <div class="col-md-5">
                                     <label for="filter-estacion" class="mb-1">Filtrar por Estación</label>
                                     <select id="filter-estacion" class="form-control"
@@ -86,6 +86,11 @@
                                             <option value="{{ $estacion->id_estacion }}">{{ $estacion->estacion }}</option>
                                         @endforeach
                                     </select>
+                                </div>
+                                <div class="col-md-3 mt-2 mt-md-0">
+                                    <button type="button" id="clear-estacion-filter" class="btn btn-secondary">
+                                        <i class="fas fa-eraser"></i> Limpiar filtro
+                                    </button>
                                 </div>
                             </div>
 
@@ -215,15 +220,22 @@
 
     <script>
         $(function () {
-            // Select con buscador para el filtro de estación; recarga el DataTable al cambiar
-            $('#filter-estacion').select2({
-                width: '100%',
-                allowClear: true,
-                placeholder: $('#filter-estacion').data('placeholder')
-            }).on('change', function () {
+            const reloadUsers = function () {
                 if (window.LaravelDataTables && window.LaravelDataTables['roleuser-table']) {
                     window.LaravelDataTables['roleuser-table'].ajax.reload();
                 }
+            };
+
+            // Select con buscador para el filtro de estación; recarga el DataTable al cambiar.
+            // Sin allowClear (la X de select2 se encimaba con la flecha en esta plantilla):
+            // el botón "Limpiar filtro" restablece la selección.
+            $('#filter-estacion').select2({
+                width: '100%',
+                placeholder: $('#filter-estacion').data('placeholder')
+            }).on('change', reloadUsers);
+
+            $('#clear-estacion-filter').on('click', function () {
+                $('#filter-estacion').val('').trigger('change');
             });
         });
 
