@@ -46,9 +46,21 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="tab-geo-link" data-toggle="tab" href="#tab-geo"
-                               role="tab" aria-controls="tab-geo" aria-selected="false">
-                                <i class="fas fa-globe-americas"></i> Geografía y Tecnología
+                            <a class="nav-link" id="tab-devices-link" data-toggle="tab" href="#tab-devices"
+                               role="tab" aria-controls="tab-devices" aria-selected="false">
+                                <i class="fas fa-mobile-alt"></i> Dispositivos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-browsers-link" data-toggle="tab" href="#tab-browsers"
+                               role="tab" aria-controls="tab-browsers" aria-selected="false">
+                                <i class="fas fa-globe"></i> Navegadores
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="tab-countries-link" data-toggle="tab" href="#tab-countries"
+                               role="tab" aria-controls="tab-countries" aria-selected="false">
+                                <i class="fas fa-flag"></i> Países
                             </a>
                         </li>
                         <li class="nav-item">
@@ -104,37 +116,37 @@
                             </div>
                         </div>
 
-                        {{-- Tab 2: Geografía y Tecnología (Dispositivos, Navegadores, Países) --}}
-                        <div class="tab-pane fade" id="tab-geo" role="tabpanel" aria-labelledby="tab-geo-link">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    @include('admin.statistics.partials.export-table-card', [
-                                        'title'   => 'Dispositivos',
-                                        'table'   => $devicesTable,
-                                        'tableId' => 'devices-stats-table',
-                                        'type'    => 'devices',
-                                    ])
-                                </div>
-                                <div class="col-lg-4">
-                                    @include('admin.statistics.partials.export-table-card', [
-                                        'title'   => 'Navegadores',
-                                        'table'   => $browsersTable,
-                                        'tableId' => 'browsers-stats-table',
-                                        'type'    => 'browsers',
-                                    ])
-                                </div>
-                                <div class="col-lg-4">
-                                    @include('admin.statistics.partials.export-table-card', [
-                                        'title'   => 'Países',
-                                        'table'   => $countriesTable,
-                                        'tableId' => 'countries-stats-table',
-                                        'type'    => 'countries',
-                                    ])
-                                </div>
-                            </div>
+                        {{-- Tab 2: Dispositivos --}}
+                        <div class="tab-pane fade" id="tab-devices" role="tabpanel" aria-labelledby="tab-devices-link">
+                            @include('admin.statistics.partials.export-table-card', [
+                                'title'   => 'Dispositivos',
+                                'table'   => $devicesTable,
+                                'tableId' => 'devices-stats-table',
+                                'type'    => 'devices',
+                            ])
                         </div>
 
-                        {{-- Tab 3: Páginas más visitadas --}}
+                        {{-- Tab 3: Navegadores --}}
+                        <div class="tab-pane fade" id="tab-browsers" role="tabpanel" aria-labelledby="tab-browsers-link">
+                            @include('admin.statistics.partials.export-table-card', [
+                                'title'   => 'Navegadores',
+                                'table'   => $browsersTable,
+                                'tableId' => 'browsers-stats-table',
+                                'type'    => 'browsers',
+                            ])
+                        </div>
+
+                        {{-- Tab 4: Países --}}
+                        <div class="tab-pane fade" id="tab-countries" role="tabpanel" aria-labelledby="tab-countries-link">
+                            @include('admin.statistics.partials.export-table-card', [
+                                'title'   => 'Países',
+                                'table'   => $countriesTable,
+                                'tableId' => 'countries-stats-table',
+                                'type'    => 'countries',
+                            ])
+                        </div>
+
+                        {{-- Tab 5: Páginas más visitadas --}}
                         <div class="tab-pane fade" id="tab-pages" role="tabpanel" aria-labelledby="tab-pages-link">
                             @include('admin.statistics.partials.export-table-card', [
                                 'title'   => 'Páginas más Visitadas',
