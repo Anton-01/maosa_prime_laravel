@@ -71,9 +71,29 @@
                         <div class="card-body">
                             <div class="alert alert-info">
                                 <i class="fas fa-info-circle"></i>
-                                Use los switches en <strong>Aprobado</strong> y <strong>Tabla Precios</strong> para activar/desactivar directamente desde esta lista.
-                                El ícono <i class="fas fa-key text-warning"></i> permite asignar permisos directos adicionales al rol.
+                                Use el switch de <strong>Aprobado</strong> para activar/desactivar directamente desde esta lista.
+                                Desde el menú <strong>Acciones</strong> puede ver el detalle, editar, asignar permisos directos, ver estadísticas o eliminar cada usuario.
                             </div>
+
+                            {{-- Filtro por Estación (maosa_internal.cat_usuarios_importado) --}}
+                            <div class="row mb-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label for="filter-estacion" class="mb-1">Filtrar por Estación</label>
+                                    <select id="filter-estacion" class="form-control"
+                                            data-placeholder="-- Todas las estaciones --">
+                                        <option value="">-- Todas las estaciones --</option>
+                                        @foreach ($estaciones as $estacion)
+                                            <option value="{{ $estacion->id_estacion }}">{{ $estacion->estacion }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3 mt-2 mt-md-0">
+                                    <button type="button" id="clear-estacion-filter" class="btn btn-secondary">
+                                        <i class="fas fa-eraser"></i> Limpiar filtro
+                                    </button>
+                                </div>
+                            </div>
+
                             {{ $dataTable->table() }}
                         </div>
                     </div>
@@ -86,9 +106,8 @@
 
 @push('styles')
     <style>
-        /* --- Contenedores Principales --- */
-        .approval-wrapper,
-        .price-access-wrapper {
+        /* --- Contenedor del switch de Aprobado --- */
+        .approval-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -98,8 +117,7 @@
         }
 
         /* --- Reset de Bootstrap para el contenedor del Checkbox --- */
-        .approval-wrapper .form-check,
-        .price-access-wrapper .form-check {
+        .approval-wrapper .form-check {
             display: flex;
             justify-content: center;
             padding-left: 0;
@@ -107,8 +125,7 @@
         }
 
         /* --- Estilo Base del Switch (Cápsula) --- */
-        .approval-wrapper .form-check-input,
-        .price-access-wrapper .form-check-input {
+        .approval-wrapper .form-check-input {
             appearance: none;
             -webkit-appearance: none;
             width: 2.8em;
@@ -124,8 +141,7 @@
         }
 
         /* --- El "Radio" (Círculo Deslizante) --- */
-        .approval-wrapper .form-check-input::before,
-        .price-access-wrapper .form-check-input::before {
+        .approval-wrapper .form-check-input::before {
             content: "";
             position: absolute;
             top: 2px;
@@ -139,20 +155,17 @@
         }
 
         /* --- Estado: Checked (Activado / Aprobado) --- */
-        .approval-wrapper .form-check-input:checked,
-        .price-access-wrapper .form-check-input:checked {
+        .approval-wrapper .form-check-input:checked {
             background-color: #198754; /* Verde Success */
         }
 
         /* Desplazamiento del círculo al activar */
-        .approval-wrapper .form-check-input:checked::before,
-        .price-access-wrapper .form-check-input:checked::before {
+        .approval-wrapper .form-check-input:checked::before {
             transform: translateX(1.4em);
         }
 
         /* --- Estilos de los Textos de Estado --- */
-        .approval-wrapper .approval-status-text,
-        .price-access-wrapper .status-text {
+        .approval-wrapper .approval-status-text {
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
@@ -199,6 +212,26 @@
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
     <script>
+        $(function () {
+            const reloadUsers = function () {
+                if (window.LaravelDataTables && window.LaravelDataTables['roleuser-table']) {
+                    window.LaravelDataTables['roleuser-table'].ajax.reload();
+                }
+            };
+
+            // Select con buscador para el filtro de estación; recarga el DataTable al cambiar.
+            // Sin allowClear (la X de select2 se encimaba con la flecha en esta plantilla):
+            // el botón "Limpiar filtro" restablece la selección.
+            $('#filter-estacion').select2({
+                width: '100%',
+                placeholder: $('#filter-estacion').data('placeholder')
+            }).on('change', reloadUsers);
+
+            $('#clear-estacion-filter').on('click', function () {
+                $('#filter-estacion').val('').trigger('change');
+            });
+        });
+
         // Custom toast notification function
         function showToast(message, type = 'success') {
             // Remove any existing toast
@@ -225,36 +258,6 @@
                 }
             }, 4000);
         }
-
-        // Toggle price table access
-        $(document).on('change', '.toggle-price-table', function() {
-            const userId = $(this).data('user-id');
-            const checkbox = $(this);
-            const wrapper = checkbox.closest('.price-access-wrapper');
-            const statusText = wrapper.find('.status-text');
-            $.ajax({
-                url: `{{ url('admin/role-user') }}/${userId}/toggle-price-table`,
-                type: 'POST',
-                data: { _token: '{{ csrf_token() }}' },
-                success: function (response) {
-                    if (response.status === 'success') {
-                        if (response.can_view_price_table) {
-                            statusText.removeClass('text-secondary').addClass('text-success').text('Activo');
-                        } else {
-                            statusText.removeClass('text-success').addClass('text-secondary').text('Inactivo');
-                        }
-                        showToast(response.message, 'success');
-                    }else {
-                        checkbox.prop('checked', !checkbox.prop('checked'));
-                        showToast(response.message || 'Error al actualizar', 'error');
-                    }
-                },
-                error: function () {
-                    checkbox.prop('checked', !checkbox.prop('checked'));
-                    showToast('Error al procesar la solicitud', 'error');
-                }
-            });
-        });
 
         // Toggle approval status
         $(document).on('change', '.toggle-approval', function () {

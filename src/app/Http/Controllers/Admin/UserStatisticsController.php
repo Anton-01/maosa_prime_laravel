@@ -2,12 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\ActiveUsersDataTable;
+use App\DataTables\Statistics\BrowserStatsDataTable;
+use App\DataTables\Statistics\CountryStatsDataTable;
+use App\DataTables\Statistics\DeviceStatsDataTable;
+use App\DataTables\Statistics\TopPageStatsDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\PageVisit;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserNavigationFlow;
 use App\Models\UserSession;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -16,19 +22,25 @@ class UserStatisticsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:user statistics index'])->only(['index']);
+        $this->middleware(['permission:user statistics index'])->only(['index', 'breakdownData']);
         $this->middleware(['permission:user statistics view'])->only(['show', 'sessions', 'activities']);
     }
 
     /**
      * Display statistics overview.
      */
-    public function index(Request $request): View
+    public function index(ActiveUsersDataTable $dataTable, Request $request): View | JsonResponse
     {
-        $dateFrom = $request->get('date_from', now()->subDays(30)->format('Y-m-d'));
+        // Peticiones ajax del DataTable "Usuarios más activos": solo devolver JSON
+        if ($request->ajax()) {
+            return $dataTable->render('admin.statistics.index');
+        }
+
+        // Por defecto: últimos 7 días (NOW() - 7 días → NOW())
+        $dateFrom = $request->get('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
 
-        // General stats
+        // Métricas escalares de las cards (Tab "Métricas Generales")
         $totalSessions = UserSession::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
         $totalPageViews = PageVisit::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
         $totalActivities = UserActivity::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
@@ -36,78 +48,41 @@ class UserStatisticsController extends Controller
             ->distinct('user_id')
             ->count('user_id');
 
-        // Most visited pages
-        $topPages = PageVisit::select('url', DB::raw('COUNT(*) as visits'))
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('url')
-            ->orderByDesc('visits')
-            ->limit(10)
-            ->get();
+        // Tablas de desglose: cada una es un DataTable server-side propio.
+        // Se pasan sus html builders para renderizar tabla + scripts en la vista.
+        $devicesTable   = app(DeviceStatsDataTable::class)->html();
+        $browsersTable  = app(BrowserStatsDataTable::class)->html();
+        $countriesTable = app(CountryStatsDataTable::class)->html();
+        $pagesTable     = app(TopPageStatsDataTable::class)->html();
 
-        // User activity by day
-        $activityByDay = PageVisit::select(
-            DB::raw('DATE(visited_at) as date'),
-            DB::raw('COUNT(*) as visits')
-        )
-            ->whereBetween('visited_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
-        // Device breakdown
-        $deviceBreakdown = UserSession::select('device_type', DB::raw('COUNT(*) as count'))
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->whereNotNull('device_type')
-            ->groupBy('device_type')
-            ->get();
-
-        // Browser breakdown
-        $browserBreakdown = UserSession::select('browser', DB::raw('COUNT(*) as count'))
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->whereNotNull('browser')
-            ->groupBy('browser')
-            ->orderByDesc('count')
-            ->limit(5)
-            ->get();
-
-        // Top users by activity
-        $topUsers = User::select('users.*')
-            ->withCount(['pageVisits' => function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            }])
-            ->withCount(['sessions' => function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            }])
-            ->whereHas('pageVisits', function ($query) use ($dateFrom, $dateTo) {
-                $query->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-            })
-            ->orderByDesc('page_visits_count')
-            ->limit(10)
-            ->get();
-
-        // Country breakdown
-        $countryBreakdown = UserSession::select('country', DB::raw('COUNT(*) as count'))
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->whereNotNull('country')
-            ->groupBy('country')
-            ->orderByDesc('count')
-            ->limit(10)
-            ->get();
-
-        return view('admin.statistics.index', compact(
+        return $dataTable->render('admin.statistics.index', compact(
             'dateFrom',
             'dateTo',
             'totalSessions',
             'totalPageViews',
             'totalActivities',
             'uniqueUsers',
-            'topPages',
-            'activityByDay',
-            'deviceBreakdown',
-            'browserBreakdown',
-            'topUsers',
-            'countryBreakdown'
+            'devicesTable',
+            'browsersTable',
+            'countriesTable',
+            'pagesTable'
         ));
+    }
+
+    /**
+     * Ajax endpoint que sirve los datos de las tablas de desglose del panel.
+     */
+    public function breakdownData(string $type): JsonResponse
+    {
+        $dataTable = match ($type) {
+            'browsers'  => app(BrowserStatsDataTable::class),
+            'countries' => app(CountryStatsDataTable::class),
+            'devices'   => app(DeviceStatsDataTable::class),
+            'pages'     => app(TopPageStatsDataTable::class),
+            default     => abort(404),
+        };
+
+        return $dataTable->ajax();
     }
 
     /**

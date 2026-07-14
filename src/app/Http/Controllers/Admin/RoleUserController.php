@@ -6,6 +6,7 @@ use App\DataTables\RoleUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleUserCreateRequest;
 use App\Http\Requests\Admin\RoleUserUpdateRequest;
+use App\Models\CatUsuarioImportado;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +26,7 @@ class RoleUserController extends Controller
     function __construct(){
         $this->middleware(['permission:access management users index'])->only(['index']);
         $this->middleware(['permission:access management users create'])->only(['create', 'store']);
-        $this->middleware(['permission:access management users update'])->only(['edit', 'update', 'toggleApproval', 'togglePriceTable']);
+        $this->middleware(['permission:access management users update'])->only(['edit', 'update', 'toggleApproval']);
         $this->middleware(['permission:access management users delete'])->only(['destroy']);
         $this->middleware(['permission:access management users index'])->only(['show', 'exportExcel']);
     }
@@ -34,7 +35,9 @@ class RoleUserController extends Controller
      */
     public function index(RoleUserDataTable $dataTable) : View | JsonResponse
     {
-        return $dataTable->render('admin.role-permission.role-user.index');
+        return $dataTable->render('admin.role-permission.role-user.index', [
+            'estaciones' => CatUsuarioImportado::estacionesActivas(),
+        ]);
     }
 
     /**
@@ -43,7 +46,8 @@ class RoleUserController extends Controller
     public function create() : View
     {
         $roles = Role::all();
-        return view('admin.role-permission.role-user.create', compact('roles'));
+        $estaciones = CatUsuarioImportado::estacionesActivas();
+        return view('admin.role-permission.role-user.create', compact('roles', 'estaciones'));
     }
 
     /**
@@ -57,6 +61,7 @@ class RoleUserController extends Controller
         $user->password = bcrypt($request->password);
         $user->user_type = 'admin';
         $user->is_approved = $request->is_approved ?? 0;
+        $this->applyPriceTableSettings($user, $request);
         $user->save();
 
         $user->syncRoles($request->role);
@@ -95,7 +100,8 @@ class RoleUserController extends Controller
     {
         $roles = Role::all();
         $user = User::findOrFail($id);
-        return view('admin.role-permission.role-user.edit', compact('roles', 'user'));
+        $estaciones = CatUsuarioImportado::estacionesActivas();
+        return view('admin.role-permission.role-user.edit', compact('roles', 'user', 'estaciones'));
     }
 
     /**
@@ -118,6 +124,7 @@ class RoleUserController extends Controller
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
+        $this->applyPriceTableSettings($user, $request);
         $user->save();
 
         $user->syncRoles($request->role);
@@ -169,25 +176,20 @@ class RoleUserController extends Controller
     }
 
     /**
-     * Toggle user's access to price table.
+     * Apply the "Mostrar tabla de precios" toggle and station selection.
+     * When enabled with a station, the station is assigned respecting the
+     * check_socio_estacion_exclusivo constraint (id_socio and id_estacion
+     * cannot coexist). When the toggle is off the station is cleared.
      */
-    public function togglePriceTable(Request $request, string $id)
+    private function applyPriceTableSettings(User $user, Request $request): void
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->can_view_price_table = !$user->can_view_price_table;
-            $user->save();
+        $user->can_view_price_table = $request->boolean('can_view_price_table');
 
-            $status = $user->can_view_price_table ? 'activado' : 'desactivado';
-
-            return response([
-                'status' => 'success',
-                'message' => "Acceso a tabla de precios {$status} correctamente",
-                'can_view_price_table' => $user->can_view_price_table
-            ]);
-        } catch(\Exception $e) {
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
+        if ($user->can_view_price_table && $request->filled('id_estacion')) {
+            $user->id_estacion = (int) $request->input('id_estacion');
+            $user->id_socio = null;
+        } elseif (!$user->can_view_price_table) {
+            $user->id_estacion = null;
         }
     }
 

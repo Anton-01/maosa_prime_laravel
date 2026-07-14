@@ -109,10 +109,12 @@
             @endcan
 
             @can('access management users')
-                <li class="dropdown {{ setSidebarActive(['admin.role-user.*']) }}">
+                <li class="dropdown {{ setSidebarActive(['admin.role-user.*', 'admin.inactive-users.*']) }}">
                     <a href="#" class="nav-link has-dropdown" data-toggle="dropdown"><i class="fas fa-fingerprint"></i> <span>Gestión de accesos</span></a>
                     <ul class="dropdown-menu">
                         <li class="{{ setSidebarActive(['admin.role-user.*']) }}"><a class="nav-link" href="{{ route('admin.role-user.index') }}">Usuarios</a></li>
+
+                        <li class="{{ setSidebarActive(['admin.inactive-users.*']) }}"><a class="nav-link" href="{{ route('admin.inactive-users.index') }}">Usuarios inactivos</a></li>
 
                         <li class="{{ setSidebarActive(['admin.role.*']) }}"><a class="nav-link" href="{{ route('admin.role.index') }}">Roles y permisos</a></li>
                     </ul>

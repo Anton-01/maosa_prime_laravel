@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FooterInfoController;
 use App\Http\Controllers\Admin\HeroController;
+use App\Http\Controllers\Admin\InactiveUserController;
 use App\Http\Controllers\Admin\ListingAmenityController;
 use App\Http\Controllers\Admin\ListingController;
 use App\Http\Controllers\Admin\ListingScheduleController;
@@ -21,6 +22,7 @@ use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\RoleUserController;
 use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StatisticsExportController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
 use App\Http\Controllers\Admin\TinyMCEController;
 use App\Http\Controllers\Admin\UserImportController;
@@ -114,6 +116,11 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::resource('role-user', RoleUserController::class);
     Route::get('role-user-export', [RoleUserController::class, 'exportExcel'])->name('role-user.export');
 
+    /** Inactive Users Routes */
+    Route::get('inactive-users', [InactiveUserController::class, 'index'])->name('inactive-users.index');
+    Route::get('inactive-users/export', [InactiveUserController::class, 'export'])->name('inactive-users.export');
+    Route::delete('inactive-users', [InactiveUserController::class, 'destroy'])->name('inactive-users.destroy');
+
     /** User Import Routes */
     Route::get('user-import', [UserImportController::class, 'index'])->name('user-import.index');
     Route::post('user-import', [UserImportController::class, 'import'])->name('user-import.store');
@@ -129,13 +136,12 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
 
     /** User Statistics Routes */
     Route::get('statistics', [UserStatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/data/{type}', [UserStatisticsController::class, 'breakdownData'])->name('statistics.data');
+    Route::get('statistics/export/{type}', [StatisticsExportController::class, 'export'])->name('statistics.export');
     Route::get('statistics/user/{userId}', [UserStatisticsController::class, 'show'])->name('statistics.show');
     Route::get('statistics/user/{userId}/sessions', [UserStatisticsController::class, 'sessions'])->name('statistics.sessions');
     Route::get('statistics/session/{sessionId}', [UserStatisticsController::class, 'sessionDetail'])->name('statistics.session-detail');
     Route::get('statistics/user/{userId}/activities', [UserStatisticsController::class, 'activities'])->name('statistics.activities');
-
-    /** Toggle User Price Table Access */
-    Route::post('role-user/{id}/toggle-price-table', [RoleUserController::class, 'togglePriceTable'])->name('role-user.toggle-price-table');
 
     /** Toggle User Approval */
     Route::post('role-user/{id}/toggle-approval', [RoleUserController::class, 'toggleApproval'])->name('role-user.toggle-approval');
