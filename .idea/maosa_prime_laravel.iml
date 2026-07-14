@@ -172,6 +172,8 @@
       <excludeFolder url="file://$MODULE_DIR$/src/storage/app" />
       <excludeFolder url="file://$MODULE_DIR$/src/storage/debugbar" />
       <excludeFolder url="file://$MODULE_DIR$/src/storage/framework" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/setasign/fpdf" />
+      <excludeFolder url="file://$MODULE_DIR$/src/vendor/setasign/fpdi" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

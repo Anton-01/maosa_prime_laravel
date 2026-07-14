@@ -37,7 +37,7 @@ RUN npm run build
 FROM php:8.4-fpm-alpine
 
 # Instalamos Nginx, Supervisor y extensiones de PHP en una sola capa
-RUN apk add --no-cache nginx supervisor postgresql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu \
+RUN apk add --no-cache nginx supervisor postgresql-client msmtp perl wget procps shadow libzip libpng libjpeg-turbo libwebp freetype icu qpdf \
     && apk add --no-cache --virtual build-essentials icu-dev icu-libs zlib-dev g++ make automake autoconf libzip-dev libpng-dev libwebp-dev libjpeg-turbo-dev freetype-dev postgresql-dev pcre-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd pdo_pgsql pgsql intl bcmath opcache exif zip \
