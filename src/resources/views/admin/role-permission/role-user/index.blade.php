@@ -69,12 +69,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                Use el switch de <strong>Aprobado</strong> para activar/desactivar directamente desde esta lista.
-                                Desde el menú <strong>Acciones</strong> puede ver el detalle, editar, asignar permisos directos, ver estadísticas o eliminar cada usuario.
-                            </div>
-
                             {{-- Filtro por Estación (maosa_internal.cat_usuarios_importado) --}}
                             <div class="row mb-3 align-items-end">
                                 <div class="col-md-5">
