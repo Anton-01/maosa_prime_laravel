@@ -2,195 +2,156 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\RoleUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleUserCreateRequest;
 use App\Http\Requests\Admin\RoleUserUpdateRequest;
 use App\Models\CatUsuarioImportado;
 use App\Models\User;
+use App\Services\Admin\UserManagementService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
-use Illuminate\View\View;
-use Spatie\Permission\Models\Role;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\Models\Role;
 
 class RoleUserController extends Controller
 {
-    function __construct(){
-        $this->middleware(['permission:access management users index'])->only(['index']);
+    public function __construct(private readonly UserManagementService $userManagementService)
+    {
+        $this->middleware(['permission:access management users index'])->only(['index', 'data']);
         $this->middleware(['permission:access management users create'])->only(['create', 'store']);
         $this->middleware(['permission:access management users update'])->only(['edit', 'update', 'toggleApproval']);
         $this->middleware(['permission:access management users delete'])->only(['destroy']);
         $this->middleware(['permission:access management users index'])->only(['show', 'exportExcel']);
     }
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(RoleUserDataTable $dataTable) : View | JsonResponse
+
+    public function index(): InertiaResponse
     {
-        return $dataTable->render('admin.role-permission.role-user.index', [
-            'estaciones' => CatUsuarioImportado::estacionesActivas(),
+        return Inertia::render('Admin/Users/Index', [
+            'stations' => $this->stationOptions(),
+            'urls' => [
+                'base' => route('admin.role-user.index'),
+                'data' => route('admin.role-user.data'),
+                'create' => route('admin.role-user.create'),
+                'export' => route('admin.role-user.export'),
+                'permissionsBase' => url('admin/user-permissions'),
+                'statisticsBase' => url('admin/statistics/user'),
+            ],
         ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Server-side JSON data source for the users table.
      */
-    public function create() : View
+    public function data(Request $request): JsonResponse
     {
-        $roles = Role::all();
-        $estaciones = CatUsuarioImportado::estacionesActivas();
-        return view('admin.role-permission.role-user.create', compact('roles', 'estaciones'));
+        return response()->json($this->userManagementService->tableData($request));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(RoleUserCreateRequest $request) : RedirectResponse
+    public function create(): InertiaResponse
     {
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->user_type = 'admin';
-        $user->is_approved = $request->is_approved ?? 0;
-        $this->applyPriceTableSettings($user, $request);
-        $user->save();
-
-        $user->syncRoles($request->role);
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-
-        return to_route('admin.role-user.index')->with('statusUsrC', true);
+        return Inertia::render('Admin/Users/Form', [
+            'user' => null,
+            'roles' => $this->roleOptions(),
+            'stations' => $this->stationOptions(),
+            'urls' => [
+                'base' => route('admin.role-user.index'),
+            ],
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id): View
+    public function store(RoleUserCreateRequest $request): RedirectResponse
     {
-        $user = User::with('roles.permissions')->findOrFail($id);
+        $this->userManagementService->create($request, $request->validated());
 
-        // Safely load branches — table may not exist in all environments
-        try {
-            $user->load('branches');
-        } catch (\Throwable $e) {
-            $user->setRelation('branches', collect());
-        }
-
-        $directPermissions = $user->getDirectPermissions();
-        $rolePermissions   = $user->getPermissionsViaRoles();
-        $allPermissions    = $user->getAllPermissions()->groupBy('group_name');
-
-        return view('admin.role-permission.role-user.show', compact(
-            'user', 'directPermissions', 'rolePermissions', 'allPermissions'
-        ));
+        return to_route('admin.role-user.index')->with('success', '¡Usuario creado correctamente!');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id): View
+    public function show(string $id): InertiaResponse
     {
-        $roles = Role::all();
-        $user = User::findOrFail($id);
-        $estaciones = CatUsuarioImportado::estacionesActivas();
-        return view('admin.role-permission.role-user.edit', compact('roles', 'user', 'estaciones'));
+        return Inertia::render('Admin/Users/Show', [
+            'user' => $this->userManagementService->getForShow((int) $id),
+            'urls' => [
+                'base' => route('admin.role-user.index'),
+                'permissionsBase' => url('admin/user-permissions'),
+            ],
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    public function edit(string $id): InertiaResponse
+    {
+        return Inertia::render('Admin/Users/Form', [
+            'user' => $this->userManagementService->getForEdit((int) $id),
+            'roles' => $this->roleOptions(),
+            'stations' => $this->stationOptions(),
+            'urls' => [
+                'base' => route('admin.role-user.index'),
+            ],
+        ]);
+    }
+
     public function update(RoleUserUpdateRequest $request, string $id): RedirectResponse
     {
         $user = User::findOrFail($id);
+
         // Block editing Super Admin users via this form
-        if ($user->hasRole('Super Admin') && !auth()->user()->hasRole('Super Admin')) {
+        if ($user->hasRole('Super Admin') && ! auth()->user()->hasRole('Super Admin')) {
             abort(403, 'No tienes permiso para editar un Super Admin.');
         }
 
-        $user->name  = $request->name;
+        $this->userManagementService->update($request, (int) $id, $request->validated());
 
-        $user->email = $request->email;
-        $user->is_approved = $request->is_approved ?? 0;
-        $user->user_type = 'admin';
-
-        if ($request->filled('password')) {
-            $user->password = bcrypt($request->password);
-        }
-        $this->applyPriceTableSettings($user, $request);
-        $user->save();
-
-        $user->syncRoles($request->role);
-        // Clear Spatie permission cache so the role change is immediately visible
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-
-        return to_route('admin.role-user.index')->with('statusUsrU', true);
+        return to_route('admin.role-user.index')->with('success', '¡Usuario actualizado correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        try {
-            $user = User::findOrFail($id);
-            if ($user->hasRole('Super Admin')) {
-                return response(['status' => 'error', 'message' => 'No se puede eliminar el Super Admin.']);
-            }
-            $user->delete();
-            return response(['status' => 'success', 'message' => 'Usuario eliminado correctamente']);
-        } catch (\Exception $e) {
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
+        if (! $this->userManagementService->delete((int) $id)) {
+            return back()->with('error', 'No se puede eliminar el Super Admin.');
         }
+
+        return back()->with('success', '¡Usuario eliminado correctamente!');
     }
 
     /**
      * Toggle user's approval status.
      */
-    public function toggleApproval(Request $request, string $id)
+    public function toggleApproval(Request $request, string $id): RedirectResponse
     {
-        try {
-            $user = User::findOrFail($id);
-            $user->is_approved = !$user->is_approved;
-            $user->save();
+        $isApproved = $this->userManagementService->toggleApproval((int) $id);
 
-            $status = $user->is_approved ? 'aprobado' : 'desaprobado';
+        $status = $isApproved ? 'aprobado' : 'desaprobado';
 
-            return response([
-                'status'      => 'success',
-                'message'     => "Usuario {$status} correctamente",
-                'is_approved' => $user->is_approved,
-            ]);
-        } catch (\Exception $e) {
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+        return back()->with('success', "Usuario {$status} correctamente");
     }
 
     /**
-     * Apply the "Mostrar tabla de precios" toggle and station selection.
-     * When enabled with a station, the station is assigned respecting the
-     * check_socio_estacion_exclusivo constraint (id_socio and id_estacion
-     * cannot coexist). When the toggle is off the station is cleared.
+     * @return array<int, array<string, mixed>>
      */
-    private function applyPriceTableSettings(User $user, Request $request): void
+    private function roleOptions(): array
     {
-        $user->can_view_price_table = $request->boolean('can_view_price_table');
+        return Role::orderBy('name')
+            ->get()
+            ->map(fn (Role $role) => ['value' => $role->name, 'label' => $role->name])
+            ->all();
+    }
 
-        if ($user->can_view_price_table && $request->filled('id_estacion')) {
-            $user->id_estacion = (int) $request->input('id_estacion');
-            $user->id_socio = null;
-        } elseif (!$user->can_view_price_table) {
-            $user->id_estacion = null;
-        }
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    private function stationOptions(): array
+    {
+        return CatUsuarioImportado::estacionesActivas()
+            ->map(fn ($station) => ['value' => $station->id_estacion, 'label' => $station->estacion])
+            ->values()
+            ->all();
     }
 
     /**
@@ -204,7 +165,7 @@ class RoleUserController extends Controller
         try {
             $users->load('branches');
         } catch (\Throwable $e) {
-            $users->each(fn($u) => $u->setRelation('branches', collect()));
+            $users->each(fn ($u) => $u->setRelation('branches', collect()));
         }
 
         $spreadsheet = new Spreadsheet();
@@ -215,7 +176,7 @@ class RoleUserController extends Controller
         $headers = [
             'ID', 'Nombre', 'Email', 'Telefono', 'Empresa',
             'Tipo Usuario', 'Rol', 'Aprobado', 'Tabla Precios',
-            'Sucursales', 'Fecha Registro'
+            'Sucursales', 'Fecha Registro',
         ];
         $sheet->fromArray($headers, null, 'A1');
 
@@ -254,11 +215,11 @@ class RoleUserController extends Controller
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ]);
         foreach (['A' => 8, 'B' => 25, 'C' => 30, 'D' => 15, 'E' => 20,
-                     'F' => 15, 'G' => 15, 'H' => 10, 'I' => 12, 'J' => 30, 'K' => 18] as $col => $width) {
+            'F' => 15, 'G' => 15, 'H' => 10, 'I' => 12, 'J' => 30, 'K' => 18] as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);
         }
 
-        $writer   = new Xlsx($spreadsheet);
+        $writer = new Xlsx($spreadsheet);
         $filename = 'users_maosa' . date('Y-m-d') . '.xlsx';
 
         $tempFile = tempnam(sys_get_temp_dir(), 'excel');

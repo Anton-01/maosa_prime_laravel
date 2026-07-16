@@ -58,9 +58,10 @@ export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
         }
 
         Object.entries(tableParams.filters).forEach(([column, value]) => {
-            if (value !== null && value !== undefined && value.length > 0) {
-                query.set(`filters[${column}]`, Array.isArray(value) ? value.join(',') : value);
-            }
+            if (value === null || value === undefined || value === '') return;
+            if (Array.isArray(value) && value.length === 0) return;
+
+            query.set(`filters[${column}]`, Array.isArray(value) ? value.join(',') : String(value));
         });
 
         try {
@@ -114,6 +115,15 @@ export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
         setTableParams((previous) => ({ ...previous, page: 1 }));
     }, []);
 
+    /** Programmatic filter setter (for filters outside the table columns). */
+    const setFilter = useCallback((column, value) => {
+        setTableParams((previous) => ({
+            ...previous,
+            page: 1,
+            filters: { ...previous.filters, [column]: value },
+        }));
+    }, []);
+
     return {
         data,
         total,
@@ -121,6 +131,7 @@ export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
         tableParams,
         handleTableChange,
         setSearch: applySearch,
+        setFilter,
         refresh: fetchData,
     };
 }

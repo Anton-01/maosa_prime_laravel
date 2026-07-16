@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ListingScheduleController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\MenuBuilderController;
 use App\Http\Controllers\Admin\OurFeatureController;
+use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RolePermissionController;
@@ -94,6 +95,9 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     /** Blog Routes */
     Route::resource('blog', BlogController::class);
 
+    /** Unified Pages Screen (about, contact, privacy policy and terms in tabs) */
+    Route::get('pages', [PageController::class, 'index'])->name('pages.index');
+
     /** About Route */
     Route::get('about-us', [AboutController::class, 'index'])->name('about-us.index');
     Route::post('about-us', [AboutController::class, 'update'])->name('about-us.update');
@@ -117,6 +121,7 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
 
     /** Role Users Routes */
     Route::resource('role', RolePermissionController::class);
+    Route::get('role-user-data', [RoleUserController::class, 'data'])->name('role-user.data');
     Route::resource('role-user', RoleUserController::class);
     Route::get('role-user-export', [RoleUserController::class, 'exportExcel'])->name('role-user.export');
 

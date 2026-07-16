@@ -114,6 +114,75 @@ Títulos - Secciones); ahora es **un solo item "Secciones"** →
 
 ---
 
+## ✅ Fase 3 — Proveedores, Páginas y Gestión de accesos (completada)
+
+### Proveedores
+
+- **Categorías** (`/admin/category`) → `Pages/Admin/Categories/Index.jsx`: tabla
+  antd + modal crear/editar (2 uploads: icono y fondo). `CategoryService`
+  (uploads, slug, cache flush). Create/edit legacy redirigen al index.
+- **Ubicaciones** (`/admin/location`) → `Pages/Admin/Locations/Index.jsx`: mismo
+  patrón sin imágenes. `LocationService`. **Fix:** `update()` usaba `Request`
+  plano; ahora usa el `LocationUpdateRequest` que ya existía sin conectar.
+- **Todos los Proveedores** (`/admin/listing`) → `Pages/Admin/Listings/Index.jsx`
+  (tabla con filtros por categoría/ubicación/estatus/destacado/verificado) y
+  `Pages/Admin/Listings/Form.jsx`: formulario **con Tabs** (Información general,
+  Contacto y redes —con `Form.List` para redes sociales—, SEO, Configuración).
+  `ListingService` (uploads, slug, social links sync, cache flush).
+  Las sub-pantallas de **Horarios** y **Servicios (amenities)** del proveedor
+  siguen en Blade (enlaces con recarga completa) — pendientes de una fase futura.
+
+### Páginas — pantalla unificada `/admin/pages` (Tabs)
+
+4 items del sidebar → **un solo item "Páginas"** → `Pages/Admin/Pages/Index.jsx`
+con tabs `about | contact | privacy-policy | terms` (`?tab=` en URL). Rutas
+viejas redirigen al tab. `StaticPageService` concentra los `updateOrCreate`.
+- **Nuevos FormRequests:** `PrivacyPolicyUpdateRequest` y
+  `TermsAndConditionUpdateRequest` (antes validaban inline en el controlador);
+  `AboutUsUpdateRequest` ahora valida `old_image`.
+- **Decisión — contenido enriquecido:** los campos `description` guardan HTML
+  (antes TinyMCE/summernote). Para mantener pureza antd se creó
+  `Components/HtmlEditor.jsx`: TextArea de HTML + tab de **vista previa**
+  renderizada. Si el cliente pide WYSIWYG real, evaluar integración aparte.
+
+### Gestión de accesos
+
+- **Usuarios** (`/admin/role-user`) → `Pages/Admin/Users/Index.jsx` con **tabla
+  server-side** (endpoint JSON `GET /admin/role-user-data`, contrato
+  `useDataTable`): búsqueda con debounce, filtro por estación, orden por
+  id/nombre/correo/fecha, paginación server. Toggle de aprobación con `Switch`
+  (POST + refresh), dropdown de acciones (detalle, editar, permisos directos,
+  estadísticas —Blade—, eliminar). Export Excel se conserva (PhpSpreadsheet).
+  - `Pages/Admin/Users/Form.jsx`: crear/editar (rol, aprobado, tabla de precios
+    + estación condicional — replica `applyPriceTableSettings`).
+  - `Pages/Admin/Users/Show.jsx`: detalle con permisos agrupados (directos en
+    amarillo, por rol en azul).
+  - `Pages/Admin/Users/Permissions.jsx`: permisos directos con los heredados
+    del rol deshabilitados.
+  - `UserManagementService` concentra tableData/create/update/delete/toggle/
+    permisos directos + protecciones de Super Admin.
+- **Usuarios inactivos** (`/admin/inactive-users`) →
+  `Pages/Admin/InactiveUsers/Index.jsx`: filtro de días reactivo (partial reload
+  `only: ['users','days']`), búsqueda, selección múltiple y **eliminación masiva
+  con confirmación por contraseña** (`InactiveUserDestroyRequest` se conserva).
+  `InactiveUserService` (query compartida con el export Excel).
+- **Roles y permisos** (`/admin/role`) → `Pages/Admin/Roles/Index.jsx` (tags de
+  permisos con overflow "+N más") y `Pages/Admin/Roles/Form.jsx` (checkboxes
+  agrupados por `group_name` con "Seleccionar todo" por grupo e indeterminate).
+  `RoleService` con protección del rol Super Admin.
+  **Nuevos FormRequests:** `RoleStoreRequest`, `RoleUpdateRequest` (antes inline).
+
+### Cambios de infraestructura en esta fase
+
+- `useDataTable`: nuevo `setFilter(column, value)` para filtros externos a la
+  tabla y fix de serialización de filtros numéricos.
+- Navegación: "Páginas" colapsó a un solo item; Proveedores y Gestión de
+  accesos marcados `inertia => true` (SPA).
+- Los `destroy`/`toggle` que devolvían JSON ahora devuelven redirect + flash
+  (patrón Inertia); los exports Excel siguen siendo descargas normales.
+
+---
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza
@@ -127,8 +196,13 @@ Títulos - Secciones); ahora es **un solo item "Secciones"** →
   picker.
 - Quedaron **obsoletos** (sin uso, pendientes de borrar en una fase de
   limpieza): `resources/views/admin/dashboard/`, `admin/hero/`,
-  `admin/our-feature/`, `admin/section-title/` y
-  `app/DataTables/OurFeatureDataTable.php`.
+  `admin/our-feature/`, `admin/section-title/`, `admin/about/`,
+  `admin/contact/`, `admin/privacy-policy/`, `admin/terms-and-condition/`,
+  `admin/category/`, `admin/location/`, `admin/listing/{index,create,edit}`,
+  `admin/role-permission/` (excepto import) y los DataTables
+  `OurFeature|Category|Location|Listing|RoleUser|InactiveUser|RolePermission`.
+- El **detalle "Estadísticas" de un usuario** (`admin/statistics/user/{id}`)
+  sigue en Blade; el dropdown de Usuarios enlaza con recarga completa.
 - El chunk del dashboard pesa ~1.5 MB minificado por `@ant-design/plots`
   (se carga lazy solo en esa página). Optimizable con `manualChunks` si estorba.
 - `section_titles` tiene pares `our_our_pricing_*` y `our_testimonial_*` que la
@@ -141,10 +215,12 @@ Títulos - Secciones); ahora es **un solo item "Secciones"** →
 - [x] Layout principal + infraestructura Inertia/antd
 - [x] Dashboard
 - [x] Secciones (Banner, Banner público, Nuestras funciones, Títulos) → tabs
-- [ ] Proveedores: Categorías, Ubicaciones, Todos los Proveedores (+ amenities, schedules) — usar `useDataTable` + Yajra para la tabla principal
-- [ ] Páginas: Sobre nosotros, Contacto, Política de privacidad, Términos y condiciones (candidata a pantalla unificada con tabs)
+- [x] Proveedores: Categorías, Ubicaciones, Todos los Proveedores
+- [ ] Proveedores: sub-pantallas de Horarios (listing-schedule) y Servicios (listing amenities) — siguen en Blade
+- [x] Páginas: Sobre nosotros, Contacto, Política de privacidad, Términos → pantalla unificada con tabs
 - [ ] Gestionar Footer
-- [ ] Gestión de accesos: Usuarios, Usuarios inactivos, Roles y permisos
+- [x] Gestión de accesos: Usuarios (tabla server-side), Usuarios inactivos, Roles y permisos, Permisos directos
+- [ ] Gestión de accesos: Importación de usuarios (user-import) — sigue en Blade
 - [ ] Estadísticas (Panel General + detalle de usuario/sesiones)
 - [ ] Menús (menu builder)
 - [ ] Ajustes

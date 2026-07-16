@@ -3,33 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\TermsAndCondition;
+use App\Http\Requests\Admin\TermsAndConditionUpdateRequest;
+use App\Services\Admin\StaticPageService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class TermsAndConditionController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly StaticPageService $staticPageService)
     {
         $this->middleware(['permission:access management pages']);
     }
 
-    function index() : View {
-        $TermsAndCondition = TermsAndCondition::first();
-        return view('admin.terms-and-condition.index', compact('TermsAndCondition'));
+    /**
+     * Legacy URL kept for old bookmarks: the page now lives in the
+     * unified pages screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.pages.index', ['tab' => 'terms']);
     }
 
-    function update(Request $request) : RedirectResponse {
-        $request->validate([
-            'description' => ['required']
-        ]);
+    public function update(TermsAndConditionUpdateRequest $request): RedirectResponse
+    {
+        $this->staticPageService->updateTermsAndConditions($request->validated()['description']);
 
-        TermsAndCondition::updateOrCreate(
-            ['id' => 1],
-            ['description' => $request->description]
-        );
-
-        return back()->with('statusTerms', true);
+        return back()->with('success', '¡Términos y condiciones actualizados correctamente!');
     }
 }

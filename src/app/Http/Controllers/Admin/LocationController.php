@@ -2,106 +2,63 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\LocationDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\LocationStoreRequest;
-use App\Models\Location;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Admin\LocationUpdateRequest;
+use App\Services\Admin\LocationService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
-use Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class LocationController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly LocationService $locationService)
     {
         $this->middleware(['permission:access management suppliers']);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(LocationDataTable $dataTable) : View | JsonResponse
+    public function index(): Response
     {
-        return $dataTable->render('admin.location.index');
+        return Inertia::render('Admin/Locations/Index', [
+            'locations' => $this->locationService->list(),
+            'urls' => [
+                'base' => route('admin.location.index'),
+            ],
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Legacy URL kept for old bookmarks: create/edit now happen in a
+     * modal inside the index screen.
      */
-    public function create() : View
+    public function create(): RedirectResponse
     {
-        return view('admin.location.create');
+        return to_route('admin.location.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(LocationStoreRequest $request) : RedirectResponse
+    public function edit(string $id): RedirectResponse
     {
-        $location = new Location();
-        $location->name = $request->name;
-        $location->slug = Str::slug($request->name);
-        $location->show_at_home = $request->show_at_home;
-        $location->status = $request->status;
-        $location->save();
-
-        $this->flushLocationCache();
-
-        return to_route('admin.location.index')->with('statusCtU', true);
+        return to_route('admin.location.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id) : View
+    public function store(LocationStoreRequest $request): RedirectResponse
     {
-        $location = Location::findOrFail($id);
-        return view('admin.location.edit', compact('location'));
+        $this->locationService->create($request->validated());
+
+        return back()->with('success', '¡Ubicación creada correctamente!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id) : RedirectResponse
+    public function update(LocationUpdateRequest $request, string $id): RedirectResponse
     {
-        $location = Location::findOrFail($id);
-        $location->name = $request->name;
-        $location->slug = Str::slug($request->name);
-        $location->show_at_home = $request->show_at_home;
-        $location->status = $request->status;
-        $location->save();
+        $this->locationService->update((int) $id, $request->validated());
 
-        $this->flushLocationCache();
-
-        return to_route('admin.location.index')->with('statusUpU', true);
+        return back()->with('success', '¡Ubicación actualizada correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id) : Response
+    public function destroy(string $id): RedirectResponse
     {
-        try {
-            Location::findOrFail($id)->delete();
-            $this->flushLocationCache();
-            return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
-        }catch(\Exception $e){
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
-    }
+        $this->locationService->delete((int) $id);
 
-    /**
-     * Flush all location-related cache keys.
-     */
-    private function flushLocationCache(): void
-    {
-        Cache::forget('home_page_data');
-        Cache::forget('frontend_locations_active');
-        Cache::forget('admin_dashboard_stats');
+        return back()->with('success', '¡Ubicación eliminada correctamente!');
     }
 }

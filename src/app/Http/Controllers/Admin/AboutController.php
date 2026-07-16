@@ -4,39 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AboutUsUpdateRequest;
-use App\Models\AboutUs;
-use App\Traits\FileUploadTrait;
+use App\Services\Admin\StaticPageService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class AboutController extends Controller
 {
-    use FileUploadTrait;
-
-    function __construct()
+    public function __construct(private readonly StaticPageService $staticPageService)
     {
         $this->middleware(['permission:access management pages']);
     }
 
-    function index() : View {
-        $about = AboutUs::first();
-        return view('admin.about.index', compact('about'));
+    /**
+     * Legacy URL kept for old bookmarks: the page now lives in the
+     * unified pages screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.pages.index', ['tab' => 'about']);
     }
 
-    function update(AboutUsUpdateRequest $request) : RedirectResponse {
-        $imagePath = $this->uploadImage($request, 'image', $request->old_image);
+    public function update(AboutUsUpdateRequest $request): RedirectResponse
+    {
+        $this->staticPageService->updateAbout($request, $request->validated());
 
-        AboutUs::updateOrCreate(
-            ['id' => 1],
-            [
-                'image' => !empty($imagePath) ? $imagePath : $request->old_image,
-                'video_url' => $request->video_url,
-                'description' => $request->description,
-                'button_url' => $request->button_url
-            ]
-        );
-
-        return back()->with('statusAbout', true);
+        return back()->with('success', '¡Página "Sobre nosotros" actualizada correctamente!');
     }
 }

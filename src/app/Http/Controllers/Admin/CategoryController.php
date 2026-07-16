@@ -2,119 +2,63 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\CategoryDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CategoryStoreRequest;
 use App\Http\Requests\Admin\CategoryUpdateRequest;
-use App\Models\Category;
-use Illuminate\Support\Facades\Cache;
-use App\Traits\FileUploadTrait;
-use Illuminate\Http\JsonResponse;
+use App\Services\Admin\CategoryService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
-use Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class CategoryController extends Controller
 {
-    use FileUploadTrait;
-
-    function __construct()
+    public function __construct(private readonly CategoryService $categoryService)
     {
         $this->middleware(['permission:access management suppliers']);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(CategoryDataTable $dataTable) : View | JsonResponse
+    public function index(): Response
     {
-        return $dataTable->render('admin.category.index');
+        return Inertia::render('Admin/Categories/Index', [
+            'categories' => $this->categoryService->list(),
+            'urls' => [
+                'base' => route('admin.category.index'),
+            ],
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Legacy URL kept for old bookmarks: create/edit now happen in a
+     * modal inside the index screen.
      */
-    public function create() : View
+    public function create(): RedirectResponse
     {
-        return view('admin.category.create');
+        return to_route('admin.category.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(CategoryStoreRequest $request) : RedirectResponse
+    public function edit(string $id): RedirectResponse
     {
-        $iconPath = $this->uploadImage($request, 'image_icon');
-        $backgroundPath = $this->uploadImage($request, 'background_image');
-
-        $category = new Category();
-        $category->image_icon = $iconPath;
-        $category->background_image = $backgroundPath;
-        $category->name = $request->name;
-        $category->slug = Str::slug($request->name);
-        $category->show_at_home = $request->show_at_home;
-        $category->status = $request->status;
-        $category->save();
-
-        $this->flushCategoryCache();
-
-        return to_route('admin.category.index')->with('statusCtC', true);
+        return to_route('admin.category.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id) : View
+    public function store(CategoryStoreRequest $request): RedirectResponse
     {
-        $category = Category::findOrFail($id);
-        return view('admin.category.edit', compact('category'));
+        $this->categoryService->create($request, $request->validated());
+
+        return back()->with('success', '¡Categoría creada correctamente!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(CategoryUpdateRequest $request, string $id) : RedirectResponse
+    public function update(CategoryUpdateRequest $request, string $id): RedirectResponse
     {
-        $iconPath = $this->uploadImage($request, 'image_icon', $request->old_icon);
-        $backgroundPath = $this->uploadImage($request, 'background_image', $request->olb_background);
+        $this->categoryService->update($request, (int) $id, $request->validated());
 
-        $category = Category::findOrFail($id);
-        $category->image_icon = !empty($iconPath) ? $iconPath : $request->old_icon;
-        $category->background_image = !empty($backgroundPath) ? $backgroundPath : $request->old_background;
-        $category->name = $request->name;
-        $category->slug = Str::slug($request->name);
-        $category->show_at_home = $request->show_at_home;
-        $category->status = $request->status;
-        $category->save();
-
-        $this->flushCategoryCache();
-
-        return to_route('admin.category.index')->with('statusCtU', true);
+        return back()->with('success', '¡Categoría actualizada correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        $category = Category::findOrFail($id);
-        $this->deleteFile($category->image_icon);
-        $this->deleteFile($category->background_image);
+        $this->categoryService->delete((int) $id);
 
-        $category->delete();
-        $this->flushCategoryCache();
-
-        return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
-    }
-
-    /**
-     * Flush all category-related cache keys.
-     */
-    private function flushCategoryCache(): void
-    {
-        Cache::forget('home_page_data');
-        Cache::forget('frontend_categories_active');
-        Cache::forget('about_page_data');
-        Cache::forget('admin_dashboard_stats');
+        return back()->with('success', '¡Categoría eliminada correctamente!');
     }
 }

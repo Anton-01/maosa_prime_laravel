@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\InactiveUserDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\InactiveUserDestroyRequest;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\JsonResponse;
+use App\Services\Admin\InactiveUserService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Response;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -20,7 +19,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class InactiveUserController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly InactiveUserService $inactiveUserService)
     {
         $this->middleware(['permission:access management users index'])->only(['index', 'export']);
         $this->middleware(['permission:access management users delete'])->only(['destroy']);
@@ -29,11 +28,36 @@ class InactiveUserController extends Controller
     /**
      * Listing of inactive users (no session activity since N days).
      */
-    public function index(InactiveUserDataTable $dataTable, Request $request): View | JsonResponse
+    public function index(Request $request): InertiaResponse
     {
         $days = max(1, (int) $request->get('days', 30));
 
-        return $dataTable->render('admin.role-permission.role-user.inactive', compact('days'));
+        return Inertia::render('Admin/InactiveUsers/Index', [
+            'days' => $days,
+            'users' => $this->inactiveUserService->list($days),
+            'urls' => [
+                'base' => route('admin.inactive-users.index'),
+                'export' => route('admin.inactive-users.export'),
+                'destroy' => route('admin.inactive-users.destroy'),
+            ],
+        ]);
+    }
+
+    /**
+     * Permanently delete the selected inactive users.
+     * Requires the admin's current password (validated in the FormRequest).
+     */
+    public function destroy(InactiveUserDestroyRequest $request): RedirectResponse
+    {
+        $result = $this->inactiveUserService->destroy($request->validated()['user_ids']);
+
+        $message = "Se eliminaron {$result['deleted']} usuario(s) correctamente.";
+
+        if (! empty($result['skipped'])) {
+            $message .= ' Omitidos (protegidos): ' . implode(', ', $result['skipped']) . '.';
+        }
+
+        return back()->with('success', $message);
     }
 
     /**
@@ -42,7 +66,7 @@ class InactiveUserController extends Controller
     public function export(Request $request)
     {
         $days = max(1, (int) $request->get('days', 30));
-        $users = $this->inactiveUsersQuery($days)->orderBy('users.name')->get();
+        $users = $this->inactiveUserService->query($days)->orderBy('users.name')->get();
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -95,56 +119,5 @@ class InactiveUserController extends Controller
         return Response::download($tempFile, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
-    }
-
-    /**
-     * Permanently delete the selected inactive users.
-     * Requires the admin's current password (validated in the FormRequest).
-     */
-    public function destroy(InactiveUserDestroyRequest $request): JsonResponse
-    {
-        $users = User::whereIn('id', $request->input('user_ids'))->get();
-
-        $deleted = 0;
-        $skipped = [];
-
-        foreach ($users as $user) {
-            if ($user->id === auth()->id() || $user->hasRole('Super Admin')) {
-                $skipped[] = $user->name;
-                continue;
-            }
-
-            $user->delete();
-            $deleted++;
-        }
-
-        $message = "Se eliminaron {$deleted} usuario(s) correctamente.";
-        if (!empty($skipped)) {
-            $message .= ' Omitidos (protegidos): ' . implode(', ', $skipped) . '.';
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => $message,
-            'deleted' => $deleted,
-            'skipped' => $skipped,
-        ]);
-    }
-
-    /**
-     * Base query for inactive users, shared with the export.
-     */
-    private function inactiveUsersQuery(int $days): Builder
-    {
-        $cutoff = now()->subDays($days);
-
-        return User::query()
-            ->select('users.*')
-            ->selectRaw('last_session.last_session_at')
-            ->selectRaw("NULLIF(CONCAT_WS(', ', last_session.city, last_session.region, last_session.country), '') as last_session_location")
-            ->withLastSession()
-            ->inactiveSince($cutoff)
-            ->whereDoesntHave('roles', fn ($query) => $query->where('name', 'Super Admin'))
-            ->where('users.id', '!=', auth()->id());
     }
 }

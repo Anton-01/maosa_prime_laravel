@@ -3,34 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PrivacyPolicy;
+use App\Http\Requests\Admin\PrivacyPolicyUpdateRequest;
+use App\Services\Admin\StaticPageService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class PrivacyPolicyController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly StaticPageService $staticPageService)
     {
         $this->middleware(['permission:access management pages']);
     }
 
-    function index() : View {
-        $privacyPolicy = PrivacyPolicy::first();
-        return view('admin.privacy-policy.index', compact('privacyPolicy'));
+    /**
+     * Legacy URL kept for old bookmarks: the page now lives in the
+     * unified pages screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.pages.index', ['tab' => 'privacy-policy']);
     }
 
-    function update(Request $request) : RedirectResponse {
-        $request->validate([
-            'description' => ['required']
-        ]);
+    public function update(PrivacyPolicyUpdateRequest $request): RedirectResponse
+    {
+        $this->staticPageService->updatePrivacyPolicy($request->validated()['description']);
 
-        PrivacyPolicy::updateOrCreate(
-            ['id' => 1],
-            ['description' => $request->description]
-        );
-
-        return back()->with('statusPrivacy', true);
+        return back()->with('success', '¡Política de privacidad actualizada correctamente!');
     }
-
 }

@@ -5,9 +5,8 @@ namespace App\Http\Requests\Admin;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AboutUsUpdateRequest extends FormRequest
+class PrivacyPolicyUpdateRequest extends FormRequest
 {
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -16,11 +15,7 @@ class AboutUsUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'image' => ['nullable', 'image', 'max:3000'],
-            'old_image' => ['nullable', 'string', 'max:255'],
-            'video_url' => ['required', 'url'],
             'description' => ['required', 'string'],
-            'button_url' => ['nullable', 'url'],
         ];
     }
 
@@ -30,10 +25,7 @@ class AboutUsUpdateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'image' => 'imagen',
-            'video_url' => 'URL del video',
-            'description' => 'descripción',
-            'button_url' => 'URL del botón',
+            'description' => 'contenido',
         ];
     }
 }

@@ -3,15 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Services\Admin\UserManagementService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Spatie\Permission\Models\Permission;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserPermissionController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly UserManagementService $userManagementService)
     {
         $this->middleware(['permission:access management users permissions']);
     }
@@ -19,17 +19,16 @@ class UserPermissionController extends Controller
     /**
      * Show form to assign direct permissions to a user.
      */
-    public function edit(string $id): View
+    public function edit(string $id): Response
     {
-        $user = User::with('roles')->findOrFail($id);
-
-        $allPermissions     = Permission::all()->groupBy('group_name');
-        $directPermissions  = $user->getDirectPermissions()->pluck('name')->toArray();
-        $rolePermissions    = $user->getPermissionsViaRoles()->pluck('name')->toArray();
-
-        return view('admin.role-permission.user-permissions.edit', compact(
-            'user', 'allPermissions', 'directPermissions', 'rolePermissions'
-        ));
+        return Inertia::render('Admin/Users/Permissions', [
+            ...$this->userManagementService->getForPermissionsEdit((int) $id),
+            'urls' => [
+                'base' => route('admin.role-user.index'),
+                'update' => route('admin.user-permissions.update', $id),
+                'show' => route('admin.role-user.show', $id),
+            ],
+        ]);
     }
 
     /**
@@ -42,14 +41,10 @@ class UserPermissionController extends Controller
             'permissions.*' => ['string', 'exists:permissions,name'],
         ]);
 
-        $user = User::findOrFail($id);
-
-        if ($user->hasRole('Super Admin')) {
+        if (! $this->userManagementService->syncDirectPermissions((int) $id, $request->permissions ?? [])) {
             return back()->withErrors(['permissions' => 'No se pueden modificar permisos directos del Super Admin.']);
         }
 
-        $user->syncPermissions($request->permissions ?? []);
-
-        return to_route('admin.role-user.show', $user->id)->with('statusPermU', true);
+        return to_route('admin.role-user.show', $id)->with('success', '¡Permisos directos actualizados correctamente!');
     }
 }

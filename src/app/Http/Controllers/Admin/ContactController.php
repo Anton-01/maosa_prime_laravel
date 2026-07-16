@@ -4,34 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ContactUpdateRequest;
-use App\Models\Contact;
+use App\Services\Admin\StaticPageService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class ContactController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly StaticPageService $staticPageService)
     {
         $this->middleware(['permission:access management pages']);
     }
 
-    function index() : View {
-        $contact = Contact::first();
-        return view('admin.contact.index', compact('contact'));
+    /**
+     * Legacy URL kept for old bookmarks: the page now lives in the
+     * unified pages screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.pages.index', ['tab' => 'contact']);
     }
 
-    function update(ContactUpdateRequest $request) : RedirectResponse {
-        Contact::updateOrCreate(
-            ['id' => 1],
-            [
-                'phone' => $request->phone,
-                'email' => $request->email,
-                'address' => $request->address,
-                'map_link' => $request->map_link
-            ]
-        );
+    public function update(ContactUpdateRequest $request): RedirectResponse
+    {
+        $this->staticPageService->updateContact($request->validated());
 
-        return back()->with('statusContact', true);
+        return back()->with('success', '¡Página de contacto actualizada correctamente!');
     }
 }
