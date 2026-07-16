@@ -9,6 +9,7 @@
         "barryvdh/laravel-dompdf": "^3.1",
         "efectn/laravel-menu-builder": "dev-master",
         "guzzlehttp/guzzle": "^7.2",
+        "inertiajs/inertia-laravel": "^2.0",
         "jenssegers/agent": "^2.6",
         "laravel/breeze": "^2.0",
         "laravel/framework": "^11.0",
