@@ -7,7 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class HeroUpdateRequest extends FormRequest
 {
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -17,7 +16,21 @@ class HeroUpdateRequest extends FormRequest
     {
         return [
             'background' => ['nullable', 'image', 'max:3000'],
-            'title' => ['required', 'max:255']
+            'old_background' => ['nullable', 'string', 'max:255'],
+            'title' => ['required', 'string', 'max:255'],
+            'sub_title' => ['required', 'string', 'max:255'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return [
+            'background' => 'imagen de fondo',
+            'title' => 'título',
+            'sub_title' => 'sub título',
         ];
     }
 }

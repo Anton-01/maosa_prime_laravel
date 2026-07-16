@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\PrivacyPolicyController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\RoleUserController;
+use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StatisticsExportController;
@@ -44,6 +45,9 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile-password', [ProfileController::class, 'passwordUpdate'])->name('profile-password.update');
+
+    /** Unified Sections Screen (banners, features and section titles in tabs) */
+    Route::get('/sections', [SectionController::class, 'index'])->name('sections.index');
 
     /** Hero Routes */
     Route::get('/hero', [HeroController::class, 'index'])->name('hero.index');

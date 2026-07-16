@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, router, usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import {
     App,
     Avatar,
@@ -44,19 +44,54 @@ const NAVIGATION_ICONS = {
 };
 
 /**
+ * Screens already migrated to Inertia navigate with <Link> (SPA);
+ * classic Blade screens need a full page load with a plain anchor.
+ */
+function renderNavigationLink(item) {
+    if (!item.url) return item.label;
+
+    return item.inertia ? (
+        <Link href={item.url}>{item.label}</Link>
+    ) : (
+        <a href={item.url}>{item.label}</a>
+    );
+}
+
+/**
  * Maps the navigation tree shared by HandleInertiaRequests
- * into Ant Design <Menu /> items with Inertia links.
+ * into Ant Design <Menu /> items.
  */
 function buildMenuItems(navigation) {
     return navigation.map((item) => ({
         key: item.key,
         icon: NAVIGATION_ICONS[item.icon] ?? null,
-        label: item.url ? <Link href={item.url}>{item.label}</Link> : item.label,
+        label: renderNavigationLink(item),
         children: item.children?.map((child) => ({
             key: child.key,
-            label: <Link href={child.url}>{child.label}</Link>,
+            label: renderNavigationLink(child),
         })),
     }));
+}
+
+/**
+ * Logout must be a classic form POST: the redirect target (login) is a
+ * Blade page, which an Inertia visit cannot render.
+ */
+function submitLogout(logoutUrl) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = logoutUrl;
+
+    const tokenInput = document.createElement('input');
+    tokenInput.type = 'hidden';
+    tokenInput.name = '_token';
+    tokenInput.value = csrfToken;
+
+    form.appendChild(tokenInput);
+    document.body.appendChild(form);
+    form.submit();
 }
 
 function findSelectedKeys(navigation) {
@@ -106,20 +141,16 @@ export default function AdminLayout({ children }) {
         if (flash?.info) message.info(flash.info);
     }, [flash, message]);
 
-    const handleLogout = () => {
-        router.post(urls.logout);
-    };
-
     const userMenuItems = [
         {
             key: 'profile',
             icon: <UserOutlined />,
-            label: <Link href={urls.profile}>Perfil</Link>,
+            label: <a href={urls.profile}>Perfil</a>,
         },
         {
             key: 'settings',
             icon: <SettingOutlined />,
-            label: <Link href={urls.settings}>Configuración</Link>,
+            label: <a href={urls.settings}>Configuración</a>,
         },
         { type: 'divider' },
         {
@@ -127,7 +158,7 @@ export default function AdminLayout({ children }) {
             icon: <LogoutOutlined />,
             label: 'Cerrar sesión',
             danger: true,
-            onClick: handleLogout,
+            onClick: () => submitLogout(urls.logout),
         },
     ];
 

@@ -3,57 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Amenity;
-use App\Models\Blog;
-use App\Models\Category;
-use App\Models\Listing;
-use App\Models\Location;
-use App\Models\PageVisit;
-use App\Models\User;
-use App\Models\UserSession;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
+use App\Services\Admin\DashboardStatsService;
+use Inertia\Inertia;
+use Inertia\Response;
 
-class DashboardController extends Controller {
-    function index() : View {
+class DashboardController extends Controller
+{
+    public function __construct(private readonly DashboardStatsService $dashboardStatsService)
+    {
+    }
 
-        $stats = Cache::remember('admin_dashboard_stats', now()->addMinutes(5), function () {
-            $lastWeek = Carbon::now()->subDays(7);
-
-            // Datos para gráfico de actividad (últimos 7 días)
-            $activityData = [];
-            for ($i = 6; $i >= 0; $i--) {
-                $date = Carbon::now()->subDays($i);
-                $activityData[] = [
-                    'date'     => $date->format('d/m'),
-                    'visits'   => PageVisit::whereDate('created_at', $date->toDateString())->count(),
-                    'sessions' => UserSession::whereDate('created_at', $date->toDateString())->count(),
-                ];
-            }
-
-            return [
-                'totalListingCount'      => Listing::count(),
-                'listingCategoryCount'   => Category::count(),
-                'locationCount'          => Location::count(),
-                'adminCount'             => User::where('user_type', 'admin')->count(),
-                'usersCount'             => User::whereNot('user_type', 'admin')->count(),
-                'verifiedListingsCount'  => Listing::where('is_verified', 1)->count(),
-                'activeListingsCount'    => Listing::where('status', 1)->count(),
-                'amenitiesCount'         => Amenity::count(),
-                'blogsCount'             => Blog::count(),
-                'usersWithPriceAccess'   => User::where('can_view_price_table', 1)->whereNot('user_type', 'admin')->count(),
-                'sessionsLastWeek'       => UserSession::where('created_at', '>=', $lastWeek)->count(),
-                'pageVisitsLastWeek'     => PageVisit::where('created_at', '>=', $lastWeek)->count(),
-                'newUsersLastWeek'       => User::whereNot('user_type', 'admin')->where('created_at', '>=', $lastWeek)->count(),
-                'latestUsers'            => User::whereNot('user_type', 'admin')->orderBy('created_at', 'desc')->take(5)->get(),
-                'latestListings'         => Listing::with(['category', 'location'])->orderBy('created_at', 'desc')->take(5)->get(),
-                'activityData'           => $activityData,
-                'listingsByCategory'     => Category::withCount('listings')->orderBy('listings_count', 'desc')->take(5)->get(),
-            ];
-
-        });
-
-        return view('admin.dashboard.index', $stats);
+    public function index(): Response
+    {
+        return Inertia::render('Admin/Dashboard/Index', [
+            ...$this->dashboardStatsService->summary(),
+            'urls' => [
+                'createListing' => route('admin.listing.create'),
+                'createUser' => route('admin.role-user.create'),
+                'categories' => route('admin.category.index'),
+                'statistics' => route('admin.statistics.index'),
+                'allUsers' => route('admin.role-user.index'),
+                'allListings' => route('admin.listing.index'),
+            ],
+        ]);
     }
 }

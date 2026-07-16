@@ -11,7 +11,13 @@ const { Title } = Typography;
  *
  * breadcrumbItems: [{ title: 'Proveedores', href: '/admin/listing' }, { title: 'Crear' }]
  */
-export default function PageContainer({ title, breadcrumbItems = [], extra = null, children }) {
+export default function PageContainer({
+    title,
+    breadcrumbItems = [],
+    extra = null,
+    wrapInCard = true,
+    children,
+}) {
     const items = breadcrumbItems.map((item) => ({
         title: item.href ? <Link href={item.href}>{item.title}</Link> : item.title,
     }));
@@ -30,7 +36,7 @@ export default function PageContainer({ title, breadcrumbItems = [], extra = nul
                     {extra && <Space wrap>{extra}</Space>}
                 </Flex>
 
-                <Card>{children}</Card>
+                {wrapInCard ? <Card>{children}</Card> : children}
             </Space>
         </>
     );

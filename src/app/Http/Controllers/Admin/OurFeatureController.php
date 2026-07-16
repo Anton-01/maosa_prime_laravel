@@ -2,88 +2,61 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\OurFeatureDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\OurFeatureCreateRequest;
-use App\Models\OurFeature;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Admin\OurFeatureUpdateRequest;
+use App\Services\Admin\OurFeatureService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 
 class OurFeatureController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly OurFeatureService $ourFeatureService)
     {
         $this->middleware(['permission:access management sections content']);
     }
 
     /**
-     * Display a listing of the resource.
+     * Legacy URLs kept for old bookmarks: features are now managed from
+     * the unified sections screen (create/edit happen in a modal there).
      */
-    public function index(OurFeatureDataTable $dataTable) : View | JsonResponse
+    public function index(): RedirectResponse
     {
-        return $dataTable->render('admin.our-feature.index');
+        return $this->redirectToFeaturesTab();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create() : View
+    public function create(): RedirectResponse
     {
-        return view('admin.our-feature.create');
+        return $this->redirectToFeaturesTab();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(OurFeatureCreateRequest $request) : RedirectResponse
+    public function edit(string $id): RedirectResponse
     {
-        $ourFeature = new OurFeature();
-        $ourFeature->icon = $request->icon;
-        $ourFeature->title = $request->title;
-        $ourFeature->short_description = $request->short_description;
-        $ourFeature->status = $request->status;
-        $ourFeature->save();
-
-        return to_route('admin.our-features.index');
+        return $this->redirectToFeaturesTab();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id) : View
+    public function store(OurFeatureCreateRequest $request): RedirectResponse
     {
-        $ourFeature = OurFeature::findOrFail($id);
-        return view('admin.our-feature.edit', compact('ourFeature'));
+        $this->ourFeatureService->create($request->validated());
+
+        return back()->with('success', '¡Función creada correctamente!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(OurFeatureCreateRequest $request, string $id)
+    public function update(OurFeatureUpdateRequest $request, string $id): RedirectResponse
     {
-        $ourFeature = OurFeature::findOrFail($id);
-        $ourFeature->icon = $request->icon;
-        $ourFeature->title = $request->title;
-        $ourFeature->short_description = $request->short_description;
-        $ourFeature->status = $request->status;
-        $ourFeature->save();
+        $this->ourFeatureService->update((int) $id, $request->validated());
 
-        return to_route('admin.our-features.index');
+        return back()->with('success', '¡Función actualizada correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        try {
-            OurFeature::findOrFail($id)->delete();
+        $this->ourFeatureService->delete((int) $id);
 
-            return response(['status' => 'success', 'message' => 'Deleted successfully!']);
-        }catch(\Exception $e){
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+        return back()->with('success', '¡Función eliminada correctamente!');
+    }
+
+    private function redirectToFeaturesTab(): RedirectResponse
+    {
+        return to_route('admin.sections.index', ['tab' => 'features']);
     }
 }

@@ -4,62 +4,41 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\HeroUpdateRequest;
-use App\Models\Hero;
-use App\Traits\FileUploadTrait;
+use App\Services\Admin\HeroService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\View\View;
 
 class HeroController extends Controller
 {
-    use FileUploadTrait;
-
-    function __construct()
+    public function __construct(private readonly HeroService $heroService)
     {
         $this->middleware(['permission:access management sections content']);
     }
 
-    function index() : View {
-        $hero = Hero::where(['type' => 'private', 'active' => 1])->first();
-        return view('admin.hero.index', compact('hero'));
+    /**
+     * Legacy URL kept for old bookmarks: the banner now lives in the
+     * unified sections screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.sections.index', ['tab' => 'private-banner']);
     }
 
-    function indexPublic() : View {
-        $hero = Hero::where(['type' => 'public', 'active' => 1])->first();
-        return view('admin.hero.public', compact('hero'));
+    public function indexPublic(): RedirectResponse
+    {
+        return to_route('admin.sections.index', ['tab' => 'public-banner']);
     }
 
-    function update(HeroUpdateRequest $request) : RedirectResponse {
+    public function update(HeroUpdateRequest $request): RedirectResponse
+    {
+        $this->heroService->updateByType(HeroService::TYPE_PRIVATE, $request, $request->validated());
 
-        $imagePath = $this->uploadImage($request, 'background', $request->old_background);
-
-        $hero = Hero::where(['type' => 'private', 'active' => 1])->first();
-
-        $hero->update([
-            'background' => !empty($imagePath) ? $imagePath : $request->old_background,
-            'title' => $request->title,
-            'sub_title' => $request->sub_title
-        ]);
-
-        Cache::forget('hero_private');
-
-        return back()->with('statusHero', true);
+        return back()->with('success', '¡Banner actualizado correctamente!');
     }
 
-    function updatePublic(HeroUpdateRequest $request) : RedirectResponse {
+    public function updatePublic(HeroUpdateRequest $request): RedirectResponse
+    {
+        $this->heroService->updateByType(HeroService::TYPE_PUBLIC, $request, $request->validated());
 
-        $imagePath = $this->uploadImage($request, 'background', $request->old_background);
-
-        $hero = Hero::where(['type' => 'public', 'active' => 1])->first();
-
-        $hero->update([
-            'background' => !empty($imagePath) ? $imagePath : $request->old_background,
-            'title' => $request->title,
-            'sub_title' => $request->sub_title
-        ]);
-
-        Cache::forget('hero_public');
-
-        return back()->with('statusHeroPublic', true);
+        return back()->with('success', '¡Banner público actualizado correctamente!');
     }
 }

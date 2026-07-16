@@ -74,6 +74,7 @@ class HandleInertiaRequests extends Middleware
                 'label' => 'Dashboard',
                 'icon' => 'dashboard',
                 'url' => route('admin.dashboard.index'),
+                'inertia' => true,
                 'active' => $request->routeIs('admin.dashboard.index'),
             ],
             [
@@ -81,32 +82,15 @@ class HandleInertiaRequests extends Middleware
                 'label' => 'Secciones',
                 'icon' => 'sections',
                 'permission' => 'access management sections content',
-                'children' => [
-                    [
-                        'key' => 'hero',
-                        'label' => 'Banner',
-                        'url' => route('admin.hero.index'),
-                        'active' => $request->routeIs('admin.hero.index'),
-                    ],
-                    [
-                        'key' => 'hero-public',
-                        'label' => 'Banner público',
-                        'url' => route('admin.hero.public.index'),
-                        'active' => $request->routeIs('admin.hero.public.index'),
-                    ],
-                    [
-                        'key' => 'our-features',
-                        'label' => 'Nuestras funciones',
-                        'url' => route('admin.our-features.index'),
-                        'active' => $request->routeIs('admin.our-features.*'),
-                    ],
-                    [
-                        'key' => 'section-titles',
-                        'label' => 'Títulos - Secciones',
-                        'url' => route('admin.section-title.index'),
-                        'active' => $request->routeIs('admin.section-title.index'),
-                    ],
-                ],
+                'url' => route('admin.sections.index'),
+                'inertia' => true,
+                'active' => $request->routeIs(
+                    'admin.sections.index',
+                    'admin.hero.index',
+                    'admin.hero-public.index',
+                    'admin.our-features.*',
+                    'admin.section-title.index',
+                ),
             ],
             [
                 'key' => 'suppliers',

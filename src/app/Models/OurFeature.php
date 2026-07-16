@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class OurFeature extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['icon', 'title', 'short_description', 'status'];
+
+    protected $casts = [
+        'status' => 'integer',
+    ];
 }

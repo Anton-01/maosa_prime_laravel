@@ -4,41 +4,29 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SectionTitleUpdateRequest;
-use App\Models\SectionTitle;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use App\Services\Admin\SectionTitleService;
+use Illuminate\Http\RedirectResponse;
 
 class SectionTitleController extends Controller
 {
-    function index() : View {
-        $title = SectionTitle::first();
-        return view('admin.section-title.index', compact('title'));
+    public function __construct(private readonly SectionTitleService $sectionTitleService)
+    {
+        $this->middleware(['permission:access management sections content']);
     }
 
-    function update(SectionTitleUpdateRequest $request) {
-        if(SectionTitle::first()){
-            $title = SectionTitle::first();
-        }else {
-            $title = new SectionTitle();
-        }
+    /**
+     * Legacy URL kept for old bookmarks: section titles now live in the
+     * unified sections screen.
+     */
+    public function index(): RedirectResponse
+    {
+        return to_route('admin.sections.index', ['tab' => 'titles']);
+    }
 
-        $title->our_feature_title = $request->our_feature_title;
-        $title->our_feature_sub_title = $request->our_feature_sub_title;
+    public function update(SectionTitleUpdateRequest $request): RedirectResponse
+    {
+        $this->sectionTitleService->update($request->validated());
 
-        $title->our_categories_title = $request->our_categories_title;
-        $title->our_categories_sub_title = $request->our_categories_sub_title;
-
-        $title->our_location_title = $request->our_location_title;
-        $title->our_location_sub_title = $request->our_location_sub_title;
-
-        $title->our_featured_listing_title = $request->our_featured_listing_title;
-        $title->our_featured_listing_sub_title = $request->our_featured_listing_sub_title;
-
-        $title->our_blog_title = $request->our_blog_title;
-        $title->our_blog_sub_title = $request->our_blog_sub_title;
-        $title->save();
-
-        return back()->with('statusScnTtl', true);
-
+        return back()->with('success', '¡Títulos actualizados correctamente!');
     }
 }
