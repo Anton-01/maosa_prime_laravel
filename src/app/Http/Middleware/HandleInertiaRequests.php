@@ -54,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
                 'warning' => $request->session()->get('warning'),
                 'info' => $request->session()->get('info'),
+                'status' => $request->session()->get('status'),
             ],
         ];
     }
@@ -141,14 +142,9 @@ class HandleInertiaRequests extends Middleware
                 'label' => 'Gestionar Footer',
                 'icon' => 'footer',
                 'permission' => 'access management footer',
-                'children' => [
-                    [
-                        'key' => 'footer-info',
-                        'label' => 'Footer Info',
-                        'url' => route('admin.footer-info.index'),
-                        'active' => $request->routeIs('admin.footer-info.index'),
-                    ],
-                ],
+                'url' => route('admin.footer-info.index'),
+                'inertia' => true,
+                'active' => $request->routeIs('admin.footer-info.index'),
             ],
             [
                 'key' => 'access-management',
@@ -184,14 +180,9 @@ class HandleInertiaRequests extends Middleware
                 'label' => 'Estadísticas',
                 'icon' => 'statistics',
                 'permission' => 'access management statics users',
-                'children' => [
-                    [
-                        'key' => 'statistics-panel',
-                        'label' => 'Panel General',
-                        'url' => route('admin.statistics.index'),
-                        'active' => $request->routeIs('admin.statistics.*'),
-                    ],
-                ],
+                'url' => route('admin.statistics.index'),
+                'inertia' => true,
+                'active' => $request->routeIs('admin.statistics.*'),
             ],
             [
                 'key' => 'menu-builder',
@@ -199,7 +190,8 @@ class HandleInertiaRequests extends Middleware
                 'icon' => 'menus',
                 'permission' => 'access management menu builder',
                 'url' => route('admin.menu-builder.index'),
-                'active' => $request->routeIs('admin.menu-builder.index'),
+                'inertia' => true,
+                'active' => $request->routeIs('admin.menu-builder.*'),
             ],
             [
                 'key' => 'settings',
@@ -207,6 +199,7 @@ class HandleInertiaRequests extends Middleware
                 'icon' => 'settings',
                 'permission' => 'access management settings maosa',
                 'url' => route('admin.settings.index'),
+                'inertia' => true,
                 'active' => $request->routeIs('admin.settings.index'),
             ],
         ];

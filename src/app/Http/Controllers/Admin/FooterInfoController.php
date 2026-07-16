@@ -4,35 +4,32 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\FooterInfoUpdateRequest;
-use App\Models\FooterInfo;
+use App\Services\Admin\FooterInfoService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class FooterInfoController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly FooterInfoService $footerInfoService)
     {
         $this->middleware(['permission:access management footer']);
     }
 
-    function index() : View {
-        $footerInfo = FooterInfo::first();
-        return view('admin.footer-info.index', compact('footerInfo'));
+    public function index(): Response
+    {
+        return Inertia::render('Admin/FooterInfo/Index', [
+            'footerInfo' => $this->footerInfoService->getAsFormValues(),
+            'urls' => [
+                'update' => route('admin.footer-info.update'),
+            ],
+        ]);
     }
 
-    function update(FooterInfoUpdateRequest $request) : RedirectResponse {
-        FooterInfo::updateOrCreate(
-            ['id' => 1],
-            [
-                'short_description' => $request->short_description,
-                'address' => $request->address,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'copyright' => $request->copyright
-            ]
-        );
+    public function update(FooterInfoUpdateRequest $request): RedirectResponse
+    {
+        $this->footerInfoService->update($request->validated());
 
-        return back()->with('statusFooter', true);
+        return back()->with('success', '¡Información del footer actualizada correctamente!');
     }
 }

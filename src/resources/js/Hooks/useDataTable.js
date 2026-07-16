@@ -27,7 +27,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  *       }}
  *   />
  */
-export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
+export default function useDataTable(url, { defaultPageSize = 10, extraParams = {} } = {}) {
     const [data, setData] = useState([]);
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -42,13 +42,24 @@ export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
 
     const requestIdRef = useRef(0);
 
+    // Serialized so the effect below re-fetches when the values change,
+    // not when the caller passes a new (but equal) object literal.
+    const extraParamsKey = JSON.stringify(extraParams);
+
     const fetchData = useCallback(async () => {
+        const extra = JSON.parse(extraParamsKey);
         const requestId = ++requestIdRef.current;
         setLoading(true);
 
         const query = new URLSearchParams({
             page: String(tableParams.page),
             per_page: String(tableParams.perPage),
+        });
+
+        Object.entries(extra).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                query.set(key, String(value));
+            }
         });
 
         if (search) query.set('search', search);
@@ -92,7 +103,7 @@ export default function useDataTable(url, { defaultPageSize = 10 } = {}) {
                 setLoading(false);
             }
         }
-    }, [url, search, tableParams]);
+    }, [url, search, tableParams, extraParamsKey]);
 
     useEffect(() => {
         fetchData();

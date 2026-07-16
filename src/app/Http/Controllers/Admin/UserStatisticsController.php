@@ -2,246 +2,144 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\ActiveUsersDataTable;
-use App\DataTables\Statistics\BrowserStatsDataTable;
-use App\DataTables\Statistics\CountryStatsDataTable;
-use App\DataTables\Statistics\DeviceStatsDataTable;
-use App\DataTables\Statistics\TopPageStatsDataTable;
 use App\Http\Controllers\Controller;
-use App\Models\PageVisit;
 use App\Models\User;
-use App\Models\UserActivity;
-use App\Models\UserNavigationFlow;
-use App\Models\UserSession;
+use App\Services\Admin\StatisticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserStatisticsController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly StatisticsService $statisticsService)
     {
         $this->middleware(['permission:user statistics index'])->only(['index', 'breakdownData']);
-        $this->middleware(['permission:user statistics view'])->only(['show', 'sessions', 'activities']);
+        $this->middleware(['permission:user statistics view'])->only(['show', 'sessions', 'sessionDetail', 'activities']);
     }
 
     /**
-     * Display statistics overview.
+     * Statistics overview: KPI metrics plus server-side breakdown tables.
      */
-    public function index(ActiveUsersDataTable $dataTable, Request $request): View | JsonResponse
+    public function index(Request $request): Response
     {
-        // Peticiones ajax del DataTable "Usuarios más activos": solo devolver JSON
-        if ($request->ajax()) {
-            return $dataTable->render('admin.statistics.index');
-        }
+        [$dateFrom, $dateTo] = $this->statisticsService->range($request);
 
-        // Por defecto: últimos 7 días (NOW() - 7 días → NOW())
-        $dateFrom = $request->get('date_from', now()->subDays(7)->format('Y-m-d'));
-        $dateTo = $request->get('date_to', now()->format('Y-m-d'));
-
-        // Métricas escalares de las cards (Tab "Métricas Generales")
-        $totalSessions = UserSession::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
-        $totalPageViews = PageVisit::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
-        $totalActivities = UserActivity::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])->count();
-        $uniqueUsers = UserSession::whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->distinct('user_id')
-            ->count('user_id');
-
-        // Tablas de desglose: cada una es un DataTable server-side propio.
-        // Se pasan sus html builders para renderizar tabla + scripts en la vista.
-        $devicesTable   = app(DeviceStatsDataTable::class)->html();
-        $browsersTable  = app(BrowserStatsDataTable::class)->html();
-        $countriesTable = app(CountryStatsDataTable::class)->html();
-        $pagesTable     = app(TopPageStatsDataTable::class)->html();
-
-        return $dataTable->render('admin.statistics.index', compact(
-            'dateFrom',
-            'dateTo',
-            'totalSessions',
-            'totalPageViews',
-            'totalActivities',
-            'uniqueUsers',
-            'devicesTable',
-            'browsersTable',
-            'countriesTable',
-            'pagesTable'
-        ));
+        return Inertia::render('Admin/Statistics/Index', [
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'metrics' => $this->statisticsService->overviewMetrics($dateFrom, $dateTo),
+            'urls' => [
+                'base' => route('admin.statistics.index'),
+                'dataBase' => url('admin/statistics/data'),
+                'exportBase' => url('admin/statistics/export'),
+                'userBase' => url('admin/statistics/user'),
+            ],
+        ]);
     }
 
     /**
-     * Ajax endpoint que sirve los datos de las tablas de desglose del panel.
+     * JSON data source for the overview tables (useDataTable contract).
+     * Types: devices, browsers, countries, pages, active-users.
      */
-    public function breakdownData(string $type): JsonResponse
+    public function breakdownData(Request $request, string $type): JsonResponse
     {
-        $dataTable = match ($type) {
-            'browsers'  => app(BrowserStatsDataTable::class),
-            'countries' => app(CountryStatsDataTable::class),
-            'devices'   => app(DeviceStatsDataTable::class),
-            'pages'     => app(TopPageStatsDataTable::class),
-            default     => abort(404),
-        };
-
-        return $dataTable->ajax();
+        return response()->json($this->statisticsService->breakdownData($type, $request));
     }
 
     /**
-     * Display statistics for a specific user.
+     * Statistics detail for a specific user.
      */
-    public function show(Request $request, int $userId): View
+    public function show(Request $request, int $userId): Response
     {
         $user = User::findOrFail($userId);
         $dateFrom = $request->get('date_from', now()->subDays(30)->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
 
-        // User stats
-        $totalSessions = UserSession::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->count();
-
-        $totalPageViews = PageVisit::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->count();
-
-        $totalActivities = UserActivity::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->count();
-
-        // Average session duration
-        $avgSessionDuration = UserSession::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->whereNotNull('ended_at')
-            ->selectRaw('AVG(EXTRACT(EPOCH FROM (ended_at - started_at))) as avg_duration')
-            ->value('avg_duration');
-
-        // Most visited pages by this user
-        $topPages = PageVisit::select('url', 'page_title', DB::raw('COUNT(*) as visits'))
-            ->forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('url', 'page_title')
-            ->orderByDesc('visits')
-            ->limit(10)
-            ->get();
-
-        // Recent sessions
-        $recentSessions = UserSession::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get();
-
-        // Activity types breakdown
-        $activityTypes = UserActivity::select('activity_type', DB::raw('COUNT(*) as count'))
-            ->forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('activity_type')
-            ->orderByDesc('count')
-            ->get();
-
-        // Activity by day
-        $activityByDay = PageVisit::select(
-            DB::raw('DATE(visited_at) as date'),
-            DB::raw('COUNT(*) as visits')
-        )
-            ->forUser($userId)
-            ->whereBetween('visited_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-
-        // Navigation flow (top paths)
-        $navigationFlows = UserNavigationFlow::select('from_url', 'to_url', DB::raw('COUNT(*) as count'))
-            ->forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->groupBy('from_url', 'to_url')
-            ->orderByDesc('count')
-            ->limit(15)
-            ->get();
-
-        return view('admin.statistics.show', compact(
-            'user',
-            'dateFrom',
-            'dateTo',
-            'totalSessions',
-            'totalPageViews',
-            'totalActivities',
-            'avgSessionDuration',
-            'topPages',
-            'recentSessions',
-            'activityTypes',
-            'activityByDay',
-            'navigationFlows'
-        ));
+        return Inertia::render('Admin/Statistics/UserDetail', [
+            'user' => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            ...$this->statisticsService->userDetail($userId, $dateFrom, $dateTo),
+            'urls' => [
+                'base' => route('admin.statistics.index'),
+                'self' => route('admin.statistics.show', $userId),
+                'sessions' => route('admin.statistics.sessions', $userId),
+                'activities' => route('admin.statistics.activities', $userId),
+                'sessionDetailBase' => url('admin/statistics/session'),
+            ],
+        ]);
     }
 
     /**
-     * Display session details.
+     * Paginated sessions of a user.
      */
-    public function sessions(Request $request, int $userId): View
+    public function sessions(Request $request, int $userId): Response
     {
         $user = User::findOrFail($userId);
         $dateFrom = $request->get('date_from', now()->subDays(30)->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
 
-        $sessions = UserSession::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
-            ->withCount('pageVisits')
-            ->withCount('activities')
-            ->orderByDesc('created_at')
-            ->paginate(20);
-
-        return view('admin.statistics.sessions', compact('user', 'sessions', 'dateFrom', 'dateTo'));
+        return Inertia::render('Admin/Statistics/Sessions', [
+            'user' => ['id' => $user->id, 'name' => $user->name],
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'sessions' => $this->statisticsService->userSessions(
+                $userId,
+                $dateFrom,
+                $dateTo,
+                max(1, $request->integer('page', 1)),
+            ),
+            'urls' => [
+                'self' => route('admin.statistics.sessions', $userId),
+                'userDetail' => route('admin.statistics.show', $userId),
+                'sessionDetailBase' => url('admin/statistics/session'),
+            ],
+        ]);
     }
 
     /**
-     * Display session detail with page visits.
+     * A session with its page visits and activities.
      */
-    public function sessionDetail(int $sessionId): View
+    public function sessionDetail(int $sessionId): Response
     {
-        $session = UserSession::with(['user', 'pageVisits', 'activities'])
-            ->findOrFail($sessionId);
+        $detail = $this->statisticsService->sessionDetail($sessionId);
 
-        $pageVisits = PageVisit::where('user_session_id', $sessionId)
-            ->orderBy('visited_at')
-            ->get();
-
-        $activities = UserActivity::where('user_session_id', $sessionId)
-            ->orderBy('created_at')
-            ->get();
-
-        return view('admin.statistics.session-detail', compact('session', 'pageVisits', 'activities'));
+        return Inertia::render('Admin/Statistics/SessionDetail', [
+            ...$detail,
+            'urls' => [
+                'userSessions' => route('admin.statistics.sessions', $detail['session']['userId']),
+                'userDetail' => route('admin.statistics.show', $detail['session']['userId']),
+            ],
+        ]);
     }
 
     /**
-     * Display user activities.
+     * Paginated activities of a user, filterable by type.
      */
-    public function activities(Request $request, int $userId): View
+    public function activities(Request $request, int $userId): Response
     {
         $user = User::findOrFail($userId);
         $dateFrom = $request->get('date_from', now()->subDays(30)->format('Y-m-d'));
         $dateTo = $request->get('date_to', now()->format('Y-m-d'));
         $activityType = $request->get('activity_type');
 
-        $query = UserActivity::forUser($userId)
-            ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59']);
-
-        if ($activityType) {
-            $query->where('activity_type', $activityType);
-        }
-
-        $activities = $query->orderByDesc('created_at')->paginate(50);
-
-        $activityTypes = UserActivity::forUser($userId)
-            ->distinct('activity_type')
-            ->pluck('activity_type');
-
-        return view('admin.statistics.activities', compact(
-            'user',
-            'activities',
-            'activityTypes',
-            'activityType',
-            'dateFrom',
-            'dateTo'
-        ));
+        return Inertia::render('Admin/Statistics/Activities', [
+            'user' => ['id' => $user->id, 'name' => $user->name],
+            'dateFrom' => $dateFrom,
+            'dateTo' => $dateTo,
+            'activityType' => $activityType,
+            'activities' => $this->statisticsService->userActivities(
+                $userId,
+                $dateFrom,
+                $dateTo,
+                $activityType,
+                max(1, $request->integer('page', 1)),
+            ),
+            'urls' => [
+                'self' => route('admin.statistics.activities', $userId),
+                'userDetail' => route('admin.statistics.show', $userId),
+            ],
+        ]);
     }
 }

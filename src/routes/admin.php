@@ -33,7 +33,7 @@ use App\Http\Controllers\Admin\UserStatisticsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login')->middleware('guest');
-Route::get('/admin/forgot-password', [AdminAuthController::class, 'PasswordRequest'])->name('admin.password.request')->middleware('guest');
+Route::get('/admin/forgot-password', [AdminAuthController::class, 'passwordRequest'])->name('admin.password.request')->middleware('guest');
 
 Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
 
@@ -112,8 +112,14 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     /** Terms and Condition Route */
     Route::get('terms-and-condition', [TermsAndConditionController::class, 'index'])->name('terms-and-condition.index');
     Route::post('terms-and-condition', [TermsAndConditionController::class, 'update'])->name('terms-and-condition.update');
-    /** Privacy Policy Route */
+    /** Menu Builder Routes */
     Route::get('menu-builder', [MenuBuilderController::class, 'index'])->name('menu-builder.index');
+    Route::post('menu-builder/menus', [MenuBuilderController::class, 'storeMenu'])->name('menu-builder.menus.store');
+    Route::delete('menu-builder/menus/{id}', [MenuBuilderController::class, 'destroyMenu'])->name('menu-builder.menus.destroy');
+    Route::post('menu-builder/items', [MenuBuilderController::class, 'storeItem'])->name('menu-builder.items.store');
+    Route::put('menu-builder/items/{id}', [MenuBuilderController::class, 'updateItem'])->name('menu-builder.items.update');
+    Route::delete('menu-builder/items/{id}', [MenuBuilderController::class, 'destroyItem'])->name('menu-builder.items.destroy');
+    Route::post('menu-builder/items/{id}/move', [MenuBuilderController::class, 'moveItem'])->name('menu-builder.items.move');
 
     /** Footer Info Route */
     Route::get('footer-info', [FooterInfoController::class, 'index'])->name('footer-info.index');

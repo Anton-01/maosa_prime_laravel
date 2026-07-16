@@ -134,7 +134,11 @@ export default function Index({ stations, urls }) {
                             {
                                 key: 'statistics',
                                 icon: <BarChartOutlined />,
-                                label: <a href={`${urls.statisticsBase}/${record.id}`}>Estadísticas</a>,
+                                label: (
+                                    <Link href={`${urls.statisticsBase}/${record.id}`}>
+                                        Estadísticas
+                                    </Link>
+                                ),
                             },
                             { type: 'divider' },
                             {

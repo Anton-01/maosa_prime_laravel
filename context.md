@@ -183,6 +183,84 @@ viejas redirigen al tab. `StaticPageService` concentra los `updateOrCreate`.
 
 ---
 
+## ✅ Fase 4 — Footer, Estadísticas, Menús, Ajustes, Perfil y Auth del admin (completada)
+
+### Footer (`/admin/footer-info`)
+`Pages/Admin/FooterInfo/Index.jsx` (form simple) + `FooterInfoService`. El grupo
+del sidebar colapsó a un solo item.
+
+### Ajustes (`/admin/settings`) — tabs laterales
+`Pages/Admin/Settings/Index.jsx` con tabs (General, Logo y favicon, Apariencia
+con `ColorPicker` de antd). `SettingUpdateService` + **nuevos FormRequests**
+(`GeneralSettingsUpdateRequest`, `LogoSettingsUpdateRequest`,
+`AppearanceSettingsUpdateRequest` — antes validaban inline).
+**Fix:** el controlador leía `old_image` pero la vista enviaba `old_logo`, por
+lo que el logo anterior nunca se preservaba/borraba; ahora usa
+`old_logo`/`old_favicon` de forma consistente.
+
+### Perfil (`/admin/profile`) — tabs Información / Contraseña
+`Pages/Admin/Profile/Index.jsx` + `ProfileService`. **Nuevo
+`ProfilePasswordUpdateRequest`** (antes inline). Avatar/banner con preview.
+
+### Auth del admin (`/admin/login`, `/admin/forgot-password`)
+`Pages/Auth/AdminLogin.jsx` y `AdminForgotPassword.jsx` con **`AuthLayout`**
+propio (centrado, sin AdminLayout — por eso viven fuera de `Pages/Admin`).
+**Decisión:** el submit es un **POST clásico** (helper
+`Utils/classicFormPost.js`, también usado por el logout) porque el redirect
+post-login puede caer en páginas Blade del frontend para usuarios no-admin, y
+una visita Inertia no puede renderizarlas. Los errores de validación llegan
+igualmente vía la prop compartida `errors`. Se replica el campo oculto
+`honeypot` que exige el middleware anti-bots, y `flash.status` (mensaje de
+Breeze) ahora se comparte vía Inertia.
+
+### Menús (`/admin/menu-builder`) — gestor nativo antd
+Se reemplazó el widget jQuery de `efectn/laravel-menu-builder` por un gestor
+propio que escribe **las mismas tablas** (`admin_menus`/`admin_menu_items`),
+así el frontend público (`Menu::getByName`) sigue funcionando sin cambios:
+- Modelos `AdminMenu` y `AdminMenuItem` (tabla vía `config('menu.*')`).
+- `MenuBuilderService`: árbol aplanado en orden de despliegue, crear/eliminar
+  menú, CRUD de items con `depth`/`sort` automáticos, reorden subir/bajar
+  (swap de `sort` entre hermanos), hijos re-anclados al nivel raíz al eliminar.
+- Rutas nuevas bajo `admin/menu-builder/*` (menus store/destroy, items
+  store/update/destroy/move) + FormRequests `MenuStoreRequest`,
+  `MenuItemStoreRequest`, `MenuItemUpdateRequest`.
+- `Pages/Admin/Menus/Index.jsx`: selector de menú, tabla indentada por nivel,
+  modal de item con `AutoComplete` de enlaces sugeridos (config
+  `menu-builder.php`) y selector de padre.
+- El paquete sigue instalado (sus rutas propias quedan sin uso); eliminarlo es
+  parte de la fase de limpieza.
+
+### Estadísticas (`/admin/statistics`)
+- `StatisticsService` concentra TODAS las consultas (KPIs, desgloses, usuarios
+  activos, detalle por usuario, sesiones, detalle de sesión, actividades).
+- **Panel General** (`Pages/Admin/Statistics/Index.jsx`): `RangePicker` de
+  fechas (KPIs se recargan con partial reload; las tablas reaccionan solas),
+  4 KPI cards y **Tabs** con 5 tablas server-side: Usuarios más activos,
+  Dispositivos, Navegadores, Países y Páginas — todas con búsqueda, orden,
+  paginación inferior y botón de export Excel (endpoints de
+  `StatisticsExportController`, que se conserva tal cual).
+- El endpoint `statistics/data/{type}` ahora responde el contrato de
+  `useDataTable` (`{data,total}`) y suma el tipo `active-users`.
+- **Detalle de usuario** (`UserDetail.jsx`): KPIs + duración media de sesión,
+  Line de visitas por día, Pie de tipos de actividad, páginas top, sesiones
+  recientes y flujos de navegación; enlaces a Sesiones y Actividades.
+- **Sesiones** (`Sessions.jsx`) y **Actividades** (`Activities.jsx`): tablas
+  paginadas server-side vía props Inertia (page en query) con filtros de rango
+  y tipo. **Detalle de sesión** (`SessionDetail.jsx`): `Descriptions` + tabs de
+  visitas y actividades.
+
+### Infra de esta fase
+- `useDataTable` acepta `extraParams` (query params estáticos reactivos — usado
+  para el rango de fechas del panel de estadísticas).
+- Navegación: Footer y Estadísticas colapsaron a items únicos; Menús, Ajustes,
+  Estadísticas, Footer con `inertia => true`. Dropdown de usuario (Perfil,
+  Configuración) y accesos rápidos del dashboard ahora navegan como SPA.
+- **Todo el panel de administración quedó migrado a Inertia + antd**, excepto
+  las sub-pantallas de horarios/servicios de proveedores y la importación de
+  usuarios (siguen en Blade).
+
+---
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza
@@ -218,15 +296,15 @@ viejas redirigen al tab. `StaticPageService` concentra los `updateOrCreate`.
 - [x] Proveedores: Categorías, Ubicaciones, Todos los Proveedores
 - [ ] Proveedores: sub-pantallas de Horarios (listing-schedule) y Servicios (listing amenities) — siguen en Blade
 - [x] Páginas: Sobre nosotros, Contacto, Política de privacidad, Términos → pantalla unificada con tabs
-- [ ] Gestionar Footer
+- [x] Gestionar Footer
 - [x] Gestión de accesos: Usuarios (tabla server-side), Usuarios inactivos, Roles y permisos, Permisos directos
 - [ ] Gestión de accesos: Importación de usuarios (user-import) — sigue en Blade
-- [ ] Estadísticas (Panel General + detalle de usuario/sesiones)
-- [ ] Menús (menu builder)
-- [ ] Ajustes
-- [ ] Perfil
-- [ ] Login/Forgot password del admin
-- [ ] Fase de limpieza: borrar blades/datatables/assets legados (Stisla, jQuery, FontAwesome del admin)
+- [x] Estadísticas (Panel General + detalle de usuario/sesiones/actividades)
+- [x] Menús (gestor nativo antd sobre las tablas del paquete)
+- [x] Ajustes
+- [x] Perfil
+- [x] Login/Forgot password del admin
+- [ ] Fase de limpieza: borrar blades/datatables/assets legados (Stisla, jQuery, FontAwesome del admin) y evaluar remover `efectn/laravel-menu-builder`
 
 ## 📌 Checklist al migrar cada pantalla
 

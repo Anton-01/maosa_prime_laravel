@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from '@inertiajs/react';
 import { Button, Card, Col, Empty, Progress, Row, Space, Statistic, Table, Tag, theme } from 'antd';
 import { Line, Pie } from '@ant-design/plots';
 import {
@@ -260,9 +261,11 @@ export default function Index({
                     <Card
                         title={<Space><UserAddOutlined /> Últimos Usuarios Registrados</Space>}
                         extra={
-                            <Button type="link" href={urls.allUsers}>
-                                Ver todos <RightOutlined />
-                            </Button>
+                            <Link href={urls.allUsers}>
+                                <Button type="link">
+                                    Ver todos <RightOutlined />
+                                </Button>
+                            </Link>
                         }
                     >
                         <Table
@@ -279,9 +282,11 @@ export default function Index({
                     <Card
                         title={<Space><ShopOutlined /> Últimos Proveedores</Space>}
                         extra={
-                            <Button type="link" href={urls.allListings}>
-                                Ver todos <RightOutlined />
-                            </Button>
+                            <Link href={urls.allListings}>
+                                <Button type="link">
+                                    Ver todos <RightOutlined />
+                                </Button>
+                            </Link>
                         }
                     >
                         <Table
@@ -317,17 +322,14 @@ export default function Index({
                         <Row gutter={[16, 16]}>
                             {quickAccessItems.map((item) => (
                                 <Col xs={12} key={item.label}>
-                                    <Button
-                                        href={item.url}
-                                        block
-                                        size="large"
-                                        style={{ height: 80 }}
-                                    >
-                                        <Space direction="vertical" size={4}>
-                                            {item.icon}
-                                            {item.label}
-                                        </Space>
-                                    </Button>
+                                    <Link href={item.url}>
+                                        <Button block size="large" style={{ height: 80 }}>
+                                            <Space direction="vertical" size={4}>
+                                                {item.icon}
+                                                {item.label}
+                                            </Space>
+                                        </Button>
+                                    </Link>
                                 </Col>
                             ))}
                         </Row>

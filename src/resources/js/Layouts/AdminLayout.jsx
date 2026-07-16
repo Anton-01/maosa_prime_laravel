@@ -27,6 +27,8 @@ import {
     UserOutlined,
 } from '@ant-design/icons';
 
+import classicFormPost from '../Utils/classicFormPost';
+
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
@@ -74,24 +76,11 @@ function buildMenuItems(navigation) {
 }
 
 /**
- * Logout must be a classic form POST: the redirect target (login) is a
+ * Logout must be a classic form POST: the redirect target may be a
  * Blade page, which an Inertia visit cannot render.
  */
 function submitLogout(logoutUrl) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = logoutUrl;
-
-    const tokenInput = document.createElement('input');
-    tokenInput.type = 'hidden';
-    tokenInput.name = '_token';
-    tokenInput.value = csrfToken;
-
-    form.appendChild(tokenInput);
-    document.body.appendChild(form);
-    form.submit();
+    classicFormPost(logoutUrl);
 }
 
 function findSelectedKeys(navigation) {
@@ -145,12 +134,12 @@ export default function AdminLayout({ children }) {
         {
             key: 'profile',
             icon: <UserOutlined />,
-            label: <a href={urls.profile}>Perfil</a>,
+            label: <Link href={urls.profile}>Perfil</Link>,
         },
         {
             key: 'settings',
             icon: <SettingOutlined />,
-            label: <a href={urls.settings}>Configuración</a>,
+            label: <Link href={urls.settings}>Configuración</Link>,
         },
         { type: 'divider' },
         {

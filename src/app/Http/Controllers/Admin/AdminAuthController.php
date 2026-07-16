@@ -3,17 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AdminAuthController extends Controller
 {
-    function login() : View
+    public function login(): Response
     {
-        return view('admin.auth.login');
+        return Inertia::render('Auth/AdminLogin', [
+            'urls' => [
+                'login' => url('/login'),
+                'forgotPassword' => route('admin.password.request'),
+            ],
+        ]);
     }
 
-    function PasswordRequest() : View {
-        return view('admin.auth.forgot-password');
+    public function passwordRequest(): Response
+    {
+        return Inertia::render('Auth/AdminForgotPassword', [
+            'urls' => [
+                'sendResetLink' => route('password.email'),
+                'login' => route('admin.login'),
+            ],
+        ]);
     }
 }

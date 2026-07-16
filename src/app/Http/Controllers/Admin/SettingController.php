@@ -3,89 +3,53 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Setting;
-use App\Services\SettingsService;
-use App\Traits\FileUploadTrait;
-use Artisan;
+use App\Http\Requests\Admin\AppearanceSettingsUpdateRequest;
+use App\Http\Requests\Admin\GeneralSettingsUpdateRequest;
+use App\Http\Requests\Admin\LogoSettingsUpdateRequest;
+use App\Services\Admin\SettingUpdateService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Redirect;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class SettingController extends Controller
 {
-    use FileUploadTrait;
-
-    function __construct()
+    public function __construct(private readonly SettingUpdateService $settingUpdateService)
     {
         $this->middleware(['permission:settings index']);
     }
 
-    function index() : View {
-        return view('admin.setting.index');
-    }
-
-    function updateGeneralSetting(Request $request) : RedirectResponse {
-        $validatedData = $request->validate([
-            'site_name' => ['required', 'max:255'],
-            'site_email' => ['required', 'max:255', 'email'],
-            'site_phone' => ['required', 'max:255']
-        ]);
-
-        foreach($validatedData as $key => $value) {
-            Setting::updateOrCreate(['key' => $key], ['value' => $value]);
-        }
-
-        $settingsService = app(SettingsService::class);
-        $settingsService->clearCachedSettings();
-
-        return back()->with('statusStnGen', true);
-    }
-
-    function logoSettings(Request $request): RedirectResponse
+    public function index(Request $request): Response
     {
-        $request->validate([
-            'logo' => ['nullable', 'image', 'max:3000'],
-            'favicon' => ['nullable', 'image', 'max:3000'],
+        return Inertia::render('Admin/Settings/Index', [
+            'initialTab' => $request->query('tab', 'general'),
+            ...$this->settingUpdateService->getSettingsData(),
+            'urls' => [
+                'generalUpdate' => route('admin.general-settings.update'),
+                'logoUpdate' => route('admin.logo-settings.update'),
+                'appearanceUpdate' => route('admin.appearance-settings.update'),
+            ],
         ]);
-
-        $logoPath = $this->uploadImage($request, 'logo', $request->old_image);
-        $faviconPath = $this->uploadImage($request, 'favicon', $request->old_favicon);
-
-        Setting::updateOrCreate(
-            ['key' => 'logo'],
-            ['value' => !empty($logoPath) ? $logoPath : $request->old_image]
-        );
-
-        Setting::updateOrCreate(
-            ['key' => 'favicon'],
-            ['value' => !empty($faviconPath) ? $faviconPath : $request->old_favicon]
-        );
-
-
-        $settingsService = app(SettingsService::class);
-        $settingsService->clearCachedSettings();
-
-        return back()->with('statusStnLg', true);
     }
 
-    function appearanceSetting(Request $request): RedirectResponse
+    public function updateGeneralSetting(GeneralSettingsUpdateRequest $request): RedirectResponse
     {
-        $validatedData = $request->validate([
-            'site_default_color' => ['required'],
+        $this->settingUpdateService->updateKeyValues($request->validated());
 
-        ]);
+        return back()->with('success', '¡Ajustes generales actualizados correctamente!');
+    }
 
-        foreach($validatedData as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value]
-            );
-        }
+    public function logoSettings(LogoSettingsUpdateRequest $request): RedirectResponse
+    {
+        $this->settingUpdateService->updateLogos($request, $request->validated());
 
-        $settingsService = app(SettingsService::class);
-        $settingsService->clearCachedSettings();
+        return back()->with('success', '¡Logo y favicon actualizados correctamente!');
+    }
 
-        return back()->with('statusStnApr', true);
+    public function appearanceSetting(AppearanceSettingsUpdateRequest $request): RedirectResponse
+    {
+        $this->settingUpdateService->updateKeyValues($request->validated());
+
+        return back()->with('success', '¡Apariencia actualizada correctamente!');
     }
 }
