@@ -114,6 +114,13 @@ class HandleInertiaRequests extends Middleware
                         'active' => $request->routeIs('admin.location.*'),
                     ],
                     [
+                        'key' => 'amenities',
+                        'label' => 'Servicios',
+                        'url' => route('admin.amenity.index'),
+                        'inertia' => true,
+                        'active' => $request->routeIs('admin.amenity.*'),
+                    ],
+                    [
                         'key' => 'listings',
                         'label' => 'Todos los Proveedores',
                         'url' => route('admin.listing.index'),
@@ -121,6 +128,15 @@ class HandleInertiaRequests extends Middleware
                         'active' => $request->routeIs('admin.listing.*'),
                     ],
                 ],
+            ],
+            [
+                'key' => 'blog',
+                'label' => 'Blog',
+                'icon' => 'blog',
+                'permission' => 'blog index',
+                'url' => route('admin.blog.index'),
+                'inertia' => true,
+                'active' => $request->routeIs('admin.blog.*'),
             ],
             [
                 'key' => 'pages',

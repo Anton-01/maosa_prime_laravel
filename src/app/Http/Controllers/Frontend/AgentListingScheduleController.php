@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Frontend;
 
 use App\DataTables\AgentListingScheduleDataTable;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ListingScheduleStoreReqeust;
+use App\Http\Requests\Admin\ListingScheduleStoreRequest;
+use App\Http\Requests\Admin\ListingScheduleUpdateRequest;
 use App\Models\Listing;
 use App\Models\ListingSchedule;
 use Auth;
@@ -36,7 +37,7 @@ class AgentListingScheduleController extends Controller
         return view('frontend.dashboard.listing.schedule.create', compact('listingId'));
     }
 
-    function store(ListingScheduleStoreReqeust $request, string $listingId) : RedirectResponse {
+    function store(ListingScheduleStoreRequest $request, string $listingId) : RedirectResponse {
         $listing = Listing::select('id', 'user_id')->where('id', $listingId)->first();
         if($listing->user_id !== Auth::user()->id){
             abort(403);
@@ -64,7 +65,7 @@ class AgentListingScheduleController extends Controller
         return view('frontend.dashboard.listing.schedule.edit', compact('schedule'));
     }
 
-    function update(ListingScheduleStoreReqeust $request, string $id) : RedirectResponse {
+    function update(ListingScheduleUpdateRequest $request, string $id) : RedirectResponse {
 
         $schedule = ListingSchedule::findOrFail($id);
         $listing = Listing::select('id', 'user_id')->where('id', $schedule->listing_id)->first();

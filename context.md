@@ -261,26 +261,79 @@ así el frontend público (`Menu::getByName`) sigue funcionando sin cambios:
 
 ---
 
+## ✅ Fase 5 — Pendientes finales y limpieza de legacy (completada)
+
+### Horarios del proveedor (`/admin/listing-schedule/{id}`)
+`Pages/Admin/Listings/Schedules.jsx`: tabla ordenada por día de la semana +
+modal crear/editar (día desde `config('listing-schedule.days')`, horas como
+texto libre para respetar el formato ya guardado). `ListingScheduleService` +
+**nuevos** `ListingScheduleStoreRequest`/`ListingScheduleUpdateRequest` con
+`Rule::in` de días (reemplazan al `ListingScheduleStoreReqeust` con typo, que
+se eliminó; el controlador frontend de agentes se actualizó a los nuevos).
+
+### Servicios del proveedor (`/admin/listing/{id}/amenities`)
+`Pages/Admin/Listings/Amenities.jsx` con **`Transfer`** de antd
+(disponibles/asignados + búsqueda) y modal "Nuevo servicio" que crea y asigna.
+`ListingAmenityService` + `ListingAmenitiesUpdateRequest` y
+`ListingAmenityCreateRequest`. Los endpoints JSON `add`/`remove` por item se
+eliminaron (el Transfer sincroniza todo con un solo PUT).
+
+### Catálogo de Servicios (`/admin/amenity`) — módulo rescatado
+El CRUD de amenities existía en Blade pero **no estaba en el sidebar**
+(inaccesible). Se migró con el patrón tabla+modal (`Pages/Admin/Amenities/`),
+`AmenityService`, y se agregó al menú bajo Proveedores → Servicios.
+`AmenityUpdateReqeust` (typo) → `AmenityUpdateRequest`.
+
+### Blog (`/admin/blog`) — módulo rescatado
+También estaba en Blade y fuera del sidebar. Migrado: `Pages/Admin/Blogs/Index`
+(tabla con filtros) y `Form` (imagen, categoría, contenido con `HtmlEditor`,
+popular/activo). `BlogService`, **nuevo modelo `BlogCategory`** (la tabla
+existía sin modelo; el blade de crear ni siquiera recibía `$categories`).
+Item "Blog" agregado al sidebar con permiso `blog index`.
+
+### Importación de usuarios (`/admin/user-import`)
+`Pages/Admin/Users/Import.jsx` (Dragger de Excel + instrucciones + descarga de
+layout) e `ImportResult.jsx` (reporte con contraseñas + descarga TXT).
+La lógica de parseo/creación/reporte se movió a `UserImportService`; nuevo
+`UserImportRequest`. Botón "Importar usuarios" agregado al índice de Usuarios
+(antes la pantalla no tenía enlace de entrada).
+
+### Limpieza de legacy ejecutada
+
+- 🗑️ `resources/views/admin/**` completo y `resources/views/vendor/menu-builder/**`.
+- 🗑️ `public/admin/**` (~31 MB de assets Stisla/Bootstrap/jQuery/FontAwesome del admin).
+- 🗑️ Todos los DataTables del admin (`OurFeature|Category|Location|Listing|
+  ListingSchedule|Amenity|Blog|RoleUser|InactiveUser|RolePermission|
+  ActiveUsers|Statistics/*`). **Se conservan** `AgentListingDataTable` y
+  `AgentListingScheduleDataTable` porque los usa el dashboard de agentes del
+  frontend (Blade) — por eso `yajra/laravel-datatables` sigue en composer.
+- 🗑️ `TinyMCEController` + ruta `admin/upload-image` + `resources/js/tinymce-init.js`.
+- 🗑️ npm: `laravel-datatables-vite` desinstalado.
+- ➕ Migración de regularización `add_type_and_active_to_heroes_table`
+  (con guardas `hasColumn`, no afecta entornos que ya tienen las columnas).
+- La query base de "usuarios más activos" se movió del DataTable a
+  `StatisticsService::activeUsersBaseQuery` (compartida con el export Excel).
+
+---
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza
   Packagist). Sin eso la app no levanta (el middleware Inertia está registrado).
-- La tabla `heroes` usa columnas `type` y `active` que **no existen en ninguna
-  migración** del repo (se agregaron directo en BD). Considerar una migración
-  de regularización.
+- ~~La tabla `heroes` usa columnas `type` y `active` sin migración~~ →
+  resuelto en Fase 5 con migración de regularización guardada.
 - Los **iconos de "Nuestras funciones" se guardan como clase FontAwesome**
   (ej. `fas fa-star`) porque el sitio público los renderiza así. En el admin se
   editan como texto plano. Si algún día se migra el sitio público, cambiar a un
   picker.
-- Quedaron **obsoletos** (sin uso, pendientes de borrar en una fase de
-  limpieza): `resources/views/admin/dashboard/`, `admin/hero/`,
-  `admin/our-feature/`, `admin/section-title/`, `admin/about/`,
-  `admin/contact/`, `admin/privacy-policy/`, `admin/terms-and-condition/`,
-  `admin/category/`, `admin/location/`, `admin/listing/{index,create,edit}`,
-  `admin/role-permission/` (excepto import) y los DataTables
-  `OurFeature|Category|Location|Listing|RoleUser|InactiveUser|RolePermission`.
-- El **detalle "Estadísticas" de un usuario** (`admin/statistics/user/{id}`)
-  sigue en Blade; el dropdown de Usuarios enlaza con recarga completa.
+- ~~Blades y DataTables del admin obsoletos~~ → **eliminados en Fase 5**.
+- `yajra/laravel-datatables` y `efectn/laravel-menu-builder` siguen en
+  composer: el primero por los DataTables del dashboard de agentes (frontend
+  Blade) y el segundo porque el navbar del sitio público usa
+  `Menu::getByName`. Podrán retirarse cuando se migre el frontend público.
+- `resources/js/app.js` + `resources/css/app.css` (Alpine/Tailwind) no los
+  carga ninguna vista actualmente (el frontend Blade usa assets estáticos);
+  se conservan por si el frontend los retoma. Candidatos a revisión.
 - El chunk del dashboard pesa ~1.5 MB minificado por `@ant-design/plots`
   (se carga lazy solo en esa página). Optimizable con `manualChunks` si estorba.
 - `section_titles` tiene pares `our_our_pricing_*` y `our_testimonial_*` que la
@@ -298,13 +351,19 @@ así el frontend público (`Menu::getByName`) sigue funcionando sin cambios:
 - [x] Páginas: Sobre nosotros, Contacto, Política de privacidad, Términos → pantalla unificada con tabs
 - [x] Gestionar Footer
 - [x] Gestión de accesos: Usuarios (tabla server-side), Usuarios inactivos, Roles y permisos, Permisos directos
-- [ ] Gestión de accesos: Importación de usuarios (user-import) — sigue en Blade
+- [x] Gestión de accesos: Importación de usuarios
 - [x] Estadísticas (Panel General + detalle de usuario/sesiones/actividades)
 - [x] Menús (gestor nativo antd sobre las tablas del paquete)
 - [x] Ajustes
 - [x] Perfil
 - [x] Login/Forgot password del admin
-- [ ] Fase de limpieza: borrar blades/datatables/assets legados (Stisla, jQuery, FontAwesome del admin) y evaluar remover `efectn/laravel-menu-builder`
+- [x] Proveedores: Horarios y Servicios por proveedor
+- [x] Catálogo de Servicios (amenities) y Blog — módulos rescatados que estaban fuera del sidebar
+- [x] Fase de limpieza: blades/datatables/assets del admin eliminados
+
+**🎉 El panel de administración está 100% migrado a Inertia + React + Ant Design.**
+Pendiente futuro (fuera del alcance actual): migrar el sitio público/frontend
+(sigue en Blade con sus propios assets) y, con ello, retirar `yajra` y `efectn`.
 
 ## 📌 Checklist al migrar cada pantalla
 

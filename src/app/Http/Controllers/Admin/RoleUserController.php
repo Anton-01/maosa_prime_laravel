@@ -41,6 +41,7 @@ class RoleUserController extends Controller
                 'data' => route('admin.role-user.data'),
                 'create' => route('admin.role-user.create'),
                 'export' => route('admin.role-user.export'),
+                'import' => route('admin.user-import.index'),
                 'permissionsBase' => url('admin/user-permissions'),
                 'statisticsBase' => url('admin/statistics/user'),
             ],

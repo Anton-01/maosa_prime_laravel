@@ -2,92 +2,63 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\AmenityDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AmenityStoreRequest;
-use App\Http\Requests\Admin\AmenityUpdateReqeust;
-use App\Models\Amenity;
-use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Admin\AmenityUpdateRequest;
+use App\Services\Admin\AmenityService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\View\View;
-use Str;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AmenityController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly AmenityService $amenityService)
     {
         $this->middleware(['permission:access management suppliers']);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(AmenityDataTable $dataTable) : View | JsonResponse
+    public function index(): Response
     {
-        return $dataTable->render('admin.amenity.index');
+        return Inertia::render('Admin/Amenities/Index', [
+            'amenities' => $this->amenityService->list(),
+            'urls' => [
+                'base' => route('admin.amenity.index'),
+            ],
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Legacy URL kept for old bookmarks: create/edit now happen in a
+     * modal inside the index screen.
      */
-    public function create() : View
+    public function create(): RedirectResponse
     {
-        return view('admin.amenity.create');
+        return to_route('admin.amenity.index');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(AmenityStoreRequest $request) : RedirectResponse
+    public function edit(string $id): RedirectResponse
     {
-        $amenity = new Amenity();
-        $amenity->icon = $request->icon;
-        $amenity->name = $request->name;
-        $amenity->slug = Str::slug($request->name);
-        $amenity->status = $request->status;
-        $amenity->save();
-
-        return to_route('admin.amenity.index')->with('statusCtA', true);
+        return to_route('admin.amenity.index');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function store(AmenityStoreRequest $request): RedirectResponse
     {
-        $amenity = Amenity::findOrFail($id);
-        return view('admin.amenity.edit', compact('amenity'));
+        $this->amenityService->create($request->validated());
+
+        return back()->with('success', '¡Servicio creado correctamente!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(AmenityUpdateReqeust $request, string $id) : RedirectResponse
+    public function update(AmenityUpdateRequest $request, string $id): RedirectResponse
     {
+        $this->amenityService->update((int) $id, $request->validated());
 
-        $amenity = Amenity::findOrFail($id);
-        $amenity->icon = $request->filled('icon') ? $request->icon : $amenity->icon;
-        $amenity->name = $request->name;
-        $amenity->slug = Str::slug($request->name);
-        $amenity->status = $request->status;
-        $amenity->save();
-
-        return to_route('admin.amenity.index')->with('statusUpA', true);
+        return back()->with('success', '¡Servicio actualizado correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        try {
-            Amenity::findOrFail($id)->delete();
+        $this->amenityService->delete((int) $id);
 
-            return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
-        }catch(\Exception $e){
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+        return back()->with('success', '¡Servicio eliminado correctamente!');
     }
 }

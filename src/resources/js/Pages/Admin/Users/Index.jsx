@@ -12,6 +12,7 @@ import {
     MoreOutlined,
     PlusOutlined,
     SearchOutlined,
+    UploadOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import useDataTable from '../../../Hooks/useDataTable';
@@ -169,6 +170,9 @@ export default function Index({ stations, urls }) {
                     <Button icon={<DownloadOutlined />} href={urls.export}>
                         Exportar Excel
                     </Button>
+                    <Link href={urls.import}>
+                        <Button icon={<UploadOutlined />}>Importar usuarios</Button>
+                    </Link>
                     <Link href={urls.create}>
                         <Button type="primary" icon={<PlusOutlined />}>
                             Nuevo usuario

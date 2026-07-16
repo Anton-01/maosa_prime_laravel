@@ -20,6 +20,7 @@ import {
     LogoutOutlined,
     MenuFoldOutlined,
     MenuUnfoldOutlined,
+    ReadOutlined,
     SafetyOutlined,
     SettingOutlined,
     ToolOutlined,
@@ -36,6 +37,7 @@ const { useBreakpoint } = Grid;
 const NAVIGATION_ICONS = {
     dashboard: <DashboardOutlined />,
     sections: <AppstoreOutlined />,
+    blog: <ReadOutlined />,
     suppliers: <UnorderedListOutlined />,
     pages: <FileTextOutlined />,
     footer: <InfoCircleOutlined />,

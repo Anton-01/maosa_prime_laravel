@@ -2,75 +2,73 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\ListingScheduleDataTable;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\ListingScheduleStoreReqeust;
+use App\Http\Requests\Admin\ListingScheduleStoreRequest;
+use App\Http\Requests\Admin\ListingScheduleUpdateRequest;
 use App\Models\Listing;
 use App\Models\ListingSchedule;
-use Illuminate\Http\JsonResponse;
+use App\Services\Admin\ListingScheduleService;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ListingScheduleController extends Controller
 {
-    function __construct()
+    public function __construct(private readonly ListingScheduleService $listingScheduleService)
     {
         $this->middleware(['permission:access management suppliers']);
     }
 
-    public function index(ListingScheduleDataTable $dataTable, string $listingId) : view | JsonResponse
+    public function index(string $listingId): Response
     {
-        $dataTable->with('listingId', $listingId);
-        $listingTitle = Listing::select('title')->where('id', $listingId)->first();
-        return $dataTable->render('admin.listing.listing-schedule.index', compact('listingId', 'listingTitle'));
+        $listing = Listing::select('id', 'title')->findOrFail($listingId);
+
+        return Inertia::render('Admin/Listings/Schedules', [
+            'listing' => ['id' => $listing->id, 'title' => $listing->title],
+            'schedules' => $this->listingScheduleService->listForListing((int) $listingId),
+            'days' => config('listing-schedule.days', []),
+            'urls' => [
+                'store' => route('admin.listing-schedule.store', $listingId),
+                'itemsBase' => url('admin/listing-schedule'),
+                'listings' => route('admin.listing.index'),
+            ],
+        ]);
     }
 
-    function create(Request $request, string $listingId) : View {
-
-        return view('admin.listing.listing-schedule.create', compact('listingId'));
+    /**
+     * Legacy URL kept for old bookmarks: schedules are now managed in a
+     * modal inside the index screen.
+     */
+    public function create(string $listingId): RedirectResponse
+    {
+        return to_route('admin.listing-schedule.index', $listingId);
     }
 
-    function store(ListingScheduleStoreReqeust $request, string $listingId) : RedirectResponse {
+    public function store(ListingScheduleStoreRequest $request, string $listingId): RedirectResponse
+    {
+        $this->listingScheduleService->create((int) $listingId, $request->validated());
 
-        $schedule = new ListingSchedule();
-        $schedule->listing_id = $listingId;
-        $schedule->day = $request->day;
-        $schedule->start_time = $request->start_time;
-        $schedule->end_time = $request->end_time;
-        $schedule->status = $request->status;
-        $schedule->save();
-
-        return to_route('admin.listing-schedule.index', $listingId)->with('statusSchC', true);
+        return back()->with('success', '¡Horario creado correctamente!');
     }
 
-    function edit(string $id) : View {
+    public function edit(string $id): RedirectResponse
+    {
         $schedule = ListingSchedule::findOrFail($id);
-        return view('admin.listing.listing-schedule.edit', compact('schedule'));
+
+        return to_route('admin.listing-schedule.index', $schedule->listing_id);
     }
 
-    function update(ListingScheduleStoreReqeust $request, string $id) : RedirectResponse {
+    public function update(ListingScheduleUpdateRequest $request, string $id): RedirectResponse
+    {
+        $this->listingScheduleService->update((int) $id, $request->validated());
 
-        $schedule = ListingSchedule::findOrFail($id);
-        $schedule->day = $request->day;
-        $schedule->start_time = $request->start_time;
-        $schedule->end_time = $request->end_time;
-        $schedule->status = $request->status;
-        $schedule->save();
-
-        return to_route('admin.listing-schedule.index', $schedule->listing_id)->with('statusSchU', true);
+        return back()->with('success', '¡Horario actualizado correctamente!');
     }
 
-    function destroy(string $id) : Response {
-        try {
-            $schedule = ListingSchedule::findOrFail($id);
-            $schedule->delete();
+    public function destroy(string $id): RedirectResponse
+    {
+        $this->listingScheduleService->delete((int) $id);
 
-            return response(['status' => 'success', 'message' => 'Eliminado correctamente']);
-        }catch(\Exception $e){
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+        return back()->with('success', '¡Horario eliminado correctamente!');
     }
 }

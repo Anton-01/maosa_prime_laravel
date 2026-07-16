@@ -2,110 +2,75 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\BlogDataTable;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\BlogCreateRequest;
 use App\Http\Requests\Admin\BlogUpdateRequest;
-use App\Models\Blog;
-use App\Traits\FileUploadTrait;
-use Illuminate\Http\JsonResponse;
-use Illuminate\View\View;
+use App\Services\Admin\BlogService;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class BlogController extends Controller
 {
-    use FileUploadTrait;
-
-    function __construct()
+    public function __construct(private readonly BlogService $blogService)
     {
         $this->middleware(['permission:blog index'])->only(['index']);
         $this->middleware(['permission:blog create'])->only(['create', 'store']);
         $this->middleware(['permission:blog update'])->only(['edit', 'update']);
         $this->middleware(['permission:blog delete'])->only(['destroy']);
-
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(BlogDataTable $dataTable) : View | JsonResponse
+    public function index(): Response
     {
-        return $dataTable->render('admin.blog.index');
+        return Inertia::render('Admin/Blogs/Index', [
+            'blogs' => $this->blogService->list(),
+            'urls' => [
+                'base' => route('admin.blog.index'),
+                'create' => route('admin.blog.create'),
+            ],
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create() :View
+    public function create(): Response
     {
-        return view('admin.blog.create');
+        return Inertia::render('Admin/Blogs/Form', [
+            'blog' => null,
+            'categories' => $this->blogService->categoryOptions(),
+            'urls' => [
+                'base' => route('admin.blog.index'),
+            ],
+        ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(BlogCreateRequest $request)
+    public function store(BlogCreateRequest $request): RedirectResponse
     {
-        $imagePath = $this->uploadImage($request, 'image');
+        $this->blogService->create($request, $request->validated());
 
-        $blog = new Blog();
-        $blog->image = $imagePath;
-        $blog->author_id = auth()->user()->id;
-        $blog->title = $request->title;
-        $blog->slug = \Str::slug($request->title);
-        $blog->blog_category_id = $request->category;
-        $blog->description = $request->description;
-        $blog->is_popular = $request->is_popular;
-        $blog->status = $request->status;
-        $blog->save();
-
-        return to_route('admin.blog.index');
+        return to_route('admin.blog.index')->with('success', '¡Publicación creada correctamente!');
     }
 
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id) : View
+    public function edit(string $id): Response
     {
-        $blog = Blog::findOrFail($id);
-        return view('admin.blog.edit', compact('blog'));
+        return Inertia::render('Admin/Blogs/Form', [
+            'blog' => $this->blogService->getForEdit((int) $id),
+            'categories' => $this->blogService->categoryOptions(),
+            'urls' => [
+                'base' => route('admin.blog.index'),
+            ],
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(BlogUpdateRequest $request, string $id)
+    public function update(BlogUpdateRequest $request, string $id): RedirectResponse
     {
-        $imagePath = $this->uploadImage($request, 'image', $request->old_image);
+        $this->blogService->update($request, (int) $id, $request->validated());
 
-        $blog = Blog::findOrFail($id);
-        $blog->image = !empty($imagePath) ? $imagePath : $request->old_image;
-        $blog->title = $request->title;
-        $blog->author_id = auth()->user()->id;
-        $blog->slug = \Str::slug($request->title);
-        $blog->blog_category_id = $request->category;
-        $blog->description = $request->description;
-        $blog->is_popular = $request->is_popular;
-        $blog->status = $request->status;
-        $blog->save();
-
-        return to_route('admin.blog.index');
+        return to_route('admin.blog.index')->with('success', '¡Publicación actualizada correctamente!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        try {
-            $blog = Blog::findOrFail($id);
-            $this->deleteFile($blog->image);
-            $blog->delete();
+        $this->blogService->delete((int) $id);
 
-            return response(['status' => 'success', 'message' => 'Deleted successfully!']);
-        }catch(\Exception $e){
-            logger($e);
-            return response(['status' => 'error', 'message' => $e->getMessage()]);
-        }
+        return back()->with('success', '¡Publicación eliminada correctamente!');
     }
 }

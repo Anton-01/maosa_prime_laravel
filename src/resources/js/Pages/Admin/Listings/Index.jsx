@@ -159,14 +159,18 @@ export default function Index({ listings, urls }) {
                                 key: 'schedules',
                                 icon: <ClockCircleOutlined />,
                                 label: (
-                                    <a href={`${urls.schedulesBase}/${record.id}`}>Gestión de Horarios</a>
+                                    <Link href={`${urls.schedulesBase}/${record.id}`}>
+                                        Gestión de Horarios
+                                    </Link>
                                 ),
                             },
                             {
                                 key: 'amenities',
                                 icon: <CoffeeOutlined />,
                                 label: (
-                                    <a href={`${urls.base}/${record.id}/amenities`}>Gestión de Servicios</a>
+                                    <Link href={`${urls.base}/${record.id}/amenities`}>
+                                        Gestión de Servicios
+                                    </Link>
                                 ),
                             },
                             { type: 'divider' },

@@ -2,12 +2,12 @@
 
 namespace App\Services\Admin;
 
-use App\DataTables\ActiveUsersDataTable;
 use App\Models\PageVisit;
 use App\Models\User;
 use App\Models\UserActivity;
 use App\Models\UserNavigationFlow;
 use App\Models\UserSession;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -97,7 +97,7 @@ class StatisticsService
     {
         [$dateFrom, $dateTo] = $this->range($request);
 
-        $query = ActiveUsersDataTable::baseQuery($dateFrom, $dateTo);
+        $query = $this->activeUsersBaseQuery($dateFrom, $dateTo);
 
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
@@ -311,6 +311,26 @@ class StatisticsService
                 ->pluck('activity_type')
                 ->values(),
         ];
+    }
+
+    /**
+     * Users with page visits in range plus their visit/session counts and
+     * last-session data. Shared with the Excel export.
+     */
+    public function activeUsersBaseQuery(string $dateFrom, string $dateTo): Builder
+    {
+        $range = [$dateFrom, $dateTo . ' 23:59:59'];
+
+        return User::query()
+            ->select('users.id', 'users.name', 'users.email')
+            ->selectRaw('last_session.last_session_at')
+            ->selectRaw("NULLIF(CONCAT_WS(', ', last_session.city, last_session.region, last_session.country), '') as last_session_location")
+            ->withLastSession()
+            ->withCount([
+                'pageVisits' => fn ($query) => $query->whereBetween('created_at', $range),
+                'sessions' => fn ($query) => $query->whereBetween('created_at', $range),
+            ])
+            ->whereHas('pageVisits', fn ($query) => $query->whereBetween('created_at', $range));
     }
 
     /**

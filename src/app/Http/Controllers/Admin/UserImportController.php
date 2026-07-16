@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Admin\UserImportRequest;
+use App\Services\Admin\UserImportService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -18,7 +17,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class UserImportController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly UserImportService $userImportService)
     {
         $this->middleware(['permission:access management index']);
     }
@@ -26,139 +25,45 @@ class UserImportController extends Controller
     /**
      * Show the import form.
      */
-    public function index(): View
+    public function index(): InertiaResponse
     {
-        return view('admin.role-permission.role-user.import');
+        return Inertia::render('Admin/Users/Import', [
+            'urls' => [
+                'import' => route('admin.user-import.store'),
+                'layout' => route('admin.user-import.layout'),
+                'users' => route('admin.role-user.index'),
+            ],
+        ]);
     }
 
     /**
      * Process the imported Excel file.
      */
-    public function import(Request $request)
+    public function import(UserImportRequest $request): RedirectResponse
     {
-        $request->validate([
-            'excel_file' => 'required|file|mimes:xlsx,xls',
-        ]);
-
         try {
-            $spreadsheet = IOFactory::load($request->file('excel_file')->getPathname());
-            $worksheet = $spreadsheet->getActiveSheet();
-            $rows = $worksheet->toArray();
+            $outcome = $this->userImportService->import($request->file('excel_file'));
 
-            // Skip header row
-            $dataRows = array_slice($rows, 1);
-
-            if (empty($dataRows)) {
+            if (empty($outcome['results'])) {
                 return back()->with('error', 'El archivo está vacío o no contiene datos válidos');
             }
 
-            $results = [];
-            $successCount = 0;
-            $errorCount = 0;
+            $resultContent = $this->userImportService->generateResultFile(
+                $outcome['results'],
+                $outcome['successCount'],
+                $outcome['errorCount'],
+            );
 
-            foreach ($dataRows as $index => $row) {
-                $rowNumber = $index + 2; // +2 because we skip header and arrays are 0-indexed
-                $name = trim($row[0] ?? '');
-                $email = trim($row[1] ?? '');
-
-                // Skip empty rows
-                if (empty($name) && empty($email)) {
-                    continue;
-                }
-
-                // Validate name
-                if (empty($name)) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => null,
-                        'status' => 'error',
-                        'message' => 'El nombre es requerido',
-                    ];
-                    $errorCount++;
-                    continue;
-                }
-
-                // Validate email format
-                if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => null,
-                        'status' => 'error',
-                        'message' => 'El email no es válido',
-                    ];
-                    $errorCount++;
-                    continue;
-                }
-
-                // Check if email already exists
-                if (User::where('email', $email)->exists()) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => null,
-                        'status' => 'error',
-                        'message' => 'El email ya está registrado',
-                    ];
-                    $errorCount++;
-                    continue;
-                }
-
-                // Generate secure password
-                $password = $this->generateSecurePassword(12);
-
-                try {
-                    // Create user
-                    $user = User::create([
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => Hash::make($password),
-                        'user_type' => 'user',
-                        'is_approved' => true,
-                    ]);
-
-                    // Assign 'User' role
-                    $user->assignRole('User');
-
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => $password,
-                        'status' => 'success',
-                        'message' => 'Usuario creado correctamente',
-                    ];
-                    $successCount++;
-                } catch (\Exception $e) {
-                    $results[] = [
-                        'row' => $rowNumber,
-                        'name' => $name,
-                        'email' => $email,
-                        'password' => null,
-                        'status' => 'error',
-                        'message' => 'Error al crear usuario: ' . $e->getMessage(),
-                    ];
-                    $errorCount++;
-                }
-            }
-
-            // Generate result file
-            $resultContent = $this->generateResultFile($results, $successCount, $errorCount);
-            $filename = 'resultado_importacion_usuarios_' . date('Y-m-d_His') . '.txt';
-
-            // Store result in session for download
+            // Store result in session for the result screen and download
             session()->put('import_result', [
                 'content' => $resultContent,
-                'filename' => $filename,
+                'filename' => 'resultado_importacion_usuarios_' . date('Y-m-d_His') . '.txt',
             ]);
 
-            return redirect()->route('admin.user-import.result')
-                ->with('success', "Importación completada. Registros exitosos: {$successCount}, Errores: {$errorCount}");
-
+            return redirect()->route('admin.user-import.result')->with(
+                'success',
+                "Importación completada. Registros exitosos: {$outcome['successCount']}, Errores: {$outcome['errorCount']}",
+            );
         } catch (\Exception $e) {
             return back()->with('error', 'Error al procesar el archivo: ' . $e->getMessage());
         }
@@ -167,18 +72,23 @@ class UserImportController extends Controller
     /**
      * Show import result and allow download.
      */
-    public function result(): View
+    public function result(): InertiaResponse|RedirectResponse
     {
         $importResult = session()->get('import_result');
 
-        if (!$importResult) {
+        if (! $importResult) {
             return redirect()->route('admin.user-import.index')
                 ->with('error', 'No hay resultados de importación disponibles');
         }
 
-        return view('admin.role-permission.role-user.import-result', [
+        return Inertia::render('Admin/Users/ImportResult', [
             'content' => $importResult['content'],
             'filename' => $importResult['filename'],
+            'urls' => [
+                'download' => route('admin.user-import.download'),
+                'import' => route('admin.user-import.index'),
+                'users' => route('admin.role-user.index'),
+            ],
         ]);
     }
 
@@ -189,7 +99,7 @@ class UserImportController extends Controller
     {
         $importResult = session()->get('import_result');
 
-        if (!$importResult) {
+        if (! $importResult) {
             return redirect()->route('admin.user-import.index')
                 ->with('error', 'No hay resultados de importación disponibles');
         }
@@ -292,83 +202,5 @@ class UserImportController extends Controller
         return Response::download($tempFile, $filename, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ])->deleteFileAfterSend(true);
-    }
-
-    /**
-     * Generate a secure password with uppercase, lowercase, numbers, and symbols.
-     */
-    private function generateSecurePassword(int $length = 12): string
-    {
-        $uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-        $lowercase = 'abcdefghjkmnpqrstuvwxyz';
-        $numbers = '23456789';
-        $symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
-        // Ensure at least one character from each category
-        $password = '';
-        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
-        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
-        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
-        $password .= $symbols[random_int(0, strlen($symbols) - 1)];
-
-        // Fill the rest with random characters from all categories
-        $allChars = $uppercase . $lowercase . $numbers . $symbols;
-        for ($i = 4; $i < $length; $i++) {
-            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
-        }
-
-        // Shuffle the password to randomize character positions
-        $passwordArray = str_split($password);
-        shuffle($passwordArray);
-
-        return implode('', $passwordArray);
-    }
-
-    /**
-     * Generate the result file content.
-     */
-    private function generateResultFile(array $results, int $successCount, int $errorCount): string
-    {
-        $content = "========================================\n";
-        $content .= "  RESULTADO DE IMPORTACIÓN DE USUARIOS\n";
-        $content .= "========================================\n";
-        $content .= "Fecha: " . date('Y-m-d H:i:s') . "\n";
-        $content .= "Total procesados: " . count($results) . "\n";
-        $content .= "Exitosos: {$successCount}\n";
-        $content .= "Errores: {$errorCount}\n";
-        $content .= "========================================\n\n";
-
-        // Successful registrations
-        $successResults = array_filter($results, fn($r) => $r['status'] === 'success');
-        if (!empty($successResults)) {
-            $content .= "--- USUARIOS REGISTRADOS ---\n\n";
-            foreach ($successResults as $result) {
-                $content .= "Fila: {$result['row']}\n";
-                $content .= "Nombre: {$result['name']}\n";
-                $content .= "Email: {$result['email']}\n";
-                $content .= "Contraseña: {$result['password']}\n";
-                $content .= "Estado: EXITOSO\n";
-                $content .= "----------------------------\n\n";
-            }
-        }
-
-        // Failed registrations
-        $errorResults = array_filter($results, fn($r) => $r['status'] === 'error');
-        if (!empty($errorResults)) {
-            $content .= "--- REGISTROS CON ERROR ---\n\n";
-            foreach ($errorResults as $result) {
-                $content .= "Fila: {$result['row']}\n";
-                $content .= "Nombre: " . ($result['name'] ?: '(vacío)') . "\n";
-                $content .= "Email: " . ($result['email'] ?: '(vacío)') . "\n";
-                $content .= "Error: {$result['message']}\n";
-                $content .= "----------------------------\n\n";
-            }
-        }
-
-        $content .= "========================================\n";
-        $content .= "  FIN DEL REPORTE\n";
-        $content .= "========================================\n";
-
-        return $content;
     }
 }

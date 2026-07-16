@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\DataTables\ActiveUsersDataTable;
 use App\Http\Controllers\Controller;
+use App\Services\Admin\StatisticsService;
 use App\Models\PageVisit;
 use App\Models\UserSession;
 use Illuminate\Http\Request;
@@ -94,7 +94,9 @@ class StatisticsExportController extends Controller
     {
         [$from, $to] = $this->range($request);
 
-        $query = ActiveUsersDataTable::baseQuery($from, $to)->orderByDesc('page_visits_count');
+        $query = app(StatisticsService::class)
+            ->activeUsersBaseQuery($from, $to)
+            ->orderByDesc('page_visits_count');
 
         $keys = $this->selectedKeys($request);
         if (!empty($keys)) {

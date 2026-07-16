@@ -26,7 +26,6 @@ use App\Http\Controllers\Admin\SectionTitleController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StatisticsExportController;
 use App\Http\Controllers\Admin\TermsAndConditionController;
-use App\Http\Controllers\Admin\TinyMCEController;
 use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\UserStatisticsController;
@@ -38,9 +37,6 @@ Route::get('/admin/forgot-password', [AdminAuthController::class, 'passwordReque
 Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 'as' => 'admin.'], function(){
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-
-    /** TinyMCE Image Upload Route */
-    Route::post('/upload-image', [TinyMCEController::class, 'uploadImage'])->name('upload-image');
 
     /** Profile Routes */
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
@@ -85,8 +81,6 @@ Route::group(['middleware' => ['auth', 'user.type:admin'], 'prefix' => 'admin', 
     /** Listing Amenities Routes */
     Route::get('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'index'])->name('listing.amenities.index');
     Route::put('/listing/{listing_id}/amenities', [ListingAmenityController::class, 'update'])->name('listing.amenities.update');
-    Route::post('/listing/{listing_id}/amenities/add', [ListingAmenityController::class, 'addAmenity'])->name('listing.amenities.add');
-    Route::delete('/listing/{listing_id}/amenities/{amenity_id}', [ListingAmenityController::class, 'removeAmenity'])->name('listing.amenities.remove');
     Route::post('/listing/{listing_id}/amenities/create', [ListingAmenityController::class, 'createAmenity'])->name('listing.amenities.create');
 
     /** Our Feature Routes */
