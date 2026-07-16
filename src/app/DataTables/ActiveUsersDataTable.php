@@ -28,6 +28,10 @@ class ActiveUsersDataTable extends DataTable
             })
             ->editColumn('page_visits_count', fn ($user) => number_format($user->page_visits_count))
             ->editColumn('sessions_count', fn ($user) => number_format($user->sessions_count))
+            // SR-016: las 3 IPs de sesión más frecuentes ya vienen concatenadas
+            // desde el query; aquí solo se resuelve el placeholder cuando el
+            // usuario no tuvo sesiones en el periodo filtrado.
+            ->editColumn('top_ips_sesion', fn ($user) => $user->top_ips_sesion ?: 'N/A')
             // Búsqueda global restringida a USUARIO y UBICACIÓN ÚLTIMA SESIÓN
             ->filterColumn('name', function ($query, $keyword) {
                 $query->where('users.name', 'ILIKE', "%{$keyword}%");
@@ -53,7 +57,30 @@ class ActiveUsersDataTable extends DataTable
         $dateFrom = request('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = request('date_to', now()->format('Y-m-d'));
 
-        return static::baseQuery($dateFrom, $dateTo);
+        // SR-016: se agrega SOLO en el DataTable (no en la exportación) las 3 IPs
+        // de sesión más frecuentes por usuario, respetando el mismo filtro de
+        // fechas del panel. Es una subconsulta correlacionada evaluada únicamente
+        // sobre las filas de la página visible (paginación server-side), por lo
+        // que no penaliza el tiempo de carga del panel.
+        return static::baseQuery($dateFrom, $dateTo)
+            ->selectRaw(
+                <<<'SQL'
+                (
+                    SELECT string_agg(top_ips.ip_address, ', ' ORDER BY top_ips.hits DESC)
+                    FROM (
+                        SELECT s.ip_address, COUNT(*) AS hits
+                        FROM user_sessions s
+                        WHERE s.user_id = users.id
+                          AND s.ip_address IS NOT NULL
+                          AND s.created_at BETWEEN ? AND ?
+                        GROUP BY s.ip_address
+                        ORDER BY hits DESC
+                        LIMIT 3
+                    ) top_ips
+                ) AS top_ips_sesion
+                SQL,
+                [$dateFrom, $dateTo . ' 23:59:59']
+            );
     }
 
     /**
@@ -135,6 +162,9 @@ class ActiveUsersDataTable extends DataTable
             Column::make('sessions_count')->title('Sesiones')->orderable(true)->searchable(false)->addClass('text-right'),
             Column::make('last_session_at')->title('Fecha última sesión')->orderable(false)->searchable(false),
             Column::make('last_session_location')->title('Ubicación última sesión')->orderable(false)->searchable(true),
+            // SR-016: columna de monitoreo de seguridad. El backend entrega ya el
+            // String con las IPs; el frontend solo lo renderiza (sin ordenar/buscar).
+            Column::make('top_ips_sesion')->title('Top IPs de sesión')->orderable(false)->searchable(false),
             Column::computed('action')->title('Acción')
                 ->exportable(false)
                 ->printable(false)
