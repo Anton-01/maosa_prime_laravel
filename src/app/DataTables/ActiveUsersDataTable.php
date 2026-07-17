@@ -28,11 +28,7 @@ class ActiveUsersDataTable extends DataTable
             })
             ->editColumn('page_visits_count', fn ($user) => number_format($user->page_visits_count))
             ->editColumn('sessions_count', fn ($user) => number_format($user->sessions_count))
-            // SR-016: las 3 IPs de sesión más frecuentes ya vienen concatenadas
-            // desde el query; aquí solo se resuelve el placeholder cuando el
-            // usuario no tuvo sesiones en el periodo filtrado.
             ->editColumn('top_ips_sesion', fn ($user) => $user->top_ips_sesion ?: 'N/A')
-            // Búsqueda global restringida a USUARIO y UBICACIÓN ÚLTIMA SESIÓN
             ->filterColumn('name', function ($query, $keyword) {
                 $query->where('users.name', 'ILIKE', "%{$keyword}%");
             })
@@ -56,12 +52,6 @@ class ActiveUsersDataTable extends DataTable
     {
         $dateFrom = request('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = request('date_to', now()->format('Y-m-d'));
-
-        // SR-016: se agrega SOLO en el DataTable (no en la exportación) las 3 IPs
-        // de sesión más frecuentes por usuario, respetando el mismo filtro de
-        // fechas del panel. Es una subconsulta correlacionada evaluada únicamente
-        // sobre las filas de la página visible (paginación server-side), por lo
-        // que no penaliza el tiempo de carga del panel.
         return static::baseQuery($dateFrom, $dateTo)
             ->selectRaw(
                 <<<'SQL'
