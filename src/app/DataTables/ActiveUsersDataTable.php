@@ -28,7 +28,7 @@ class ActiveUsersDataTable extends DataTable
             })
             ->editColumn('page_visits_count', fn ($user) => number_format($user->page_visits_count))
             ->editColumn('sessions_count', fn ($user) => number_format($user->sessions_count))
-            // Búsqueda global restringida a USUARIO y UBICACIÓN ÚLTIMA SESIÓN
+            ->editColumn('top_ips_sesion', fn ($user) => $user->top_ips_sesion ?: 'N/A')
             ->filterColumn('name', function ($query, $keyword) {
                 $query->where('users.name', 'ILIKE', "%{$keyword}%");
             })
@@ -52,8 +52,25 @@ class ActiveUsersDataTable extends DataTable
     {
         $dateFrom = request('date_from', now()->subDays(7)->format('Y-m-d'));
         $dateTo = request('date_to', now()->format('Y-m-d'));
-
-        return static::baseQuery($dateFrom, $dateTo);
+        return static::baseQuery($dateFrom, $dateTo)
+            ->selectRaw(
+                <<<'SQL'
+                (
+                    SELECT string_agg(top_ips.ip_address, ', ' ORDER BY top_ips.hits DESC)
+                    FROM (
+                        SELECT s.ip_address, COUNT(*) AS hits
+                        FROM user_sessions s
+                        WHERE s.user_id = users.id
+                          AND s.ip_address IS NOT NULL
+                          AND s.created_at BETWEEN ? AND ?
+                        GROUP BY s.ip_address
+                        ORDER BY hits DESC
+                        LIMIT 3
+                    ) top_ips
+                ) AS top_ips_sesion
+                SQL,
+                [$dateFrom, $dateTo . ' 23:59:59']
+            );
     }
 
     /**
@@ -135,6 +152,9 @@ class ActiveUsersDataTable extends DataTable
             Column::make('sessions_count')->title('Sesiones')->orderable(true)->searchable(false)->addClass('text-right'),
             Column::make('last_session_at')->title('Fecha última sesión')->orderable(false)->searchable(false),
             Column::make('last_session_location')->title('Ubicación última sesión')->orderable(false)->searchable(true),
+            // SR-016: columna de monitoreo de seguridad. El backend entrega ya el
+            // String con las IPs; el frontend solo lo renderiza (sin ordenar/buscar).
+            Column::make('top_ips_sesion')->title('Top IPs de sesión')->orderable(false)->searchable(false),
             Column::computed('action')->title('Acción')
                 ->exportable(false)
                 ->printable(false)

@@ -41,6 +41,16 @@ CREATE INDEX IF NOT EXISTS user_sessions_user_id_created_at_index
     ON public.user_sessions (user_id, created_at DESC);
 
 -- ----------------------------------------------------------------------------
+-- 2b. (SR-016) Índice de apoyo para calcular las 3 IPs de sesión más frecuentes
+--     por usuario y rango de fechas (columna "Top IPs de sesión" del DataTable
+--     "Usuarios más activos"). Cubre el filtro por user_id + created_at y la
+--     agrupación por ip_address de la subconsulta correlacionada, evitando que
+--     la nueva columna penalice el tiempo de carga del panel.
+-- ----------------------------------------------------------------------------
+CREATE INDEX IF NOT EXISTS user_sessions_user_id_created_at_ip_index
+    ON public.user_sessions (user_id, created_at, ip_address);
+
+-- ----------------------------------------------------------------------------
 -- 3. Índice para los conteos de visitas por usuario y rango de fechas
 --    (columnas VISITAS del DataTable del Panel General).
 -- ----------------------------------------------------------------------------
