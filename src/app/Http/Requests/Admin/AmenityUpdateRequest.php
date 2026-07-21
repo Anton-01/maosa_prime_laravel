@@ -15,7 +15,6 @@ class AmenityUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'icon' => ['nullable', 'string', 'max:255'],
             'name' => ['required', 'string', 'max:255'],
             'status' => ['required', 'boolean'],
         ];
@@ -27,7 +26,6 @@ class AmenityUpdateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'icon' => 'icono',
             'name' => 'nombre',
             'status' => 'estatus',
         ];

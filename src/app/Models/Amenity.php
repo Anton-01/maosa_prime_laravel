@@ -17,6 +17,6 @@ class Amenity extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'icon', 'slug', 'status'
+        'name', 'slug', 'status'
     ];
 }

@@ -16,7 +16,6 @@ class ListingAmenityCreateRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:amenities,name'],
-            'icon' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -27,7 +26,6 @@ class ListingAmenityCreateRequest extends FormRequest
     {
         return [
             'name' => 'nombre',
-            'icon' => 'icono',
         ];
     }
 }

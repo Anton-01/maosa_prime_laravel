@@ -6,14 +6,12 @@ import {
     Form,
     Input,
     Modal,
-    Tooltip,
     Transfer,
     Typography,
 } from 'antd';
 import {
     ArrowLeftOutlined,
     PlusOutlined,
-    QuestionCircleOutlined,
     SaveOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
@@ -37,7 +35,6 @@ export default function Amenities({ listing, amenities, assignedAmenityIds, urls
     const dataSource = amenities.map((amenity) => ({
         key: String(amenity.id),
         title: amenity.name,
-        description: amenity.icon,
     }));
 
     const handleSave = () => {
@@ -123,23 +120,6 @@ export default function Amenities({ listing, amenities, assignedAmenityIds, urls
                         help={errors.name}
                     >
                         <Input maxLength={255} />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={
-                            <>
-                                Icono&nbsp;
-                                <Tooltip title="Clase de icono FontAwesome que se muestra en el sitio público, por ejemplo: fas fa-wifi">
-                                    <QuestionCircleOutlined />
-                                </Tooltip>
-                            </>
-                        }
-                        name="icon"
-                        rules={[{ required: true, message: 'El icono es obligatorio.' }]}
-                        validateStatus={errors.icon ? 'error' : undefined}
-                        help={errors.icon}
-                    >
-                        <Input maxLength={255} placeholder="fas fa-wifi" />
                     </Form.Item>
                 </Form>
             </Modal>

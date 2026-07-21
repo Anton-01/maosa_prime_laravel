@@ -18,7 +18,6 @@ class AmenityService
             ->map(fn (Amenity $amenity) => [
                 'id' => $amenity->id,
                 'name' => $amenity->name,
-                'icon' => $amenity->icon,
                 'status' => (int) $amenity->status,
                 'createdAt' => $amenity->created_at?->format('d/m/Y'),
             ]);
@@ -31,7 +30,6 @@ class AmenityService
     {
         return Amenity::create([
             'name' => $data['name'],
-            'icon' => $data['icon'],
             'slug' => Str::slug($data['name']),
             'status' => $data['status'],
         ]);
@@ -46,7 +44,6 @@ class AmenityService
 
         $amenity->update([
             'name' => $data['name'],
-            'icon' => ! empty($data['icon']) ? $data['icon'] : $amenity->icon,
             'slug' => Str::slug($data['name']),
             'status' => $data['status'],
         ]);

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Button, Dropdown, Flex, Input, Modal, Select, Space, Switch, Table, Tag } from 'antd';
+import { Button, Dropdown, Flex, Input, Modal, Select, Space, Switch, Table, Tag, Typography } from 'antd';
 import {
     BarChartOutlined,
     DeleteOutlined,
@@ -16,6 +16,8 @@ import {
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import useDataTable from '../../../Hooks/useDataTable';
+
+const { Text } = Typography;
 
 export default function Index({ stations, urls }) {
     const [modal, contextHolder] = Modal.useModal();
@@ -73,8 +75,18 @@ export default function Index({ stations, urls }) {
     };
 
     const columns = [
-        { title: 'ID', dataIndex: 'id', key: 'id', width: 70, sorter: true },
-        { title: 'Nombre', dataIndex: 'name', key: 'name', sorter: true, ellipsis: true },
+        {
+            title: 'Nombre',
+            dataIndex: 'name',
+            key: 'name',
+            sorter: true,
+            render: (name, record) => (
+                <div>
+                    <div style={{ fontWeight: 500 }}>{name}</div>
+                    <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>ID: {record.id}</Text>
+                </div>
+            ),
+        },
         { title: 'Correo', dataIndex: 'email', key: 'email', sorter: true, ellipsis: true },
         {
             title: 'Rol',
@@ -96,14 +108,6 @@ export default function Index({ stations, urls }) {
                     onChange={() => handleToggleApproval(record)}
                 />
             ),
-        },
-        {
-            title: 'Permisos Extra',
-            dataIndex: 'directPermissionsCount',
-            key: 'directPermissionsCount',
-            width: 130,
-            render: (count) =>
-                count > 0 ? <Tag color="warning">{count} directo(s)</Tag> : <Tag>Ninguno</Tag>,
         },
         {
             title: 'Acciones',
