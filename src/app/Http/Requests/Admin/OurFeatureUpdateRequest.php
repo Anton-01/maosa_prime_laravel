@@ -17,7 +17,7 @@ class OurFeatureUpdateRequest extends FormRequest
         return [
             'icon' => ['required', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
-            'short_description' => ['required', 'string', 'max:255'],
+            'short_description' => ['required', 'string', 'max:5000'],
             'status' => ['required', 'boolean'],
         ];
     }

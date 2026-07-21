@@ -3,6 +3,7 @@ import { router, usePage } from '@inertiajs/react';
 import { Button, Col, Form, Input, Row } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import HtmlEditor from '../../../Components/HtmlEditor';
 
 export default function Index({ footerInfo, urls }) {
     const { errors } = usePage().props;
@@ -38,7 +39,7 @@ export default function Index({ footerInfo, urls }) {
                     validateStatus={errors.short_description ? 'error' : undefined}
                     help={errors.short_description}
                 >
-                    <Input.TextArea rows={3} maxLength={255} showCount />
+                    <HtmlEditor rows={3} placeholder="Descripción corta del footer" />
                 </Form.Item>
 
                 <Row gutter={24}>

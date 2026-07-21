@@ -20,6 +20,7 @@ import {
     QuestionCircleOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
+import HtmlEditor from '../../../../Components/HtmlEditor';
 
 const { Text } = Typography;
 
@@ -238,7 +239,7 @@ export default function FeaturesPanel({ features, baseUrl }) {
                         validateStatus={errors.short_description ? 'error' : undefined}
                         help={errors.short_description}
                     >
-                        <Input.TextArea rows={3} maxLength={255} showCount />
+                        <HtmlEditor rows={3} placeholder="Descripción corta" />
                     </Form.Item>
 
                     <Form.Item

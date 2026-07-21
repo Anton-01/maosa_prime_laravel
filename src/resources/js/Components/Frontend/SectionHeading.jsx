@@ -1,9 +1,12 @@
 import React from 'react';
 import { Typography } from 'antd';
 
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
-/** Centered section heading + subtitle used throughout the public site. */
+/**
+ * Centered section heading + subtitle used throughout the public site.
+ * The subtitle may contain rich HTML authored in the admin.
+ */
 export default function SectionHeading({ title, subtitle, style }) {
     if (!title && !subtitle) return null;
     return (
@@ -14,9 +17,11 @@ export default function SectionHeading({ title, subtitle, style }) {
                 </Title>
             )}
             {subtitle && (
-                <Paragraph type="secondary" style={{ margin: 0, fontSize: 15 }}>
-                    {subtitle}
-                </Paragraph>
+                <div
+                    className="rich-content"
+                    style={{ color: 'rgba(0,0,0,0.45)', fontSize: 15 }}
+                    dangerouslySetInnerHTML={{ __html: subtitle }}
+                />
             )}
         </div>
     );

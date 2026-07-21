@@ -26,7 +26,7 @@ class ListingService
      */
     public function list(): Collection
     {
-        return Listing::with(['category:id,name', 'location:id,name', 'user:id,name'])
+        return Listing::with(['category:id,name', 'location:id,name'])
             ->orderByDesc('created_at')
             ->get()
             ->map(fn (Listing $listing) => [
@@ -38,7 +38,6 @@ class ListingService
                 'status' => (int) $listing->status,
                 'isFeatured' => (int) $listing->is_featured,
                 'isVerified' => (int) $listing->is_verified,
-                'createdBy' => $listing->user->name ?? 'N/A',
                 'createdAt' => $listing->created_at?->format('d/m/Y'),
             ]);
     }

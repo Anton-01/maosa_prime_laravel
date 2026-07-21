@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { Alert, Button, Form, Image, Input, Space, Typography, Upload } from 'antd';
 import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
+import HtmlEditor from '../../../../Components/HtmlEditor';
 
 const { Text } = Typography;
 
@@ -105,7 +106,7 @@ export default function BannerForm({ hero, submitUrl, description }) {
                     validateStatus={errors.sub_title ? 'error' : undefined}
                     help={errors.sub_title}
                 >
-                    <Input.TextArea rows={3} maxLength={255} showCount placeholder="Sub título del banner" />
+                    <HtmlEditor rows={3} placeholder="Sub título del banner" />
                 </Form.Item>
 
                 <Form.Item>

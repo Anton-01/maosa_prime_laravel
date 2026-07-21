@@ -24,7 +24,7 @@ import asset from '../Utils/asset';
 import useFlash from '../Hooks/useFlash';
 
 const { Header, Content, Footer } = Layout;
-const { Text, Title, Paragraph } = Typography;
+const { Text, Title } = Typography;
 const { useBreakpoint } = Grid;
 
 function isExternal(link) {
@@ -217,9 +217,11 @@ export default function FrontendLayout({ children }) {
                                 <Title level={5} style={{ color: '#fff' }}>
                                     Sobre Nosotros
                                 </Title>
-                                <Paragraph style={{ color: 'rgba(255,255,255,0.6)' }}>
-                                    {footerInfo?.shortDescription}
-                                </Paragraph>
+                                <div
+                                    className="rich-content"
+                                    style={{ color: 'rgba(255,255,255,0.6)' }}
+                                    dangerouslySetInnerHTML={{ __html: footerInfo?.shortDescription || '' }}
+                                />
                             </div>
 
                             <FooterMenuColumn title="Mi cuenta" items={siteMenu?.footerOne} />

@@ -1,17 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Button, Dropdown, Flex, Image, Input, Modal, Table, Tag } from 'antd';
+import { Button, Dropdown, Flex, Image, Input, Modal, Table, Tag, Typography } from 'antd';
 import {
+    CheckCircleOutlined,
     ClockCircleOutlined,
     CoffeeOutlined,
     DeleteOutlined,
     EditOutlined,
     ExclamationCircleOutlined,
+    MinusCircleOutlined,
     MoreOutlined,
     PlusOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+
+const { Text } = Typography;
 
 function YesNoTag({ value }) {
     return value === 1 ? <Tag color="blue">Sí</Tag> : <Tag>No</Tag>;
@@ -70,16 +74,44 @@ export default function Index({ listings, urls }) {
             title: 'Imagen',
             dataIndex: 'imageUrl',
             key: 'image',
-            width: 90,
+            width: 84,
             render: (url) =>
-                url ? <Image src={url} alt="Imagen" width={60} style={{ borderRadius: 6 }} /> : '—',
+                url ? (
+                    <Image
+                        src={url}
+                        alt="Imagen"
+                        width={56}
+                        height={56}
+                        style={{ objectFit: 'cover', borderRadius: 8 }}
+                        preview={{ mask: 'Ver' }}
+                    />
+                ) : (
+                    '—'
+                ),
         },
         {
             title: 'Nombre',
             dataIndex: 'title',
             key: 'title',
             sorter: (a, b) => a.title.localeCompare(b.title),
-            ellipsis: true,
+            render: (title, record) => (
+                <div>
+                    <div style={{ fontWeight: 500 }}>{title}</div>
+                    <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }}>
+                        {record.status === 1 ? (
+                            <>
+                                <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 4 }} />
+                                Activo
+                            </>
+                        ) : (
+                            <>
+                                <MinusCircleOutlined style={{ color: '#bfbfbf', marginRight: 4 }} />
+                                Inactivo
+                            </>
+                        )}
+                    </Text>
+                </div>
+            ),
         },
         {
             title: 'Categoría',
@@ -97,19 +129,6 @@ export default function Index({ listings, urls }) {
             width: 150,
             filters: locationFilters,
             onFilter: (value, record) => record.location === value,
-        },
-        {
-            title: 'Estatus',
-            dataIndex: 'status',
-            key: 'status',
-            width: 110,
-            filters: [
-                { text: 'Activo', value: 1 },
-                { text: 'Inactivo', value: 0 },
-            ],
-            onFilter: (value, record) => record.status === value,
-            render: (status) =>
-                status === 1 ? <Tag color="success">Activo</Tag> : <Tag color="error">Inactivo</Tag>,
         },
         {
             title: 'Destacado',
@@ -134,13 +153,6 @@ export default function Index({ listings, urls }) {
             ],
             onFilter: (value, record) => record.isVerified === value,
             render: (value) => <YesNoTag value={value} />,
-        },
-        {
-            title: 'Creado por',
-            dataIndex: 'createdBy',
-            key: 'createdBy',
-            width: 140,
-            ellipsis: true,
         },
         {
             title: 'Acciones',
@@ -222,7 +234,7 @@ export default function Index({ listings, urls }) {
                 columns={columns}
                 dataSource={filteredListings}
                 loading={deleting}
-                scroll={{ x: 1100 }}
+                scroll={{ x: 900 }}
                 pagination={{
                     position: ['bottomRight'],
                     pageSize: 10,

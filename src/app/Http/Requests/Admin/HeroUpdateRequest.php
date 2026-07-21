@@ -18,7 +18,7 @@ class HeroUpdateRequest extends FormRequest
             'background' => ['nullable', 'image', 'max:3000'],
             'old_background' => ['nullable', 'string', 'max:255'],
             'title' => ['required', 'string', 'max:255'],
-            'sub_title' => ['required', 'string', 'max:255'],
+            'sub_title' => ['required', 'string', 'max:5000'],
         ];
     }
 
