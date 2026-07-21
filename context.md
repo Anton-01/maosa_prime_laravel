@@ -433,6 +433,21 @@ aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
 - **Layouts**: se quitó el logo del tope del sidebar del dashboard de usuario y
   el enlace "Mi Panel" duplicado de la franja de contacto del `FrontendLayout`.
 
+## ✅ Fase 8 — Ajustes de tablas Usuarios y Servicios (completada)
+
+- **Usuarios** (`/admin/role-user`): se eliminó la columna **ID** (ahora se
+  muestra bajo el Nombre en gris) y la columna **Permisos Extra** (también se
+  quitó `directPermissionsCount` de `UserManagementService::tableData`). El
+  **detalle** (`Show`) ahora incluye ID, tipo, teléfono, dirección, estación
+  (`id_estacion`) y socio (`id_socio`) — `getForShow` expone esos campos — y los
+  permisos **directos** se pintan en **gris** (antes amarillo) para legibilidad.
+- **Servicios / Amenidades** (`/admin/amenity`): se eliminó por completo el campo
+  **`icon`**: columna y campo del formulario (índice y pantalla de servicios por
+  proveedor), mapeos de `AmenityService` y `ListingAmenityService`, `$fillable`
+  del modelo `Amenity`, y validación en `AmenityStoreRequest`/
+  `AmenityUpdateRequest`/`ListingAmenityCreateRequest`. Migración
+  `drop_icon_from_amenities_table` elimina la columna (guardada con `hasColumn`).
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza

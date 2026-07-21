@@ -16,7 +16,7 @@ export default function Show({ user, urls }) {
         children: (
             <Space size={[4, 8]} wrap>
                 {permissions.map((permission) => (
-                    <Tag key={permission} color={directSet.has(permission) ? 'warning' : 'blue'}>
+                    <Tag key={permission} color={directSet.has(permission) ? 'default' : 'blue'}>
                         {permission}
                     </Tag>
                 ))}
@@ -56,8 +56,22 @@ export default function Show({ user, urls }) {
                         size="small"
                         column={{ xs: 1, md: 2 }}
                         items={[
+                            { key: 'id', label: 'ID', children: user.id },
                             { key: 'name', label: 'Nombre', children: user.name },
                             { key: 'email', label: 'Correo', children: user.email },
+                            { key: 'userType', label: 'Tipo', children: user.userType || '—' },
+                            { key: 'phone', label: 'Teléfono', children: user.phone || '—' },
+                            { key: 'address', label: 'Dirección', children: user.address || '—' },
+                            {
+                                key: 'station',
+                                label: 'Estación (id_estacion)',
+                                children: user.stationId ?? '—',
+                            },
+                            {
+                                key: 'partner',
+                                label: 'Socio (id_socio)',
+                                children: user.partnerId ?? '—',
+                            },
                             {
                                 key: 'roles',
                                 label: 'Roles',
@@ -101,14 +115,14 @@ export default function Show({ user, urls }) {
                     extra={
                         <Space size="small">
                             <Tag color="blue">Por rol ({user.rolePermissions.length})</Tag>
-                            <Tag color="warning">Directos ({user.directPermissions.length})</Tag>
+                            <Tag color="default">Directos ({user.directPermissions.length})</Tag>
                         </Space>
                     }
                 >
                     {collapseItems.length > 0 ? (
                         <>
                             <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-                                Los permisos en amarillo fueron asignados directamente al usuario;
+                                Los permisos en gris fueron asignados directamente al usuario;
                                 los azules provienen de sus roles.
                             </Text>
                             <Collapse items={collapseItems} />

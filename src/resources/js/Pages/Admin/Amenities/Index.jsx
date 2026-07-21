@@ -11,18 +11,14 @@ import {
     Table,
     Tag,
     Tooltip,
-    Typography,
 } from 'antd';
 import {
     DeleteOutlined,
     EditOutlined,
     PlusOutlined,
-    QuestionCircleOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
-
-const { Text } = Typography;
 
 const STATUS_OPTIONS = [
     { value: 1, label: 'Activo' },
@@ -57,7 +53,6 @@ export default function Index({ amenities, urls }) {
         setEditingAmenity(amenity);
         form.setFieldsValue({
             name: amenity.name,
-            icon: amenity.icon,
             status: amenity.status,
         });
         setModalOpen(true);
@@ -90,13 +85,6 @@ export default function Index({ amenities, urls }) {
     };
 
     const columns = [
-        {
-            title: 'Icono',
-            dataIndex: 'icon',
-            key: 'icon',
-            width: 220,
-            render: (icon) => <Text code>{icon}</Text>,
-        },
         {
             title: 'Nombre',
             dataIndex: 'name',
@@ -199,23 +187,6 @@ export default function Index({ amenities, urls }) {
                         help={errors.name}
                     >
                         <Input maxLength={255} showCount />
-                    </Form.Item>
-
-                    <Form.Item
-                        label={
-                            <>
-                                Icono&nbsp;
-                                <Tooltip title="Clase de icono FontAwesome que se muestra en el sitio público, por ejemplo: fas fa-wifi">
-                                    <QuestionCircleOutlined />
-                                </Tooltip>
-                            </>
-                        }
-                        name="icon"
-                        rules={[{ required: !editingAmenity, message: 'El icono es obligatorio.' }]}
-                        validateStatus={errors.icon ? 'error' : undefined}
-                        help={errors.icon}
-                    >
-                        <Input maxLength={255} placeholder="fas fa-wifi" />
                     </Form.Item>
 
                     <Form.Item

@@ -22,7 +22,6 @@ class ListingAmenityService
                 ->map(fn (Amenity $amenity) => [
                     'id' => $amenity->id,
                     'name' => $amenity->name,
-                    'icon' => $amenity->icon,
                 ]),
             'assignedAmenityIds' => ListingAmenity::where('listing_id', $listingId)
                 ->pluck('amenity_id')
@@ -56,7 +55,6 @@ class ListingAmenityService
     {
         $amenity = Amenity::create([
             'name' => $data['name'],
-            'icon' => $data['icon'],
             'slug' => Str::slug($data['name']),
             'status' => 1,
         ]);
