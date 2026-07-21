@@ -1,6 +1,7 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { Breadcrumb, Card, Flex, Space, Typography } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
 
@@ -9,7 +10,13 @@ const { Title } = Typography;
  * title, renders the breadcrumb trail, the page title, optional action
  * buttons (extra) and wraps the content in a Card.
  *
- * breadcrumbItems: [{ title: 'Proveedores', href: '/admin/listing' }, { title: 'Crear' }]
+ * The breadcrumb always starts with a home icon linking to the admin
+ * dashboard. Each item may carry an optional leading `icon`.
+ *
+ * breadcrumbItems: [
+ *   { title: 'Proveedores', href: '/admin/listing', icon: <ShopOutlined /> },
+ *   { title: 'Crear' },
+ * ]
  */
 export default function PageContainer({
     title,
@@ -18,16 +25,39 @@ export default function PageContainer({
     wrapInCard = true,
     children,
 }) {
-    const items = breadcrumbItems.map((item) => ({
-        title: item.href ? <Link href={item.href}>{item.title}</Link> : item.title,
-    }));
+    const { urls } = usePage().props;
+
+    const withIcon = (icon, node) =>
+        icon ? (
+            <Space size={4}>
+                {icon}
+                {node}
+            </Space>
+        ) : (
+            node
+        );
+
+    const items = [
+        {
+            title: (
+                <Link href={urls?.dashboard || '/admin/dashboard'} aria-label="Inicio">
+                    <HomeOutlined />
+                </Link>
+            ),
+        },
+        ...breadcrumbItems.map((item) => ({
+            title: item.href
+                ? withIcon(item.icon, <Link href={item.href}>{item.title}</Link>)
+                : withIcon(item.icon, item.title),
+        })),
+    ];
 
     return (
         <>
             <Head title={title} />
 
             <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-                {items.length > 0 && <Breadcrumb items={items} />}
+                <Breadcrumb items={items} />
 
                 <Flex justify="space-between" align="center" wrap gap="small">
                     <Title level={3} style={{ margin: 0 }}>
