@@ -18,19 +18,19 @@ class SectionTitleUpdateRequest extends FormRequest
     {
         return [
             'our_feature_title' => ['nullable', 'string', 'max:255'],
-            'our_feature_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_feature_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_categories_title' => ['nullable', 'string', 'max:255'],
-            'our_categories_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_categories_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_location_title' => ['nullable', 'string', 'max:255'],
-            'our_location_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_location_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_featured_listing_title' => ['nullable', 'string', 'max:255'],
-            'our_featured_listing_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_featured_listing_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_our_pricing_title' => ['nullable', 'string', 'max:255'],
-            'our_our_pricing_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_our_pricing_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_testimonial_title' => ['nullable', 'string', 'max:255'],
-            'our_testimonial_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_testimonial_sub_title' => ['nullable', 'string', 'max:5000'],
             'our_blog_title' => ['nullable', 'string', 'max:255'],
-            'our_blog_sub_title' => ['nullable', 'string', 'max:255'],
+            'our_blog_sub_title' => ['nullable', 'string', 'max:5000'],
         ];
     }
 }

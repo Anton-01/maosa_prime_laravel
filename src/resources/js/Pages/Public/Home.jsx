@@ -170,9 +170,10 @@ function Features({ sectionTitle, ourFeatures }) {
                                     {String(index + 1).padStart(2, '0')}
                                 </Text>
                             </div>
-                            <Paragraph type="secondary" style={{ marginTop: 8 }}>
-                                {feature.short_description}
-                            </Paragraph>
+                            <HtmlContent
+                                html={feature.short_description}
+                                style={{ marginTop: 8, color: 'rgba(0,0,0,0.45)' }}
+                            />
                         </Card>
                     </Col>
                 ))}

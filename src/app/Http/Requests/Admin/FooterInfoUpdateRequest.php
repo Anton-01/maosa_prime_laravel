@@ -16,7 +16,7 @@ class FooterInfoUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'short_description' => ['required', 'max:255'],
+            'short_description' => ['required', 'max:5000'],
             'address' => ['required', 'max:255'],
             'phone' => ['required', 'max:255'],
             'email' => ['required', 'max:255', 'email'],

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { Button, Col, Divider, Form, Input, Row, Typography } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
+import HtmlEditor from '../../../../Components/HtmlEditor';
 
 const { Text } = Typography;
 
@@ -67,7 +68,7 @@ export default function SectionTitlesForm({ sectionTitles, submitUrl }) {
                                 validateStatus={errors[group.subTitleField] ? 'error' : undefined}
                                 help={errors[group.subTitleField]}
                             >
-                                <Input.TextArea rows={2} maxLength={255} placeholder={`Sub título de "${group.label}"`} />
+                                <HtmlEditor rows={2} placeholder={`Sub título de "${group.label}"`} />
                             </Form.Item>
                         </Col>
                     </Row>

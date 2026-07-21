@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { LockOutlined, SaveOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import HtmlEditor from '../../../Components/HtmlEditor';
 
 const { Text } = Typography;
 
@@ -173,7 +174,7 @@ function ProfileForm({ profile, submitUrl }) {
                         validateStatus={errors.about ? 'error' : undefined}
                         help={errors.about}
                     >
-                        <Input.TextArea rows={3} maxLength={300} showCount />
+                        <HtmlEditor rows={3} placeholder="Acerca de ti" />
                     </Form.Item>
                 </Col>
             </Row>

@@ -402,6 +402,37 @@ aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
 
 ---
 
+## ✅ Fase 7 — Ajustes de UI del admin + editor enriquecido (completada)
+
+- **Editor WYSIWYG propio** `Components/RichTextEditor.jsx` (solo antd +
+  `contentEditable`/`execCommand`, sin dependencias externas): barra con negrita,
+  cursiva, subrayado, tachado, H1/H2/párrafo, listas, enlace y limpiar formato;
+  emite HTML y es compatible con `Form.Item`. `HtmlEditor.jsx` pasó a ser un
+  alias de este editor, así que **todos los campos de descripción del admin
+  (blogs, páginas, proveedor, sobre nosotros) se volvieron WYSIWYG**.
+  Además se convirtieron a enriquecido los textareas de prosa: sub-título del
+  banner, sub-títulos de secciones, descripción corta de footer y de "nuestras
+  funciones", y "acerca de" del perfil. **Se dejaron como texto plano** los
+  campos técnicos donde el HTML rompería la funcionalidad: embed de mapa
+  (`map_link`, `google_map_embed_code`) y `seo_description` (meta).
+- **Columnas VARCHAR(255) → TEXT**: migración `widen_richtext_columns_to_text`
+  (guardada con `hasColumn`) para `heroes.sub_title`, `our_features.
+  short_description`, `footer_infos.short_description` y los `section_titles.
+  *_sub_title`; y se subieron los `max` de validación a 5000 en los FormRequests
+  correspondientes (`users.about` ya era TEXT). Los puntos públicos que ahora
+  reciben HTML se renderizan con `HtmlContent`/`rich-content` (footer del
+  `FrontendLayout`, "funciones" del Home y `SectionHeading`).
+- **Tabla de Proveedores** (`Pages/Admin/Listings/Index.jsx`): la miniatura de
+  imagen es ahora de tamaño fijo (56×56) con recorte proporcional (`cover`) y
+  vista completa al hacer click (`Image` preview). Se **eliminó la columna
+  Estatus**; el estado se muestra bajo el nombre con icono + texto gris suave.
+  Se **eliminó la columna "Creado por"** del front y del back
+  (`ListingService::list` ya no expone `createdBy` ni carga la relación `user`).
+- **Breadcrumb del admin** (`PageContainer`): ahora inicia siempre con un icono
+  de casa que enlaza al dashboard y soporta icono opcional por item.
+- **Layouts**: se quitó el logo del tope del sidebar del dashboard de usuario y
+  el enlace "Mi Panel" duplicado de la franja de contacto del `FrontendLayout`.
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza

@@ -22,7 +22,7 @@ class ProfileUpdateRequest extends FormRequest
             'email' => ['required', 'email', 'max:255'],
             'phone' => ['required', 'max:50'],
             'address' => ['required', 'max:255'],
-            'about' => ['required', 'max:300'],
+            'about' => ['required', 'max:5000'],
             'website' => ['nullable', 'url',],
             'fb_link' => ['nullable', 'url',],
             'x_link' => ['nullable', 'url',],

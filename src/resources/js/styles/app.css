@@ -38,3 +38,12 @@
 
 /* External price-table HTML fragments (returned by the Maosa price API). */
 .price-table-frame table { width: 100%; }
+
+/* Rich text editor (RichTextEditor component). */
+.rte-surface:empty:before {
+    content: attr(data-placeholder);
+    color: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+.rte-surface p { margin: 0 0 0.6em; }
+.rte-surface:focus { outline: none; }
