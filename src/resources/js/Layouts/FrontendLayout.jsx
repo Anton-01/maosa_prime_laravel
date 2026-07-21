@@ -115,17 +115,6 @@ export default function FrontendLayout({ children }) {
                                 </a>
                             )}
                         </Space>
-                        <Space size="small">
-                            {auth?.user ? (
-                                <Link href={urls.userDashboard} style={{ color: '#fff' }}>
-                                    <UserOutlined /> Mi Panel
-                                </Link>
-                            ) : (
-                                <Link href={urls.login} style={{ color: '#fff' }}>
-                                    <UserOutlined /> Iniciar sesión
-                                </Link>
-                            )}
-                        </Space>
                     </div>
                 </div>
 

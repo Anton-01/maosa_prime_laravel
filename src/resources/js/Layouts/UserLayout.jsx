@@ -128,29 +128,6 @@ export default function UserLayout({ children }) {
                             overflow: 'auto',
                         }}
                     >
-                        <Link href={urls.home}>
-                            <div
-                                style={{
-                                    height: 60,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderBottom: '1px solid rgba(255,255,255,0.08)',
-                                }}
-                            >
-                                {settings?.logo ? (
-                                    <img
-                                        src={asset(settings.logo)}
-                                        alt={settings?.siteName}
-                                        style={{ height: 34, objectFit: 'contain' }}
-                                    />
-                                ) : (
-                                    <Text strong style={{ color: '#fff' }}>
-                                        {settings?.siteName}
-                                    </Text>
-                                )}
-                            </div>
-                        </Link>
                         {sidebarContent}
                     </Sider>
                 )}
