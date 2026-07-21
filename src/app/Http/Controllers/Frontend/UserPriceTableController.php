@@ -7,13 +7,13 @@ use App\Services\MaosaPriceApiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\View\View;
+use Inertia\Inertia;
 
 class UserPriceTableController extends Controller
 {
     public function __construct(private MaosaPriceApiService $apiService) {}
 
-    public function index(): View
+    public function index(): \Inertia\Response
     {
         $user = auth()->user();
 
@@ -21,7 +21,18 @@ class UserPriceTableController extends Controller
             abort(403, 'No tiene permiso para ver la tabla de precios');
         }
 
-        return view('frontend.price-table.index', compact('user'));
+        return Inertia::render('User/PriceTable', [
+            'endpoints' => [
+                'stations' => route('user.price-table.stations'),
+                'html' => route('user.price-table.html'),
+                'pdf' => route('user.price-table.pdf'),
+            ],
+            'dates' => [
+                'min' => Carbon::yesterday()->toDateString(),
+                'today' => Carbon::today()->toDateString(),
+                'max' => Carbon::tomorrow()->toDateString(),
+            ],
+        ]);
     }
 
     public function loadStations(): \Illuminate\Http\JsonResponse

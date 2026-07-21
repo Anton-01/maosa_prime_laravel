@@ -8,20 +8,22 @@ use App\Traits\FileUploadTrait;
 use Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ProfileController extends Controller
 {
     use FileUploadTrait;
 
-    function index() : View
+    function index(): Response
     {
-        $user = Auth::user();
-        return view('frontend.dashboard.profile.index', compact('user'));
+        return Inertia::render('User/Profile', [
+            'profile' => $this->presentUser(),
+        ]);
     }
 
-    function update(ProfileUpdateRequest $request) : RedirectResponse
+    function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $avatarPath = $this->uploadImage($request, 'avatar', $request->old_avatar);
         $bannerPath = $this->uploadImage($request, 'banner', $request->old_banner);
@@ -36,10 +38,11 @@ class ProfileController extends Controller
         $user->about = $request->about;
         $user->save();
 
-        return back()->with('statusUpdUsr', true);
+        return back()->with('success', '¡Perfil actualizado correctamente!');
     }
 
-    function updatePassword(Request $request) : RedirectResponse {
+    function updatePassword(Request $request): RedirectResponse
+    {
         $request->validate([
             'current_password' => ['required', 'current_password'],
             'password' => ['required', 'min:5', 'confirmed']
@@ -59,5 +62,28 @@ class ProfileController extends Controller
             'description' => 'Tu contraseña ha sido actualizada correctamente. Por favor, inicia sesión de nuevo.',
             'alert_type' => 'success'
         ]);
+    }
+
+    /**
+     * Shape the authenticated user for the profile screen.
+     *
+     * @return array<string, mixed>
+     */
+    protected function presentUser(): array
+    {
+        $user = Auth::user();
+
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'address' => $user->address,
+            'about' => $user->about,
+            'avatar' => $user->avatar,
+            'banner' => $user->banner,
+            'user_type' => $user->user_type,
+            'can_view_price_table' => $user->canViewPriceTable(),
+        ];
     }
 }

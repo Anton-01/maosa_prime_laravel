@@ -2,12 +2,15 @@ import React from 'react';
 import { usePage } from '@inertiajs/react';
 import { Card, Flex, Layout, Typography, theme } from 'antd';
 
+import useFlash from '../Hooks/useFlash';
+
 const { Title, Text } = Typography;
 
 /**
  * Minimal centered layout for guest screens (login, forgot password).
  */
 export default function AuthLayout({ title, subtitle, children }) {
+    useFlash();
     const { appName } = usePage().props;
     const { token } = theme.useToken();
 

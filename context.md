@@ -316,6 +316,92 @@ La lógica de parseo/creación/reporte se movió a `UserImportService`; nuevo
 
 ---
 
+## ✅ Fase 6 — Sitio público + dashboard de usuario + Auth (completada)
+
+**Objetivo cumplido:** se migró **todo el sitio público (frontend) y el panel del
+usuario/agente** de Blade + Bootstrap/jQuery a React + Ant Design, y se
+**eliminó todo rastro de vistas Blade de usuario** del proyecto. Solo quedan
+blades de sistema que no son pantallas de usuario: `app.blade.php` (punto de
+montaje de Inertia — obligatorio), `errors/403.blade.php` (página de error) y las
+plantillas de correo (`mail/**`, `vendor/mail/**` — se renderizan server-side).
+
+### Infraestructura nueva
+- **`Layouts/FrontendLayout.jsx`** — layout público (barra de contacto superior,
+  navbar con menú de `Menu::getByName`, Drawer móvil, footer con columnas de
+  menú + contacto). Se aplica automático a `Pages/Public/**`.
+- **`Layouts/UserLayout.jsx`** — dashboard del usuario/agente (Sider oscuro con
+  avatar + accesos, Drawer móvil). Se aplica automático a `Pages/User/**`.
+- **`app.jsx`** resuelve layout por área: `Admin/` → AdminLayout, `User/` →
+  UserLayout, `Public/` → FrontendLayout (auth y `GuestLanding` definen el suyo).
+- **`HandleInertiaRequests`** ahora comparte, **solo fuera del área admin**
+  (props lazy vía closures): `settings` (branding: logo/favicon/color/email/
+  teléfono/timezone), `siteMenu` (Main + 3 columnas de footer desde las tablas
+  del menu-builder), `footerInfo`; y extiende `auth.user` con `user_type`,
+  `can_view_price_table`, `is_admin`. Nuevos `urls` públicos (home, login,
+  userDashboard, priceTable, listings…).
+- **Componentes/Hooks nuevos:** `Components/HtmlContent.jsx` (renderiza HTML
+  enriquecido de BD con estilo `.rich-content`), `Components/Frontend/{PageHeader,
+  ListingCard,SectionHeading}.jsx`, `Hooks/useFlash.js` (flash de sesión → toast;
+  soporta el payload `status` `{main_message,description,alert_type}` y string
+  simple de Breeze), `Utils/asset.js` (equivalente a `asset()` de Laravel),
+  `styles/app.css` (prose para HtmlContent + contenedor del price-table).
+
+### Pantallas migradas
+| Área | Ruta | Página React |
+|---|---|---|
+| Landing invitado | `GET /` (guest) | `Pages/Public/GuestLanding.jsx` (split full-screen con SVG de plataforma, standalone) |
+| Home | `GET /` (auth), `/home` | `Pages/Public/Home.jsx` (banner+buscador, slider de categorías, funciones, categorías/ubicaciones destacadas con Tabs, contadores, proveedores destacados) |
+| Proveedores | `/suppliers` | `Pages/Public/Listings.jsx` (filtros reactivos + paginación server) |
+| Detalle proveedor | `/suppliers/{slug}` | `Pages/Public/ListingView.jsx` (contacto, servicios, horario, mapa, redes, similares) |
+| Seminario/Blog | `/information/{slug}` | `Pages/Public/BlogShow.jsx` |
+| Sobre nosotros | `/about-us` | `Pages/Public/About.jsx` |
+| Contacto | `/contact` | `Pages/Public/Contact.jsx` (form Inertia + honeypot) |
+| Aviso de privacidad | `/privacy-policy` | `Pages/Public/PrivacyPolicy.jsx` |
+| Términos | `/terms-and-condition` | `Pages/Public/Terms.jsx` |
+| Perfil/Dashboard usuario | `/user/dashboard`, `/user/profile` | `Pages/User/Profile.jsx` (bienvenida + datos + contraseña, upload avatar/banner) |
+| Tabla de precios | `/user/price-table` | `Pages/User/PriceTable.jsx` (selector de estación + fecha, HTML del API vía fetch, descarga PDF por blob) |
+| Auth | `/login`,`/forgot-password`,`/reset-password`,`/verify-email`,`/confirm-password` | `Pages/Auth/{Login,ForgotPassword,ResetPassword,VerifyEmail,ConfirmPassword}.jsx` (reusan `AuthLayout`) |
+
+### Backend (controladores → `Inertia::render`)
+- `FrontendController` (index/listings/showListing/blogShow/about/contact/privacy/
+  terms) con **eager-loading** de relaciones para que serialicen a JSON.
+  `contactMessage` conserva validación + honeypot + throttle y devuelve flash.
+- `DashboardController` y `Frontend\ProfileController` renderizan `User/Profile`
+  (el flash `statusUpdUsr` pasó a `success`).
+- `UserPriceTableController@index` renderiza `User/PriceTable`; los endpoints JSON
+  `stations`/`html`/`pdf` se conservan tal cual (el price HTML del API externo se
+  inyecta con `dangerouslySetInnerHTML` y usa `frontend/css/maosa/table-prices.css`,
+  cargado vía `<Head>` solo en esa página).
+- Controladores de Auth (`AuthenticatedSession@create`, `PasswordResetLink@create`,
+  `NewPassword@create`, `EmailVerificationPrompt`, `ConfirmablePassword@show`) →
+  `Inertia::render`. El **login del frontend usa Inertia `useForm`** (ya no
+  necesita POST clásico: todos los destinos post-login son Inertia ahora).
+
+### Login/decisión de flujo
+El login del sitio (`/login`) ahora es Inertia puro; el redirect
+`intended()` post-login cae siempre en páginas Inertia (dashboard/price-table/
+admin), así que la razón por la que el login del admin usaba POST clásico ya no
+aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
+
+### Limpieza ejecutada (código muerto y Blade)
+- 🗑️ **Todo** `resources/views/frontend/**`, `resources/views/auth/**` y los
+  componentes Blade de alerta (`components/{alert-message,simple-alert-message}`
+  + clases `AlertMessage`/`SimpleAlertMessage`).
+- 🗑️ **Feature de agente muerta**: `AgentListingController`,
+  `AgentListingScheduleController`, sus rutas (`user.listing.*`,
+  `user.listing-schedule.*`), FormRequests (`AgentListing{Store,Update}Request`)
+  y los **DataTables** `AgentListingDataTable`/`AgentListingScheduleDataTable`.
+  Estos controladores apuntaban a vistas Blade que **ya no existían** (500 en uso)
+  y no estaban en ningún menú; eran además **los únicos consumidores de yajra**.
+- 🗑️ Ruta `suppliers-modal/{id}` + `listingModal` (preview ajax de Bootstrap):
+  las tarjetas ahora enlazan directo al detalle.
+- 🗑️ Scaffolding Breeze sin uso: `App\Http\Controllers\ProfileController`
+  (renderizaba un `profile.edit` inexistente), su `App\Http\Requests\
+  ProfileUpdateRequest`, las rutas rotas `profile.{edit,update,destroy}` y los
+  componentes `AppLayout`/`GuestLayout`.
+
+---
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza
@@ -327,13 +413,26 @@ La lógica de parseo/creación/reporte se movió a `UserImportService`; nuevo
   editan como texto plano. Si algún día se migra el sitio público, cambiar a un
   picker.
 - ~~Blades y DataTables del admin obsoletos~~ → **eliminados en Fase 5**.
-- `yajra/laravel-datatables` y `efectn/laravel-menu-builder` siguen en
-  composer: el primero por los DataTables del dashboard de agentes (frontend
-  Blade) y el segundo porque el navbar del sitio público usa
-  `Menu::getByName`. Podrán retirarse cuando se migre el frontend público.
-- `resources/js/app.js` + `resources/css/app.css` (Alpine/Tailwind) no los
-  carga ninguna vista actualmente (el frontend Blade usa assets estáticos);
-  se conservan por si el frontend los retoma. Candidatos a revisión.
+- **`yajra/laravel-datatables` quedó sin ningún uso** tras la Fase 6 (se
+  borraron sus únicos consumidores). Sigue en `composer.json` **a propósito**:
+  editar `composer.json` sin poder correr `composer update` en el entorno del
+  agente dejaría el `composer.lock` desincronizado y rompería `composer install`
+  en Docker. Retirarlo con `composer remove yajra/laravel-datatables` es tarea
+  de mantenimiento pendiente (regenera el lock).
+- `efectn/laravel-menu-builder` sigue **en uso**: el navbar/footer del sitio
+  público (ahora React) consume `Menu::getByName` desde
+  `HandleInertiaRequests::buildSiteMenu()` (con `try/catch`). No retirar.
+- `public/frontend/**` (CSS/JS estáticos de Bootstrap/jQuery/FontAwesome del
+  sitio Blade) **ya no lo carga ninguna pantalla** salvo
+  `frontend/css/maosa/table-prices.css`, que sí se usa (estiliza el HTML de
+  precios que devuelve el API externo). El resto de `public/frontend/**` es
+  candidato a limpieza en una pasada futura de assets.
+- `resources/js/app.js` + `resources/css/app.css` (Alpine/Tailwind) siguen sin
+  cargarse por ninguna vista. Candidatos a revisión.
+- Los iconos de redes sociales y de "Nuestras funciones" que se guardaban como
+  clase FontAwesome ya no se renderizan como iconos en React (no se carga FA):
+  las redes se muestran como `Tag` con el nombre; las funciones ya no dependían
+  del icono. Si se quiere iconografía, migrar a un picker de `@ant-design/icons`.
 - El chunk del dashboard pesa ~1.5 MB minificado por `@ant-design/plots`
   (se carga lazy solo en esa página). Optimizable con `manualChunks` si estorba.
 - `section_titles` tiene pares `our_our_pricing_*` y `our_testimonial_*` que la
@@ -360,10 +459,18 @@ La lógica de parseo/creación/reporte se movió a `UserImportService`; nuevo
 - [x] Proveedores: Horarios y Servicios por proveedor
 - [x] Catálogo de Servicios (amenities) y Blog — módulos rescatados que estaban fuera del sidebar
 - [x] Fase de limpieza: blades/datatables/assets del admin eliminados
+- [x] **Sitio público (frontend):** Landing invitado, Home, Proveedores + detalle, Blog, Sobre nosotros, Contacto, Privacidad, Términos
+- [x] **Dashboard de usuario/agente:** Perfil + Tabla de precios
+- [x] **Auth:** Login, Recuperar/Restablecer contraseña, Verificar correo, Confirmar contraseña
+- [x] **Limpieza final de Blade:** eliminadas todas las vistas Blade de usuario (frontend + auth) y el código muerto (agent-listing, DataTables yajra, scaffolding Breeze)
 
-**🎉 El panel de administración está 100% migrado a Inertia + React + Ant Design.**
-Pendiente futuro (fuera del alcance actual): migrar el sitio público/frontend
-(sigue en Blade con sus propios assets) y, con ello, retirar `yajra` y `efectn`.
+**🎉 Todo el proyecto (admin + sitio público + dashboard de usuario + auth) está
+migrado a Inertia + React + Ant Design.** No quedan vistas Blade de usuario: solo
+persisten blades de sistema (`app.blade.php` de montaje Inertia, `errors/403`, y
+las plantillas de correo `mail/**` y `vendor/mail/**`, que se renderizan
+server-side y no son pantallas).
+Pendiente de mantenimiento (no bloqueante): `composer remove yajra/laravel-datatables`
+y limpieza de `public/frontend/**` salvo `table-prices.css`.
 
 ## 📌 Checklist al migrar cada pantalla
 
