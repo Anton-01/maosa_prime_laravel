@@ -1,0 +1,40 @@
+/* Rich text content rendered from the database (HtmlContent component). */
+.rich-content {
+    line-height: 1.8;
+    color: rgba(0, 0, 0, 0.75);
+    word-break: break-word;
+}
+.rich-content h1,
+.rich-content h2,
+.rich-content h3,
+.rich-content h4,
+.rich-content h5,
+.rich-content h6 {
+    color: rgba(0, 0, 0, 0.88);
+    font-weight: 600;
+    margin: 1.4em 0 0.6em;
+    line-height: 1.3;
+}
+.rich-content h1 { font-size: 1.8em; }
+.rich-content h2 { font-size: 1.5em; }
+.rich-content h3 { font-size: 1.3em; }
+.rich-content p { margin: 0 0 1em; }
+.rich-content ul,
+.rich-content ol { margin: 0 0 1em; padding-left: 1.5em; }
+.rich-content li { margin-bottom: 0.4em; }
+.rich-content a { color: var(--brand-color, #6777ef); }
+.rich-content img { max-width: 100%; height: auto; border-radius: 8px; }
+.rich-content table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+.rich-content th,
+.rich-content td { border: 1px solid #f0f0f0; padding: 8px 12px; }
+.rich-content iframe { max-width: 100%; border: 0; border-radius: 8px; }
+.rich-content blockquote {
+    margin: 0 0 1em;
+    padding: 8px 16px;
+    border-left: 3px solid var(--brand-color, #6777ef);
+    background: #fafafa;
+    color: rgba(0, 0, 0, 0.65);
+}
+
+/* External price-table HTML fragments (returned by the Maosa price API). */
+.price-table-frame table { width: 100%; }

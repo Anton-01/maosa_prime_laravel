@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\Frontend\AgentListingController;
-use App\Http\Controllers\Frontend\AgentListingScheduleController;
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\FrontendController;
 use App\Http\Controllers\Frontend\ProfileController;
@@ -22,13 +20,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [FrontendController::class, 'index'])->name('start');
 
 Route::middleware(['auth', 'track.user.activity'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
     Route::get('home', [FrontendController::class, 'index'])->name('home');
     Route::get('suppliers', [FrontendController::class, 'listings'])->name('listings');
-    Route::get('suppliers-modal/{id}', [FrontendController::class, 'listingModal'])->name('listing-modal');
     Route::get('suppliers/{slug}', [FrontendController::class, 'showListing'])->name('listing.show');
     Route::get('information/{slug}', [FrontendController::class, 'blogShow'])->name('blog.show');
     Route::get('about-us', [FrontendController::class, 'aboutIndex'])->name('about.index');
@@ -43,15 +36,6 @@ Route::group(['middleware' => ['auth', 'track.user.activity'], 'prefix' => 'user
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile-password', [ProfileController::class, 'updatePassword'])->name('profile-password.update');
-
-    Route::resource('/listing', AgentListingController::class);
-
-    Route::get('/listing-schedule/{listing_id}', [AgentListingScheduleController::class, 'index'])->name('listing-schedule.index');
-    Route::get('/listing-schedule/{listing_id}/create', [AgentListingScheduleController::class, 'create'])->name('listing-schedule.create');
-    Route::post('/listing-schedule/{listing_id}', [AgentListingScheduleController::class, 'store'])->name('listing-schedule.store');
-    Route::get('/listing-schedule/{id}/edit', [AgentListingScheduleController::class, 'edit'])->name('listing-schedule.edit');
-    Route::put('/listing-schedule/{id}', [AgentListingScheduleController::class, 'update'])->name('listing-schedule.update');
-    Route::delete('/listing-schedule/{id}', [AgentListingScheduleController::class, 'destroy'])->name('listing-schedule.destroy');
 
     /** User Price Table Routes */
     Route::get('/price-table', [UserPriceTableController::class, 'index'])->name('price-table.index');

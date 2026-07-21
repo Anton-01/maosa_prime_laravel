@@ -7,7 +7,11 @@ import esES from 'antd/locale/es_ES';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 
+import './styles/app.css';
+
 import AdminLayout from './Layouts/AdminLayout';
+import FrontendLayout from './Layouts/FrontendLayout';
+import UserLayout from './Layouts/UserLayout';
 
 dayjs.locale('es');
 
@@ -36,10 +40,16 @@ createInertiaApp({
             import.meta.glob('./Pages/**/*.jsx'),
         );
 
-        // Every page under Pages/Admin inherits the shared admin layout
-        // unless the page component explicitly defines its own.
-        if (page.default.layout === undefined && name.startsWith('Admin/')) {
-            page.default.layout = (children) => <AdminLayout>{children}</AdminLayout>;
+        // Each area inherits its shared layout unless the page component
+        // explicitly defines its own (e.g. the guest landing / auth screens).
+        if (page.default.layout === undefined) {
+            if (name.startsWith('Admin/')) {
+                page.default.layout = (children) => <AdminLayout>{children}</AdminLayout>;
+            } else if (name.startsWith('User/')) {
+                page.default.layout = (children) => <UserLayout>{children}</UserLayout>;
+            } else if (name.startsWith('Public/')) {
+                page.default.layout = (children) => <FrontendLayout>{children}</FrontendLayout>;
+            }
         }
 
         return page;
