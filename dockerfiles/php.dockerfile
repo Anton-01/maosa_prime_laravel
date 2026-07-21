@@ -1,5 +1,6 @@
 FROM php:8.2-fpm-alpine
 WORKDIR /var/www/html
+
 COPY src .
 COPY dockerfiles/uploads.ini /usr/local/etc/php/conf.d/zz-uploads.ini
 COPY dockerfiles/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
