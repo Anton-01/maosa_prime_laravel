@@ -35,7 +35,6 @@ class BlogController extends Controller
     {
         return Inertia::render('Admin/Blogs/Form', [
             'blog' => null,
-            'categories' => $this->blogService->categoryOptions(),
             'urls' => [
                 'base' => route('admin.blog.index'),
             ],
@@ -53,7 +52,6 @@ class BlogController extends Controller
     {
         return Inertia::render('Admin/Blogs/Form', [
             'blog' => $this->blogService->getForEdit((int) $id),
-            'categories' => $this->blogService->categoryOptions(),
             'urls' => [
                 'base' => route('admin.blog.index'),
             ],

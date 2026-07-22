@@ -51,7 +51,6 @@ export default function AboutForm({ about, submitUrl }) {
                 description: about.description ?? '',
                 button_url: about.button_url,
             }}
-            style={{ maxWidth: 860 }}
         >
             <Form.Item
                 label="Imagen"

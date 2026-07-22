@@ -24,7 +24,6 @@ export default function ContactForm({ contact, submitUrl }) {
             onFinish={handleSubmit}
             disabled={submitting}
             initialValues={contact}
-            style={{ maxWidth: 860 }}
         >
             <Row gutter={24}>
                 <Col xs={24} md={12}>

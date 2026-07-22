@@ -19,7 +19,6 @@ class BlogCreateRequest extends FormRequest
         return [
             'image' => ['required', 'image'],
             'title' => ['required', 'max:255', 'unique:blogs,title'],
-            'category' => ['required', 'integer'],
             'description' => ['required'],
             'is_popular' => ['required', 'boolean'],
             'status' => ['required', 'boolean']

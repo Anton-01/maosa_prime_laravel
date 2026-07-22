@@ -223,7 +223,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'blog',
-                'label' => 'Blog',
+                'label' => 'Seminarios',
                 'icon' => 'blog',
                 'permission' => 'blog index',
                 'url' => route('admin.blog.index'),

@@ -87,13 +87,25 @@ export default function Index({ stations, urls }) {
                 </div>
             ),
         },
-        { title: 'Correo', dataIndex: 'email', key: 'email', sorter: true, ellipsis: true },
         {
-            title: 'Rol',
-            dataIndex: 'role',
-            key: 'role',
-            width: 140,
-            render: (role) => (role ? <Tag color="green">{role}</Tag> : <Tag>Sin rol</Tag>),
+            title: 'Correo',
+            dataIndex: 'email',
+            key: 'email',
+            sorter: true,
+            render: (email, record) => (
+                <div>
+                    <div>{email}</div>
+                    <div style={{ marginTop: 4 }}>
+                        {record.role ? (
+                            <Tag color="green" style={{ marginInlineEnd: 0 }}>
+                                {record.role}
+                            </Tag>
+                        ) : (
+                            <Tag style={{ marginInlineEnd: 0 }}>Sin rol</Tag>
+                        )}
+                    </div>
+                </div>
+            ),
         },
         {
             title: 'Aprobado',

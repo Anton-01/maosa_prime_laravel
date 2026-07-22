@@ -8,15 +8,6 @@ export default function Index({ blogs, urls }) {
     const [search, setSearch] = useState('');
     const [deleting, setDeleting] = useState(false);
 
-    const categoryFilters = useMemo(
-        () =>
-            [...new Set(blogs.map((blog) => blog.category))].map((name) => ({
-                text: name,
-                value: name,
-            })),
-        [blogs],
-    );
-
     const filteredBlogs = useMemo(() => {
         if (!search) return blogs;
 
@@ -49,28 +40,7 @@ export default function Index({ blogs, urls }) {
             sorter: (a, b) => a.title.localeCompare(b.title),
             ellipsis: true,
         },
-        {
-            title: 'Categoría',
-            dataIndex: 'category',
-            key: 'category',
-            width: 150,
-            filters: categoryFilters,
-            onFilter: (value, record) => record.category === value,
-            render: (value) => <Tag color="blue">{value}</Tag>,
-        },
         { title: 'Autor', dataIndex: 'author', key: 'author', width: 150, ellipsis: true },
-        {
-            title: 'Popular',
-            dataIndex: 'isPopular',
-            key: 'isPopular',
-            width: 100,
-            filters: [
-                { text: 'Sí', value: 1 },
-                { text: 'No', value: 0 },
-            ],
-            onFilter: (value, record) => record.isPopular === value,
-            render: (value) => (value === 1 ? <Tag color="blue">Sí</Tag> : <Tag>No</Tag>),
-        },
         {
             title: 'Estatus',
             dataIndex: 'status',
@@ -102,8 +72,8 @@ export default function Index({ blogs, urls }) {
                         </Link>
                     </Tooltip>
                     <Popconfirm
-                        title="Eliminar publicación"
-                        description="¿Seguro que deseas eliminar esta publicación?"
+                        title="Eliminar seminario"
+                        description="¿Seguro que deseas eliminar este seminario?"
                         okText="Eliminar"
                         cancelText="Cancelar"
                         okButtonProps={{ danger: true }}
@@ -118,12 +88,12 @@ export default function Index({ blogs, urls }) {
 
     return (
         <PageContainer
-            title="Blog"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Blog' }]}
+            title="Seminarios"
+            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Seminarios' }]}
             extra={
                 <Link href={urls.create}>
                     <Button type="primary" icon={<PlusOutlined />}>
-                        Nueva publicación
+                        Nuevo seminario
                     </Button>
                 </Link>
             }
@@ -144,14 +114,14 @@ export default function Index({ blogs, urls }) {
                 columns={columns}
                 dataSource={filteredBlogs}
                 loading={deleting}
-                scroll={{ x: 1000 }}
+                scroll={{ x: 800 }}
                 pagination={{
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} publicaciones`,
+                    showTotal: (total) => `${total} seminarios`,
                 }}
-                locale={{ emptyText: 'No hay publicaciones registradas' }}
+                locale={{ emptyText: 'No hay seminarios registrados' }}
             />
         </PageContainer>
     );

@@ -66,7 +66,7 @@ export default function UserForm({ user, roles, stations, urls }) {
             }
             wrapInCard={false}
         >
-            <Card style={{ maxWidth: 860 }}>
+            <Card>
                 {user?.isSuperAdmin && (
                     <Alert
                         type="warning"
