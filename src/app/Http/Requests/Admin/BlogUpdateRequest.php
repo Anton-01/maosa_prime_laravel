@@ -18,7 +18,6 @@ class BlogUpdateRequest extends FormRequest
         return [
             'image' => ['nullable', 'image'],
             'title' => ['required', 'max:255', 'unique:blogs,title,'.$this->blog],
-            'category' => ['required', 'integer'],
             'description' => ['required'],
             'is_popular' => ['required', 'boolean'],
             'status' => ['required', 'boolean']

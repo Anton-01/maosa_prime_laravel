@@ -3,7 +3,6 @@
 namespace App\Services\Admin;
 
 use App\Models\Blog;
-use App\Models\BlogCategory;
 use App\Services\ImageUploadService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -21,8 +20,6 @@ class BlogService
      */
     public function list(): Collection
     {
-        $categories = BlogCategory::pluck('name', 'id');
-
         return Blog::with('author:id,name')
             ->orderByDesc('created_at')
             ->get()
@@ -30,25 +27,10 @@ class BlogService
                 'id' => $blog->id,
                 'title' => $blog->title,
                 'imageUrl' => $blog->image ? asset($blog->image) : null,
-                'category' => $categories[$blog->blog_category_id] ?? 'N/A',
                 'author' => $blog->author->name ?? 'N/A',
-                'isPopular' => (int) $blog->is_popular,
                 'status' => (int) $blog->status,
                 'createdAt' => $blog->created_at?->format('d/m/Y'),
             ]);
-    }
-
-    /**
-     * Category options for the form.
-     *
-     * @return array<int, array<string, mixed>>
-     */
-    public function categoryOptions(): array
-    {
-        return BlogCategory::orderBy('name')
-            ->get()
-            ->map(fn (BlogCategory $category) => ['value' => $category->id, 'label' => $category->name])
-            ->all();
     }
 
     /**
@@ -63,7 +45,6 @@ class BlogService
         return [
             'id' => $blog->id,
             'title' => $blog->title,
-            'category' => $blog->blog_category_id,
             'description' => $blog->description,
             'is_popular' => (int) $blog->is_popular,
             'status' => (int) $blog->status,
@@ -118,7 +99,6 @@ class BlogService
         $blog->author_id = Auth::id();
         $blog->title = $data['title'];
         $blog->slug = Str::slug($data['title']);
-        $blog->blog_category_id = $data['category'];
         $blog->description = $data['description'];
         $blog->is_popular = $data['is_popular'];
         $blog->status = $data['status'];

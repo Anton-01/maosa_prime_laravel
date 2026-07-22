@@ -30,7 +30,6 @@ export default function Index({ footerInfo, urls }) {
                 onFinish={handleSubmit}
                 disabled={submitting}
                 initialValues={footerInfo}
-                style={{ maxWidth: 860 }}
             >
                 <Form.Item
                     label="Descripción corta"

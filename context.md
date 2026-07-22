@@ -448,6 +448,25 @@ aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
   `AmenityUpdateRequest`/`ListingAmenityCreateRequest`. Migración
   `drop_icon_from_amenities_table` elimina la columna (guardada con `hasColumn`).
 
+## ✅ Fase 9 — Blog→Seminarios, tabla de Usuarios y ancho de formularios (completada)
+
+- **Blog renombrado a "Seminarios"** en toda la UI del admin (título, breadcrumb,
+  botones, mensajes) y en el sidebar (`HandleInertiaRequests`). Las rutas/keys
+  internas siguen siendo `blog`. El sitio público ya los llamaba "Seminario".
+- **Categoría eliminada por completo** del módulo: columna de la tabla, filtros,
+  `BlogService` (list/getForEdit/fill/categoryOptions), controlador (prop
+  `categories`), formulario Create/Edit y validación (`Blog{Create,Update}Request`).
+  Se **eliminó el modelo `BlogCategory`** y la columna/FK `blog_category_id` con
+  migración `drop_category_from_blogs_table` (drop foreign + drop column, guardada).
+- **Columna "Popular" eliminada** de la tabla de seminarios y del mapeo de
+  `BlogService::list`. El flag `is_popular` **se conserva** en el formulario, en la
+  BD y en el sitio público (la barra de "seminarios similares" lo usa).
+- **Usuarios** (`/admin/role-user`): se eliminó la columna **Rol**; el rol se
+  muestra ahora **debajo del correo** (Tag verde / "Sin rol").
+- **Ancho de formularios**: se quitó el `maxWidth: 860` de los formularios de dos
+  columnas (Usuarios, Perfil admin, Contacto, Sobre nosotros, Footer) para que
+  ocupen todo el ancho disponible.
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza

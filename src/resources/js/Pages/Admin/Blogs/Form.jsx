@@ -8,7 +8,6 @@ import {
     Image,
     Input,
     Row,
-    Select,
     Space,
     Switch,
     Typography,
@@ -20,7 +19,7 @@ import HtmlEditor from '../../../Components/HtmlEditor';
 
 const { Text } = Typography;
 
-export default function BlogForm({ blog, categories, urls }) {
+export default function BlogForm({ blog, urls }) {
     const { errors } = usePage().props;
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
@@ -31,7 +30,6 @@ export default function BlogForm({ blog, categories, urls }) {
     const initialValues = isEditing
         ? {
               title: blog.title,
-              category: blog.category,
               description: blog.description ?? '',
               is_popular: blog.is_popular === 1,
               status: blog.status === 1,
@@ -45,7 +43,6 @@ export default function BlogForm({ blog, categories, urls }) {
     const handleSubmit = (values) => {
         const payload = {
             title: values.title,
-            category: values.category,
             description: values.description,
             is_popular: values.is_popular ? 1 : 0,
             status: values.status ? 1 : 0,
@@ -68,9 +65,9 @@ export default function BlogForm({ blog, categories, urls }) {
 
     return (
         <PageContainer
-            title={isEditing ? `Editar publicación: ${blog.title}` : 'Nueva publicación'}
+            title={isEditing ? `Editar seminario: ${blog.title}` : 'Nuevo seminario'}
             breadcrumbItems={[
-                { title: 'Blog', href: urls.base },
+                { title: 'Seminarios', href: urls.base },
                 { title: isEditing ? 'Editar' : 'Crear' },
             ]}
             extra={
@@ -98,21 +95,6 @@ export default function BlogForm({ blog, categories, urls }) {
                                 help={errors.title}
                             >
                                 <Input maxLength={255} showCount />
-                            </Form.Item>
-
-                            <Form.Item
-                                label="Categoría"
-                                name="category"
-                                rules={[{ required: true, message: 'La categoría es obligatoria.' }]}
-                                validateStatus={errors.category ? 'error' : undefined}
-                                help={errors.category}
-                            >
-                                <Select
-                                    options={categories}
-                                    showSearch
-                                    optionFilterProp="label"
-                                    placeholder="Selecciona una categoría"
-                                />
                             </Form.Item>
 
                             <Row gutter={[24, 8]}>
@@ -179,7 +161,7 @@ export default function BlogForm({ blog, categories, urls }) {
                             icon={<SaveOutlined />}
                             loading={submitting}
                         >
-                            {isEditing ? 'Actualizar publicación' : 'Crear publicación'}
+                            {isEditing ? 'Actualizar seminario' : 'Crear seminario'}
                         </Button>
                     </Form.Item>
                 </Form>

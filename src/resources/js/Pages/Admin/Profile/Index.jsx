@@ -63,7 +63,6 @@ function ProfileForm({ profile, submitUrl }) {
                 address: profile.address,
                 about: profile.about,
             }}
-            style={{ maxWidth: 860 }}
         >
             <Row gutter={24}>
                 <Col xs={24} md={12}>
