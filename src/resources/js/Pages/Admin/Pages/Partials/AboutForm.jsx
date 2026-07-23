@@ -3,6 +3,7 @@ import { router, usePage } from '@inertiajs/react';
 import { Button, Form, Image, Input, Space, Typography, Upload } from 'antd';
 import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import HtmlEditor from '../../../../Components/HtmlEditor';
+import ImageDropUpload from '../../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
@@ -57,20 +58,12 @@ export default function AboutForm({ about, submitUrl }) {
                 validateStatus={errors.image ? 'error' : undefined}
                 help={errors.image}
             >
-                <Space direction="vertical" size="small">
-                    {previewUrl && (
-                        <Image
-                            src={previewUrl}
-                            alt="Imagen de la página Sobre nosotros"
-                            width={320}
-                            style={{ borderRadius: 8, objectFit: 'cover' }}
-                        />
-                    )}
-                    <Upload accept="image/*" maxCount={1} showUploadList={false} beforeUpload={handleSelectFile}>
-                        <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
-                    </Upload>
-                    {imageFile && <Text type="secondary">{imageFile.name}</Text>}
-                </Space>
+                <ImageDropUpload
+                    value={imageFile}
+                    onChange={setImageFile}
+                    currentUrl={about.imageUrl}
+                    height={220}
+                />
             </Form.Item>
 
             <Form.Item

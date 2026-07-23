@@ -47,3 +47,9 @@
 }
 .rte-surface p { margin: 0 0 0.6em; }
 .rte-surface:focus { outline: none; }
+
+/* Admin header user-menu chip (AdminLayout). */
+.admin-user-chip:hover {
+    background: rgba(0, 0, 0, 0.06) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+}

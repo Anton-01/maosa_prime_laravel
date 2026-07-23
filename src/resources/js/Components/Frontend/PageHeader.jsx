@@ -10,7 +10,7 @@ const { Title } = Typography;
  * Optionally uses a background image (e.g. the listing thumbnail).
  */
 export default function PageHeader({ title, breadcrumb = [], background }) {
-    const { settings, urls } = usePage().props;
+    const { settings, appUrls } = usePage().props;
     const brand = settings?.color || '#6777ef';
 
     const backgroundStyle = background
@@ -39,7 +39,7 @@ export default function PageHeader({ title, breadcrumb = [], background }) {
                     items={[
                         {
                             title: (
-                                <Link href={urls.home} style={{ color: 'rgba(255,255,255,0.85)' }}>
+                                <Link href={appUrls.home} style={{ color: 'rgba(255,255,255,0.85)' }}>
                                     <HomeOutlined /> Inicio
                                 </Link>
                             ),

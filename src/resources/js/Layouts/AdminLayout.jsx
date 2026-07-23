@@ -15,6 +15,7 @@ import {
     AppstoreOutlined,
     BarChartOutlined,
     DashboardOutlined,
+    DownOutlined,
     FileTextOutlined,
     InfoCircleOutlined,
     LogoutOutlined,
@@ -102,7 +103,7 @@ function findSelectedKeys(navigation) {
 }
 
 export default function AdminLayout({ children }) {
-    const { appName, auth, navigation, urls, flash } = usePage().props;
+    const { appName, auth, navigation, appUrls, flash } = usePage().props;
     const { message } = App.useApp();
     const { token } = theme.useToken();
     const screens = useBreakpoint();
@@ -136,12 +137,12 @@ export default function AdminLayout({ children }) {
         {
             key: 'profile',
             icon: <UserOutlined />,
-            label: <Link href={urls.profile}>Perfil</Link>,
+            label: <Link href={appUrls.profile}>Perfil</Link>,
         },
         {
             key: 'settings',
             icon: <SettingOutlined />,
-            label: <Link href={urls.settings}>Configuración</Link>,
+            label: <Link href={appUrls.settings}>Configuración</Link>,
         },
         { type: 'divider' },
         {
@@ -149,7 +150,7 @@ export default function AdminLayout({ children }) {
             icon: <LogoutOutlined />,
             label: 'Cerrar sesión',
             danger: true,
-            onClick: () => submitLogout(urls.logout),
+            onClick: () => submitLogout(appUrls.logout),
         },
     ];
 
@@ -179,7 +180,7 @@ export default function AdminLayout({ children }) {
                         padding: '0 16px',
                     }}
                 >
-                    <Link href={urls.dashboard} style={{ overflow: 'hidden' }}>
+                    <Link href={appUrls.dashboard} style={{ overflow: 'hidden' }}>
                         <Text
                             strong
                             style={{
@@ -227,14 +228,30 @@ export default function AdminLayout({ children }) {
                         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                     </span>
 
-                    <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-                        <Space style={{ cursor: 'pointer' }}>
+                    <Dropdown
+                        menu={{ items: userMenuItems }}
+                        placement="bottomRight"
+                        arrow
+                        trigger={['click']}
+                    >
+                        <Space
+                            className="admin-user-chip"
+                            style={{
+                                cursor: 'pointer',
+                                padding: '4px 12px 4px 4px',
+                                borderRadius: 999,
+                                background: token.colorFillTertiary,
+                                border: `1px solid ${token.colorBorderSecondary}`,
+                                transition: 'background 0.2s, border-color 0.2s',
+                            }}
+                        >
                             <Avatar
                                 src={auth.user?.avatar || undefined}
                                 icon={<UserOutlined />}
                                 size="small"
                             />
-                            {!screens.xs && <Text>Hola, {auth.user?.name}</Text>}
+                            {!screens.xs && <Text strong>Hola, {auth.user?.name}</Text>}
+                            <DownOutlined style={{ fontSize: 10, color: token.colorTextTertiary }} />
                         </Space>
                     </Dropdown>
                 </Header>

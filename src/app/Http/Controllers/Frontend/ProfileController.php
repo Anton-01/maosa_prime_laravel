@@ -35,7 +35,6 @@ class ProfileController extends Controller
         $user->email = $request->email;
         $user->phone = $request->phone;
         $user->address = $request->address;
-        $user->about = $request->about;
         $user->save();
 
         return back()->with('success', '¡Perfil actualizado correctamente!');
@@ -79,7 +78,6 @@ class ProfileController extends Controller
             'email' => $user->email,
             'phone' => $user->phone,
             'address' => $user->address,
-            'about' => $user->about,
             'avatar' => $user->avatar,
             'banner' => $user->banner,
             'user_type' => $user->user_type,

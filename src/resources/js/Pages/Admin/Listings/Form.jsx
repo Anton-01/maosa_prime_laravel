@@ -29,29 +29,14 @@ import {
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import HtmlEditor from '../../../Components/HtmlEditor';
+import ImageDropUpload from '../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
 function ImageField({ label, currentUrl, file, onSelect, error, required }) {
     return (
         <Form.Item label={label} required={required} validateStatus={error ? 'error' : undefined} help={error}>
-            <Space direction="vertical" size="small">
-                {currentUrl && !file && (
-                    <Image src={currentUrl} alt={label} width={140} style={{ borderRadius: 6 }} />
-                )}
-                <Upload
-                    accept="image/*"
-                    maxCount={1}
-                    showUploadList={false}
-                    beforeUpload={(selected) => {
-                        onSelect(selected);
-                        return false;
-                    }}
-                >
-                    <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
-                </Upload>
-                {file && <Text type="secondary">{file.name}</Text>}
-            </Space>
+            <ImageDropUpload value={file} onChange={onSelect} currentUrl={currentUrl} height={180} />
         </Form.Item>
     );
 }

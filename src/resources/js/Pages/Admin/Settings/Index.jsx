@@ -9,6 +9,7 @@ import {
     UploadOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import ImageDropUpload from '../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
@@ -112,48 +113,26 @@ function LogoSettingsForm({ logos, submitUrl }) {
                 <Text strong style={{ display: 'block', marginBottom: 8 }}>
                     Logo
                 </Text>
-                <Space direction="vertical" size="small">
-                    {logos.logoUrl && !logoFile && (
-                        <Image src={logos.logoUrl} alt="Logo actual" width={180} />
-                    )}
-                    <Upload
-                        accept="image/*"
-                        maxCount={1}
-                        showUploadList={false}
-                        beforeUpload={(file) => {
-                            setLogoFile(file);
-                            return false;
-                        }}
-                    >
-                        <Button icon={<UploadOutlined />}>Seleccionar logo</Button>
-                    </Upload>
-                    {logoFile && <Text type="secondary">{logoFile.name}</Text>}
-                    {errors.logo && <Text type="danger">{errors.logo}</Text>}
-                </Space>
+                <ImageDropUpload
+                    value={logoFile}
+                    onChange={setLogoFile}
+                    currentUrl={logos.logoUrl}
+                    height={140}
+                />
+                {errors.logo && <Text type="danger">{errors.logo}</Text>}
             </div>
 
             <div>
                 <Text strong style={{ display: 'block', marginBottom: 8 }}>
                     Favicon
                 </Text>
-                <Space direction="vertical" size="small">
-                    {logos.faviconUrl && !faviconFile && (
-                        <Image src={logos.faviconUrl} alt="Favicon actual" width={48} />
-                    )}
-                    <Upload
-                        accept="image/*"
-                        maxCount={1}
-                        showUploadList={false}
-                        beforeUpload={(file) => {
-                            setFaviconFile(file);
-                            return false;
-                        }}
-                    >
-                        <Button icon={<UploadOutlined />}>Seleccionar favicon</Button>
-                    </Upload>
-                    {faviconFile && <Text type="secondary">{faviconFile.name}</Text>}
-                    {errors.favicon && <Text type="danger">{errors.favicon}</Text>}
-                </Space>
+                <ImageDropUpload
+                    value={faviconFile}
+                    onChange={setFaviconFile}
+                    currentUrl={logos.faviconUrl}
+                    height={120}
+                />
+                {errors.favicon && <Text type="danger">{errors.favicon}</Text>}
             </div>
 
             <Button

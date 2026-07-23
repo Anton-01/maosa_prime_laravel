@@ -25,7 +25,7 @@ export default function PageContainer({
     wrapInCard = true,
     children,
 }) {
-    const { urls } = usePage().props;
+    const { appUrls } = usePage().props;
 
     const withIcon = (icon, node) =>
         icon ? (
@@ -40,7 +40,7 @@ export default function PageContainer({
     const items = [
         {
             title: (
-                <Link href={urls?.dashboard || '/admin/dashboard'} aria-label="Inicio">
+                <Link href={appUrls?.dashboard || '/admin/dashboard'} aria-label="Inicio">
                     <HomeOutlined />
                 </Link>
             ),

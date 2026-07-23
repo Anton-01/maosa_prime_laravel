@@ -31,7 +31,7 @@ const { useBreakpoint } = Grid;
 
 export default function UserLayout({ children }) {
     useFlash();
-    const { auth, urls, settings } = usePage().props;
+    const { auth, appUrls, settings } = usePage().props;
     const screens = useBreakpoint();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -47,33 +47,33 @@ export default function UserLayout({ children }) {
             items.push({
                 key: '/admin/dashboard',
                 icon: <DashboardOutlined />,
-                label: <a href={urls.dashboard}>Panel de administración</a>,
+                label: <a href={appUrls.dashboard}>Panel de administración</a>,
             });
         }
         items.push({
-            key: urls.userProfile,
+            key: appUrls.userProfile,
             icon: <UserOutlined />,
-            label: <Link href={urls.userProfile}>Mi perfil</Link>,
+            label: <Link href={appUrls.userProfile}>Mi perfil</Link>,
         });
         if (user?.can_view_price_table) {
             items.push({
-                key: urls.priceTable,
+                key: appUrls.priceTable,
                 icon: <DollarOutlined />,
-                label: <Link href={urls.priceTable}>Tabla de precios</Link>,
+                label: <Link href={appUrls.priceTable}>Tabla de precios</Link>,
             });
         }
         items.push({
-            key: urls.listings,
+            key: appUrls.listings,
             icon: <AppstoreOutlined />,
-            label: <Link href={urls.listings}>Ver proveedores</Link>,
+            label: <Link href={appUrls.listings}>Ver proveedores</Link>,
         });
         items.push({
             key: 'home',
             icon: <HomeOutlined />,
-            label: <Link href={urls.home}>Ir al sitio</Link>,
+            label: <Link href={appUrls.home}>Ir al sitio</Link>,
         });
         return items;
-    }, [user, urls]);
+    }, [user, appUrls]);
 
     const selectedKeys = menuItems
         .map((item) => item.key)
@@ -106,7 +106,7 @@ export default function UserLayout({ children }) {
                     danger
                     block
                     icon={<LogoutOutlined />}
-                    onClick={() => classicFormPost(urls.logout)}
+                    onClick={() => classicFormPost(appUrls.logout)}
                 >
                     Cerrar sesión
                 </Button>

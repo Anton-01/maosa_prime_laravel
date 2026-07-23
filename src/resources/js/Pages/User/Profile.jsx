@@ -24,45 +24,26 @@ import {
 } from '@ant-design/icons';
 
 import asset from '../../Utils/asset';
+import ImageDropUpload from '../../Components/ImageDropUpload';
 
 const { Title, Text } = Typography;
 
 function ImageUpload({ label, preview, onPick }) {
     return (
         <Form.Item label={label}>
-            <Space direction="vertical">
-                {preview && (
-                    <img
-                        src={preview}
-                        alt={label}
-                        style={{ width: '100%', maxWidth: 220, height: 120, objectFit: 'cover', borderRadius: 8 }}
-                    />
-                )}
-                <Upload
-                    accept="image/*"
-                    maxCount={1}
-                    showUploadList={false}
-                    beforeUpload={(file) => {
-                        onPick(file);
-                        return false;
-                    }}
-                >
-                    <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
-                </Upload>
-            </Space>
+            <ImageDropUpload currentUrl={preview} onChange={onPick} height={150} hint={null} />
         </Form.Item>
     );
 }
 
 export default function Profile({ profile }) {
-    const { urls } = usePage().props;
+    const { appUrls } = usePage().props;
 
     const infoForm = useForm({
         name: profile.name || '',
         email: profile.email || '',
         phone: profile.phone || '',
         address: profile.address || '',
-        about: profile.about || '',
         avatar: null,
         banner: null,
         old_avatar: profile.avatar || '',
@@ -99,7 +80,7 @@ export default function Profile({ profile }) {
                 if (!(out.banner instanceof File)) delete out.banner;
                 return out;
             })
-            .put(urls.userProfile, { preserveScroll: true, forceFormData: true });
+            .put(appUrls.userProfile, { preserveScroll: true, forceFormData: true });
     };
 
     const submitPassword = () => {
@@ -151,7 +132,7 @@ export default function Profile({ profile }) {
             {/* Quick actions */}
             <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
                 <Col xs={24} sm={8}>
-                    <Link href={urls.userProfile}>
+                    <Link href={appUrls.userProfile}>
                         <Card hoverable style={{ textAlign: 'center' }}>
                             <UserOutlined style={{ fontSize: 24, color: 'var(--brand-color, #6777ef)' }} />
                             <div style={{ marginTop: 8 }}>Mi Perfil</div>
@@ -160,7 +141,7 @@ export default function Profile({ profile }) {
                 </Col>
                 {profile.can_view_price_table && (
                     <Col xs={24} sm={8}>
-                        <Link href={urls.priceTable}>
+                        <Link href={appUrls.priceTable}>
                             <Card hoverable style={{ textAlign: 'center' }}>
                                 <DollarOutlined style={{ fontSize: 24, color: '#fa8c16' }} />
                                 <div style={{ marginTop: 8 }}>Tabla de Precios</div>
@@ -169,7 +150,7 @@ export default function Profile({ profile }) {
                     </Col>
                 )}
                 <Col xs={24} sm={8}>
-                    <Link href={urls.listings}>
+                    <Link href={appUrls.listings}>
                         <Card hoverable style={{ textAlign: 'center' }}>
                             <AppstoreOutlined style={{ fontSize: 24, color: '#13c2c2' }} />
                             <div style={{ marginTop: 8 }}>Ver Proveedores</div>
@@ -234,22 +215,6 @@ export default function Profile({ profile }) {
                                         <Input
                                             value={infoForm.data.address}
                                             onChange={(e) => infoForm.setData('address', e.target.value)}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col xs={24}>
-                                    <Form.Item
-                                        label="Sobre mí"
-                                        required
-                                        validateStatus={infoForm.errors.about ? 'error' : undefined}
-                                        help={infoForm.errors.about}
-                                    >
-                                        <Input.TextArea
-                                            rows={3}
-                                            maxLength={300}
-                                            showCount
-                                            value={infoForm.data.about}
-                                            onChange={(e) => infoForm.setData('about', e.target.value)}
                                         />
                                     </Form.Item>
                                 </Col>

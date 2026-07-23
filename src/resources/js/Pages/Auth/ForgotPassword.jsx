@@ -7,10 +7,10 @@ import AuthLayout from '../../Layouts/AuthLayout';
 const { Text } = Typography;
 
 export default function ForgotPassword() {
-    const { urls, errors } = usePage().props;
+    const { appUrls, errors } = usePage().props;
     const { data, setData, post, processing } = useForm({ email: '', honeypot: '' });
 
-    const handleSubmit = () => post(urls.forgotPassword);
+    const handleSubmit = () => post(appUrls.forgotPassword);
 
     return (
         <AuthLayout
@@ -57,7 +57,7 @@ export default function ForgotPassword() {
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
                     <Text type="secondary">
-                        <a href={urls.login}>Volver a iniciar sesión</a>
+                        <a href={appUrls.login}>Volver a iniciar sesión</a>
                     </Text>
                 </div>
             </Form>
