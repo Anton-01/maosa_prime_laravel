@@ -16,7 +16,7 @@ import {
 } from 'antd';
 import { LockOutlined, SaveOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
-import HtmlEditor from '../../../Components/HtmlEditor';
+import ImageDropUpload from '../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
@@ -61,7 +61,6 @@ function ProfileForm({ profile, submitUrl }) {
                 email: profile.email,
                 phone: profile.phone,
                 address: profile.address,
-                about: profile.about,
             }}
         >
             <Row gutter={24}>
@@ -71,21 +70,12 @@ function ProfileForm({ profile, submitUrl }) {
                         validateStatus={errors.avatar ? 'error' : undefined}
                         help={errors.avatar}
                     >
-                        <Space direction="vertical" size="small">
-                            <Avatar size={72} src={profile.avatarUrl || undefined} icon={<UserOutlined />} />
-                            <Upload
-                                accept="image/*"
-                                maxCount={1}
-                                showUploadList={false}
-                                beforeUpload={(file) => {
-                                    setAvatarFile(file);
-                                    return false;
-                                }}
-                            >
-                                <Button icon={<UploadOutlined />}>Cambiar avatar</Button>
-                            </Upload>
-                            {avatarFile && <Text type="secondary">{avatarFile.name}</Text>}
-                        </Space>
+                        <ImageDropUpload
+                            value={avatarFile}
+                            onChange={setAvatarFile}
+                            currentUrl={profile.avatarUrl}
+                            height={160}
+                        />
                     </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
@@ -94,28 +84,12 @@ function ProfileForm({ profile, submitUrl }) {
                         validateStatus={errors.banner ? 'error' : undefined}
                         help={errors.banner}
                     >
-                        <Space direction="vertical" size="small">
-                            {profile.bannerUrl && !bannerFile && (
-                                <Image
-                                    src={profile.bannerUrl}
-                                    alt="Banner del perfil"
-                                    width={220}
-                                    style={{ borderRadius: 6, objectFit: 'cover' }}
-                                />
-                            )}
-                            <Upload
-                                accept="image/*"
-                                maxCount={1}
-                                showUploadList={false}
-                                beforeUpload={(file) => {
-                                    setBannerFile(file);
-                                    return false;
-                                }}
-                            >
-                                <Button icon={<UploadOutlined />}>Cambiar banner</Button>
-                            </Upload>
-                            {bannerFile && <Text type="secondary">{bannerFile.name}</Text>}
-                        </Space>
+                        <ImageDropUpload
+                            value={bannerFile}
+                            onChange={setBannerFile}
+                            currentUrl={profile.bannerUrl}
+                            height={160}
+                        />
                     </Form.Item>
                 </Col>
                 <Col xs={24} md={12}>
@@ -163,17 +137,6 @@ function ProfileForm({ profile, submitUrl }) {
                         help={errors.address}
                     >
                         <Input maxLength={255} />
-                    </Form.Item>
-                </Col>
-                <Col xs={24}>
-                    <Form.Item
-                        label="Acerca de"
-                        name="about"
-                        rules={[{ required: true, message: 'Este campo es obligatorio.' }]}
-                        validateStatus={errors.about ? 'error' : undefined}
-                        help={errors.about}
-                    >
-                        <HtmlEditor rows={3} placeholder="Acerca de ti" />
                     </Form.Item>
                 </Col>
             </Row>

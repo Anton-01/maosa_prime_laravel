@@ -5,7 +5,7 @@ import { LockOutlined, LoginOutlined, MailOutlined } from '@ant-design/icons';
 import AuthLayout from '../../Layouts/AuthLayout';
 
 export default function Login() {
-    const { urls, errors } = usePage().props;
+    const { appUrls, errors } = usePage().props;
     const { data, setData, post, processing } = useForm({
         email: '',
         password: '',
@@ -14,7 +14,7 @@ export default function Login() {
     });
 
     const handleSubmit = () => {
-        post(urls.login);
+        post(appUrls.login);
     };
 
     return (
@@ -75,7 +75,7 @@ export default function Login() {
                     >
                         Recordarme
                     </Checkbox>
-                    <a href={urls.forgotPassword}>¿Olvidó su contraseña?</a>
+                    <a href={appUrls.forgotPassword}>¿Olvidó su contraseña?</a>
                 </Flex>
 
                 <Button

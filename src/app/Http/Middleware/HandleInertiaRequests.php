@@ -51,7 +51,7 @@ class HandleInertiaRequests extends Middleware
             // Public navbar/footer menus are only needed outside the admin area.
             'siteMenu' => $isAdminArea ? null : fn () => $this->buildSiteMenu(),
             'footerInfo' => $isAdminArea ? null : fn () => $this->buildFooterInfo(),
-            'urls' => [
+            'appUrls' => [
                 'dashboard' => route('admin.dashboard.index'),
                 'profile' => route('admin.profile'),
                 'settings' => route('admin.settings.index'),

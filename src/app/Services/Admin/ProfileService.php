@@ -24,7 +24,6 @@ class ProfileService
             'email' => $user->email,
             'phone' => $user->phone,
             'address' => $user->address,
-            'about' => $user->about,
             'avatar' => $user->avatar,
             'avatarUrl' => $user->avatar ? asset($user->avatar) : null,
             'banner' => $user->banner,
@@ -46,7 +45,6 @@ class ProfileService
         $user->email = $data['email'];
         $user->phone = $data['phone'];
         $user->address = $data['address'];
-        $user->about = $data['about'];
         $user->save();
 
         return $user;

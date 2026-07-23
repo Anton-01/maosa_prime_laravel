@@ -24,6 +24,7 @@ import {
     UploadOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import ImageDropUpload from '../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
@@ -237,23 +238,12 @@ export default function Index({ categories, urls }) {
                         validateStatus={errors.image_icon ? 'error' : undefined}
                         help={errors.image_icon}
                     >
-                        <Space direction="vertical" size="small">
-                            {editingCategory?.imageIconUrl && !iconFile && (
-                                <Image src={editingCategory.imageIconUrl} alt="Icono actual" width={64} />
-                            )}
-                            <Upload
-                                accept="image/*"
-                                maxCount={1}
-                                showUploadList={false}
-                                beforeUpload={(file) => {
-                                    setIconFile(file);
-                                    return false;
-                                }}
-                            >
-                                <Button icon={<UploadOutlined />}>Seleccionar icono</Button>
-                            </Upload>
-                            {iconFile && <Text type="secondary">{iconFile.name}</Text>}
-                        </Space>
+                        <ImageDropUpload
+                            value={iconFile}
+                            onChange={setIconFile}
+                            currentUrl={editingCategory?.imageIconUrl}
+                            height={130}
+                        />
                     </Form.Item>
 
                     <Form.Item
@@ -262,27 +252,12 @@ export default function Index({ categories, urls }) {
                         validateStatus={errors.background_image ? 'error' : undefined}
                         help={errors.background_image}
                     >
-                        <Space direction="vertical" size="small">
-                            {editingCategory?.backgroundImageUrl && !backgroundFile && (
-                                <Image
-                                    src={editingCategory.backgroundImageUrl}
-                                    alt="Imagen de fondo actual"
-                                    width={120}
-                                />
-                            )}
-                            <Upload
-                                accept="image/*"
-                                maxCount={1}
-                                showUploadList={false}
-                                beforeUpload={(file) => {
-                                    setBackgroundFile(file);
-                                    return false;
-                                }}
-                            >
-                                <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
-                            </Upload>
-                            {backgroundFile && <Text type="secondary">{backgroundFile.name}</Text>}
-                        </Space>
+                        <ImageDropUpload
+                            value={backgroundFile}
+                            onChange={setBackgroundFile}
+                            currentUrl={editingCategory?.backgroundImageUrl}
+                            height={150}
+                        />
                     </Form.Item>
 
                     <Form.Item

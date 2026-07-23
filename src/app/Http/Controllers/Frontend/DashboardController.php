@@ -20,7 +20,6 @@ class DashboardController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'address' => $user->address,
-                'about' => $user->about,
                 'avatar' => $user->avatar,
                 'banner' => $user->banner,
                 'user_type' => $user->user_type,

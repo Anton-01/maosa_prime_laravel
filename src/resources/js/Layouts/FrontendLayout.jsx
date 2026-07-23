@@ -63,7 +63,7 @@ function buildMenuItems(items = []) {
 
 export default function FrontendLayout({ children }) {
     useFlash();
-    const { settings, siteMenu, footerInfo, auth, urls } = usePage().props;
+    const { settings, siteMenu, footerInfo, auth, appUrls } = usePage().props;
     const screens = useBreakpoint();
     const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -73,13 +73,13 @@ export default function FrontendLayout({ children }) {
     const isMobile = !screens.md;
 
     const accountControl = auth?.user ? (
-        <Link href={urls.userDashboard}>
+        <Link href={appUrls.userDashboard}>
             <Button type="primary" ghost icon={<UserOutlined />}>
                 Mi Panel
             </Button>
         </Link>
     ) : (
-        <Link href={urls.login}>
+        <Link href={appUrls.login}>
             <Button type="primary" icon={<LoginOutlined />}>
                 Iniciar sesión
             </Button>
@@ -141,7 +141,7 @@ export default function FrontendLayout({ children }) {
                             gap: 16,
                         }}
                     >
-                        <Link href={urls.home} style={{ display: 'flex', alignItems: 'center' }}>
+                        <Link href={appUrls.home} style={{ display: 'flex', alignItems: 'center' }}>
                             {settings?.logo ? (
                                 <img
                                     src={asset(settings.logo)}

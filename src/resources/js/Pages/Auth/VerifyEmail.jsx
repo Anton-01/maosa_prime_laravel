@@ -8,7 +8,7 @@ import classicFormPost from '../../Utils/classicFormPost';
 const { Paragraph } = Typography;
 
 export default function VerifyEmail({ status }) {
-    const { urls } = usePage().props;
+    const { appUrls } = usePage().props;
     const { post, processing } = useForm({});
 
     const resend = () => post('/email/verification-notification');
@@ -43,7 +43,7 @@ export default function VerifyEmail({ status }) {
                 </Button>
                 <Button
                     icon={<LogoutOutlined />}
-                    onClick={() => classicFormPost(urls.logout)}
+                    onClick={() => classicFormPost(appUrls.logout)}
                     block
                 >
                     Cerrar sesión

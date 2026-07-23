@@ -467,6 +467,33 @@ aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
   columnas (Usuarios, Perfil admin, Contacto, Sobre nosotros, Footer) para que
   ocupen todo el ancho disponible.
 
+## ✅ Fase 10 — Fix urls compartidas, header, uploads y quitar "about" (completada)
+
+- **Bug de props sombreadas (crítico):** los controladores admin pasan una prop
+  de página `urls` (base/create…) que **sombreaba** la `urls` compartida usada por
+  `AdminLayout`/`PageContainer`, dejando `urls.profile`/`urls.logout` en
+  `undefined` → "Perfil/Configuración" sin acción y "Cerrar sesión" navegando a
+  `/admin/blog/4/undefined` (404). **Solución:** la prop compartida se renombró a
+  `appUrls` en `HandleInertiaRequests` y en todos sus consumidores de layout
+  (AdminLayout, UserLayout, FrontendLayout, PageContainer, PageHeader, páginas de
+  Auth/Guest/User que la leen). Las props de página `urls` de los controladores ya
+  no colisionan.
+- **Header del admin:** el disparador del menú de usuario (avatar + nombre) ahora
+  es un "chip" con fondo sutil, borde y hover (`.admin-user-chip`) + caret, para
+  que se note como componente clickeable; abre por click y sus opciones navegan a
+  Perfil/Configuración/Cerrar sesión.
+- **Carga de imágenes unificada:** nuevo `Components/ImageDropUpload.jsx`
+  (drag-and-drop con `Upload.Dragger`, preview de la imagen actual/seleccionada,
+  y descripción). Se aplicó en **todos** los puntos de carga de imagen del admin/
+  usuario: Seminarios, Proveedores (imagen/miniatura), Categorías (icono/fondo),
+  Banner, Ajustes (logo/favicon), Perfil admin (avatar/banner) y Perfil de usuario
+  (avatar/banner). (La subida de Excel de importación de usuarios se conserva como
+  Dragger propio.)
+- **Campo "Sobre mí" (about) eliminado** de todo el proyecto: formulario del
+  dashboard de usuario y del perfil admin, `ProfileController`/`DashboardController`
+  (frontend), `ProfileService` (admin), FormRequests (frontend y admin) y la
+  columna `users.about` (migración `drop_about_from_users_table`, guardada).
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza

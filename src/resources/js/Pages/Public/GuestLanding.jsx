@@ -108,7 +108,7 @@ function PlatformScene() {
 }
 
 export default function GuestLanding({ hero }) {
-    const { settings, urls } = usePage().props;
+    const { settings, appUrls } = usePage().props;
     const brand = settings?.color || '#6777ef';
 
     return (
@@ -192,7 +192,7 @@ export default function GuestLanding({ hero }) {
                     )}
 
                     <div style={{ marginBottom: 28 }}>
-                        <Link href={urls.login}>
+                        <Link href={appUrls.login}>
                             <Button type="primary" size="large" icon={<LoginOutlined />}>
                                 Iniciar sesión
                             </Button>

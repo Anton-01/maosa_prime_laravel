@@ -16,6 +16,7 @@ import {
 import { ArrowLeftOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import HtmlEditor from '../../../Components/HtmlEditor';
+import ImageDropUpload from '../../../Components/ImageDropUpload';
 
 const { Text } = Typography;
 
@@ -117,28 +118,12 @@ export default function BlogForm({ blog, urls }) {
                                 validateStatus={errors.image ? 'error' : undefined}
                                 help={errors.image}
                             >
-                                <Space direction="vertical" size="small">
-                                    {blog?.imageUrl && !imageFile && (
-                                        <Image
-                                            src={blog.imageUrl}
-                                            alt="Imagen actual"
-                                            width={200}
-                                            style={{ borderRadius: 6 }}
-                                        />
-                                    )}
-                                    <Upload
-                                        accept="image/*"
-                                        maxCount={1}
-                                        showUploadList={false}
-                                        beforeUpload={(file) => {
-                                            setImageFile(file);
-                                            return false;
-                                        }}
-                                    >
-                                        <Button icon={<UploadOutlined />}>Seleccionar imagen</Button>
-                                    </Upload>
-                                    {imageFile && <Text type="secondary">{imageFile.name}</Text>}
-                                </Space>
+                                <ImageDropUpload
+                                    value={imageFile}
+                                    onChange={setImageFile}
+                                    currentUrl={blog?.imageUrl}
+                                    height={220}
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={24}>
