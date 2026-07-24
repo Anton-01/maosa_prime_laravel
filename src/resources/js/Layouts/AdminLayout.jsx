@@ -288,7 +288,7 @@ export default function AdminLayout({ children }) {
                             menu={{ items: userMenuItems }}
                             placement="bottomRight"
                             trigger={['click']}
-                            dropdownRender={(menu) => (
+                            popupRender={(menu) => (
                                 <div
                                     style={{
                                         minWidth: 240,
