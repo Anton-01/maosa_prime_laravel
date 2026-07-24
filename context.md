@@ -494,6 +494,21 @@ aplica aquí. El logout sigue siendo POST clásico (`classicFormPost`).
   (frontend), `ProfileService` (admin), FormRequests (frontend y admin) y la
   columna `users.about` (migración `drop_about_from_users_table`, guardada).
 
+## ✅ Fase 11 — TopBar del admin: tema oscuro + avatar circular (completada)
+
+- **Modo oscuro:** nuevo `Providers/ThemeProvider.jsx` (contexto `useThemeMode`
+  + `ConfigProvider` raíz con `darkAlgorithm`/`defaultAlgorithm`, persistido en
+  `localStorage` y reflejado en `data-theme`). `app.jsx` ahora envuelve la app con
+  `AppThemeProvider`. El toggle (icono sol/luna, SVG inline) vive en el header del
+  `AdminLayout`. **Alcance:** el modo oscuro es solo del admin — `FrontendLayout`,
+  `UserLayout` y `GuestLanding` fuerzan `theme.defaultAlgorithm` en su
+  `ConfigProvider` anidado para no romper sus colores fijos.
+- **Avatar del header:** el disparador del menú de usuario es ahora **solo un
+  círculo** (`Avatar`); si el usuario no tiene imagen muestra las **iniciales** de
+  su nombre. El desplegable abre con una tarjeta de perfil que muestra **nombre y
+  correo completos** (`dropdownRender`), seguida de Perfil/Configuración/Cerrar
+  sesión. Solo se agregaron esos dos elementos (tema + avatar), como se pidió.
+
 ## ⚠️ Deudas / notas técnicas
 
 - **`composer install` pendiente en Docker** (el entorno del agente no alcanza
