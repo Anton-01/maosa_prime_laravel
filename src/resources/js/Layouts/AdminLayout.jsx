@@ -15,7 +15,6 @@ import {
     AppstoreOutlined,
     BarChartOutlined,
     DashboardOutlined,
-    DownOutlined,
     FileTextOutlined,
     InfoCircleOutlined,
     LogoutOutlined,
@@ -30,10 +29,64 @@ import {
 } from '@ant-design/icons';
 
 import classicFormPost from '../Utils/classicFormPost';
+import asset from '../Utils/asset';
+import { useThemeMode } from '../Providers/ThemeProvider';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { Text } = Typography;
 const { useBreakpoint } = Grid;
+
+/** First letters of the user's name, used when there is no avatar image. */
+function getInitials(name) {
+    if (!name) return '';
+    return name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((word) => word[0])
+        .join('')
+        .toUpperCase();
+}
+
+/** Sun / moon theme toggle matching the reference top bar. */
+function ThemeToggle() {
+    const { mode, toggle } = useThemeMode();
+    const isDark = mode === 'dark';
+
+    return (
+        <span
+            role="button"
+            tabIndex={0}
+            aria-label={isDark ? 'Activar tema claro' : 'Activar tema oscuro'}
+            onClick={toggle}
+            onKeyDown={(event) => event.key === 'Enter' && toggle()}
+            style={{ cursor: 'pointer', display: 'inline-flex', fontSize: 18, lineHeight: 1 }}
+        >
+            {isDark ? (
+                // Moon
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path
+                        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+                        fill="currentColor"
+                    />
+                </svg>
+            ) : (
+                // Sun
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+                    <line x1="12" y1="2" x2="12" y2="4" />
+                    <line x1="12" y1="20" x2="12" y2="22" />
+                    <line x1="2" y1="12" x2="4" y2="12" />
+                    <line x1="20" y1="12" x2="22" y2="12" />
+                    <line x1="4.9" y1="4.9" x2="6.3" y2="6.3" />
+                    <line x1="17.7" y1="17.7" x2="19.1" y2="19.1" />
+                    <line x1="4.9" y1="19.1" x2="6.3" y2="17.7" />
+                    <line x1="17.7" y1="6.3" x2="19.1" y2="4.9" />
+                </svg>
+            )}
+        </span>
+    );
+}
 
 const NAVIGATION_ICONS = {
     dashboard: <DashboardOutlined />,
@@ -228,32 +281,52 @@ export default function AdminLayout({ children }) {
                         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                     </span>
 
-                    <Dropdown
-                        menu={{ items: userMenuItems }}
-                        placement="bottomRight"
-                        arrow
-                        trigger={['click']}
-                    >
-                        <Space
-                            className="admin-user-chip"
-                            style={{
-                                cursor: 'pointer',
-                                padding: '4px 12px 4px 4px',
-                                borderRadius: 999,
-                                background: token.colorFillTertiary,
-                                border: `1px solid ${token.colorBorderSecondary}`,
-                                transition: 'background 0.2s, border-color 0.2s',
-                            }}
+                    <Space size="large" align="center">
+                        <ThemeToggle />
+
+                        <Dropdown
+                            menu={{ items: userMenuItems }}
+                            placement="bottomRight"
+                            trigger={['click']}
+                            dropdownRender={(menu) => (
+                                <div
+                                    style={{
+                                        minWidth: 240,
+                                        background: token.colorBgElevated,
+                                        borderRadius: token.borderRadiusLG,
+                                        boxShadow: token.boxShadowSecondary,
+                                        overflow: 'hidden',
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: 16 }}>
+                                        <Avatar
+                                            size={44}
+                                            src={auth.user?.avatar ? asset(auth.user.avatar) : undefined}
+                                            style={{ backgroundColor: token.colorPrimary, flexShrink: 0 }}
+                                        >
+                                            {getInitials(auth.user?.name)}
+                                        </Avatar>
+                                        <div style={{ overflow: 'hidden' }}>
+                                            <Text strong style={{ display: 'block' }} ellipsis>
+                                                {auth.user?.name}
+                                            </Text>
+                                            <Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+                                                {auth.user?.email}
+                                            </Text>
+                                        </div>
+                                    </div>
+                                    {menu}
+                                </div>
+                            )}
                         >
                             <Avatar
-                                src={auth.user?.avatar || undefined}
-                                icon={<UserOutlined />}
-                                size="small"
-                            />
-                            {!screens.xs && <Text strong>Hola, {auth.user?.name}</Text>}
-                            <DownOutlined style={{ fontSize: 10, color: token.colorTextTertiary }} />
-                        </Space>
-                    </Dropdown>
+                                src={auth.user?.avatar ? asset(auth.user.avatar) : undefined}
+                                style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }}
+                            >
+                                {getInitials(auth.user?.name)}
+                            </Avatar>
+                        </Dropdown>
+                    </Space>
                 </Header>
 
                 <Content style={{ padding: 24 }}>{children}</Content>

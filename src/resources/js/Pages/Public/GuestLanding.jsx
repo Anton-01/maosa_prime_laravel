@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
-import { Button, ConfigProvider } from 'antd';
+import { Button, ConfigProvider, theme } from 'antd';
 import {
     CheckCircleFilled,
     LoginOutlined,
@@ -112,7 +112,7 @@ export default function GuestLanding({ hero }) {
     const brand = settings?.color || '#6777ef';
 
     return (
-        <ConfigProvider theme={{ token: { colorPrimary: brand } }}>
+        <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm, token: { colorPrimary: brand } }}>
             <Head title={settings?.siteName} />
             <div className="guest-landing-wrap" style={{ display: 'flex', minHeight: '100vh', overflow: 'hidden' }}>
                 {/* Left — decorative scene */}

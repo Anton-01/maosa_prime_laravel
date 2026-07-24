@@ -10,6 +10,7 @@ import {
     Menu,
     Space,
     Typography,
+    theme,
 } from 'antd';
 import {
     AppstoreOutlined,
@@ -115,7 +116,7 @@ export default function UserLayout({ children }) {
     );
 
     return (
-        <ConfigProvider theme={{ token: { colorPrimary: brand } }}>
+        <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm, token: { colorPrimary: brand } }}>
             <Layout style={{ minHeight: '100vh', ['--brand-color']: brand }}>
                 {!isMobile && (
                     <Sider

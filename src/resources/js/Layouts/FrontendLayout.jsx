@@ -10,6 +10,7 @@ import {
     Menu,
     Space,
     Typography,
+    theme,
 } from 'antd';
 import {
     DownOutlined,
@@ -87,7 +88,7 @@ export default function FrontendLayout({ children }) {
     );
 
     return (
-        <ConfigProvider theme={{ token: { colorPrimary: brand } }}>
+        <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm, token: { colorPrimary: brand } }}>
             <Layout style={{ minHeight: '100vh', background: '#f5f6fa', ['--brand-color']: brand }}>
                 {/* Top contact strip */}
                 <div style={{ background: brand, color: '#fff', fontSize: 13 }}>
