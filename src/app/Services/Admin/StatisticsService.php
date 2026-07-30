@@ -97,7 +97,30 @@ class StatisticsService
     {
         [$dateFrom, $dateTo] = $this->range($request);
 
-        $query = $this->activeUsersBaseQuery($dateFrom, $dateTo);
+        // SR-016: las 3 IPs de sesión más frecuentes por usuario dentro del
+        // rango vigente. Subconsulta correlacionada, por lo que solo se evalúa
+        // sobre las filas de la página visible y no penaliza la carga del
+        // panel. Se agrega aquí y no en activeUsersBaseQuery() para dejar la
+        // exportación a Excel sin cambios.
+        $query = $this->activeUsersBaseQuery($dateFrom, $dateTo)
+            ->selectRaw(
+                <<<'SQL'
+                (
+                    SELECT string_agg(top_ips.ip_address, ',' ORDER BY top_ips.hits DESC)
+                    FROM (
+                        SELECT s.ip_address, COUNT(*) AS hits
+                        FROM user_sessions s
+                        WHERE s.user_id = users.id
+                          AND s.ip_address IS NOT NULL
+                          AND s.created_at BETWEEN ? AND ?
+                        GROUP BY s.ip_address
+                        ORDER BY hits DESC
+                        LIMIT 3
+                    ) top_ips
+                ) AS top_session_ips
+                SQL,
+                [$dateFrom, $dateTo . ' 23:59:59']
+            );
 
         if ($search = $request->string('search')->toString()) {
             $query->where(function ($builder) use ($search) {
@@ -130,6 +153,9 @@ class StatisticsService
                     ? Carbon::parse($user->last_session_at)->format('d/m/Y H:i')
                     : null,
                 'lastSessionLocation' => $user->last_session_location,
+                'topSessionIps' => $user->top_session_ips
+                    ? explode(',', $user->top_session_ips)
+                    : [],
             ])->all(),
             'total' => $page->total(),
         ];
