@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { Link, router } from '@inertiajs/react';
-import { Button, Card, Col, DatePicker, Flex, Input, Row, Space, Statistic, Table, Tabs } from 'antd';
+import { Button, Card, Col, DatePicker, Flex, Input, Row, Space, Statistic, Table, Tabs, Tag } from 'antd';
 import {
     CompassOutlined,
     DesktopOutlined,
@@ -121,6 +121,21 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
             ellipsis: true,
             render: (value) => value ?? '—',
         },
+        {
+            // SR-016: columna de monitoreo de seguridad. El backend entrega las
+            // IPs ya ordenadas por frecuencia; aquí solo se renderizan.
+            title: 'Top IPs de sesión',
+            dataIndex: 'topSessionIps',
+            key: 'topSessionIps',
+            width: 240,
+            render: (ips) => (ips?.length
+                ? (
+                    <Space size={[4, 4]} wrap>
+                        {ips.map((ip) => <Tag key={ip}>{ip}</Tag>)}
+                    </Space>
+                )
+                : '—'),
+        },
     ];
 
     return (
@@ -145,7 +160,7 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
                 loading={loading}
                 onChange={handleTableChange}
                 columns={columns}
-                scroll={{ x: 900 }}
+                scroll={{ x: 1140 }}
                 pagination={{
                     position: ['bottomRight'],
                     current: tableParams.page,
