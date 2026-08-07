@@ -39,6 +39,38 @@
 /* External price-table HTML fragments (returned by the Maosa price API). */
 .price-table-frame table { width: 100%; }
 
+/* The fragment ships a centered, padded layout meant for the PDF. Inside the
+   panel we drop the side gutters so the table uses the full card width, and let
+   the layout box grow with the table (its column count varies per user) so the
+   wrapper below can scroll it instead of clipping it. */
+.price-table-frame,
+.price-table-frame .precio-layout {
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
+}
+.price-table-frame .precio-layout {
+    margin: 0;
+    padding: 20px 0;
+}
+
+/* Horizontal scroll for wide price tables, with a deliberately discreet bar. */
+.price-table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.16) transparent;
+}
+.price-table-scroll::-webkit-scrollbar { height: 6px; }
+.price-table-scroll::-webkit-scrollbar-track { background: transparent; }
+.price-table-scroll::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.14);
+    border-radius: 999px;
+}
+.price-table-scroll:hover::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.28); }
+
 /* Rich text editor (RichTextEditor component). */
 .rte-surface:empty:before {
     content: attr(data-placeholder);
