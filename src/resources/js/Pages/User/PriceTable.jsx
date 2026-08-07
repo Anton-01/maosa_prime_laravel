@@ -1,13 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { Head } from '@inertiajs/react';
-import { App, Button, Card, Col, DatePicker, Empty, Row, Select, Spin } from 'antd';
-import { FilePdfOutlined } from '@ant-design/icons';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import {
+    Alert,
+    App,
+    Avatar,
+    Button,
+    Card,
+    Col,
+    DatePicker,
+    Empty,
+    Row,
+    Select,
+    Space,
+    Spin,
+    Tag,
+    Typography,
+} from 'antd';
+import {
+    CalendarOutlined,
+    DollarOutlined,
+    EnvironmentOutlined,
+    FilePdfOutlined,
+    MailOutlined,
+    UserOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
+
+import asset from '../../Utils/asset';
+
+const { Title, Text } = Typography;
 
 const DATE_FORMAT = 'YYYY-MM-DD';
 
 export default function PriceTable({ endpoints, dates }) {
     const { message } = App.useApp();
+    const { auth } = usePage().props;
+    const user = auth?.user;
 
     const [stations, setStations] = useState([]);
     const [loadingStations, setLoadingStations] = useState(true);
@@ -16,6 +44,9 @@ export default function PriceTable({ endpoints, dates }) {
     const [priceHtml, setPriceHtml] = useState('');
     const [loadingPrices, setLoadingPrices] = useState(false);
     const [downloading, setDownloading] = useState(false);
+    const [needsScroll, setNeedsScroll] = useState(false);
+
+    const scrollRef = useRef(null);
 
     // Load the user's assigned stations once.
     useEffect(() => {
@@ -67,6 +98,33 @@ export default function PriceTable({ endpoints, dates }) {
         };
     }, [stationId, date, endpoints.html]);
 
+    // The price fragment comes from an external API and its column count depends
+    // on each user's configuration, so the horizontal overflow is measured after
+    // every render instead of being assumed from a fixed breakpoint.
+    const measureOverflow = useCallback(() => {
+        const el = scrollRef.current;
+        if (!el) return;
+        setNeedsScroll(el.scrollWidth - el.clientWidth > 4);
+    }, []);
+
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return undefined;
+
+        measureOverflow();
+
+        const observer = new ResizeObserver(measureOverflow);
+        observer.observe(el);
+        // Track the injected fragment too: images (logo/watermark) settle late.
+        if (el.firstElementChild) observer.observe(el.firstElementChild);
+
+        window.addEventListener('resize', measureOverflow);
+        return () => {
+            observer.disconnect();
+            window.removeEventListener('resize', measureOverflow);
+        };
+    }, [priceHtml, measureOverflow]);
+
     const downloadPdf = async () => {
         if (downloading) return;
         setDownloading(true);
@@ -93,11 +151,56 @@ export default function PriceTable({ endpoints, dates }) {
         }
     };
 
+    const currentStation = stations.find((s) => s.id_estacion === stationId);
+    const currentStationName =
+        currentStation?.estacion || currentStation?.id_socio || null;
+
     return (
         <>
             <Head title="Tabla de precios">
                 <link rel="stylesheet" href="/frontend/css/maosa/table-prices.css" />
             </Head>
+
+            {/* Welcome card: confirms these prices belong to the signed-in account. */}
+            <Card styles={{ body: { padding: 0 } }} style={{ marginBottom: 24, overflow: 'hidden' }}>
+                <div
+                    style={{
+                        height: 110,
+                        background: 'linear-gradient(135deg, var(--brand-color, #6777ef), #0f1729)',
+                    }}
+                />
+                <div style={{ padding: '0 24px 24px', display: 'flex', gap: 18, alignItems: 'flex-end' }}>
+                    <Avatar
+                        size={80}
+                        src={user?.avatar ? asset(user.avatar) : undefined}
+                        icon={<UserOutlined />}
+                        style={{ marginTop: -40, border: '4px solid #fff', background: '#eee' }}
+                    />
+                    <div style={{ paddingTop: 12 }}>
+                        <Title level={4} style={{ margin: 0 }}>
+                            Tabla de precios de {user?.name}
+                        </Title>
+                        <Text type="secondary">
+                            <MailOutlined /> {user?.email}
+                        </Text>
+                        <div style={{ marginTop: 8 }}>
+                            <Space wrap>
+                                <Tag color="orange" icon={<DollarOutlined />}>
+                                    Precios personalizados
+                                </Tag>
+                                {currentStationName && (
+                                    <Tag color="blue" icon={<EnvironmentOutlined />}>
+                                        {currentStationName}
+                                    </Tag>
+                                )}
+                                <Tag icon={<CalendarOutlined />}>
+                                    Vigencia {date.format('DD/MM/YYYY')}
+                                </Tag>
+                            </Space>
+                        </div>
+                    </div>
+                </div>
+            </Card>
 
             <Card style={{ marginBottom: 24 }}>
                 <Row gutter={[16, 16]} align="bottom">
@@ -149,7 +252,9 @@ export default function PriceTable({ endpoints, dates }) {
                 </Row>
             </Card>
 
-            <Card>
+            {/* The fragment renders its own full-bleed layout, so the card body
+                keeps no horizontal padding of its own. */}
+            <Card styles={{ body: { padding: 0 } }} style={{ overflow: 'hidden' }}>
                 {loadingStations ? (
                     <div style={{ textAlign: 'center', padding: 48 }}>
                         <Spin tip="Cargando configuración de precios..." />
@@ -158,10 +263,21 @@ export default function PriceTable({ endpoints, dates }) {
                     <Empty description="No tiene estaciones asignadas." style={{ padding: 40 }} />
                 ) : (
                     <Spin spinning={loadingPrices}>
-                        <div
-                            className="price-table-frame"
-                            dangerouslySetInnerHTML={{ __html: priceHtml }}
-                        />
+                        {needsScroll && (
+                            <Alert
+                                banner
+                                type="info"
+                                showIcon
+                                message="Debido a la configuración visual de su tabla de precios, es necesario desplazarse horizontalmente para ver el resto del contenido."
+                                style={{ fontSize: 13 }}
+                            />
+                        )}
+                        <div className="price-table-scroll" ref={scrollRef}>
+                            <div
+                                className="price-table-frame"
+                                dangerouslySetInnerHTML={{ __html: priceHtml }}
+                            />
+                        </div>
                     </Spin>
                 )}
             </Card>
