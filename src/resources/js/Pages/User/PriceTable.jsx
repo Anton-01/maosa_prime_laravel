@@ -166,7 +166,10 @@ export default function PriceTable({ endpoints, dates }) {
                 <div
                     style={{
                         height: 110,
-                        background: 'linear-gradient(135deg, var(--brand-color, #6777ef), #0f1729)',
+                        // Same banner (and same fallback) as the profile card.
+                        background: user?.banner
+                            ? `url(${asset(user.banner)}) center/cover`
+                            : 'linear-gradient(135deg, var(--brand-color, #6777ef), #0f1729)',
                     }}
                 />
                 <div style={{ padding: '0 24px 24px', display: 'flex', gap: 18, alignItems: 'flex-end' }}>
@@ -272,11 +275,13 @@ export default function PriceTable({ endpoints, dates }) {
                                 style={{ fontSize: 13 }}
                             />
                         )}
-                        <div className="price-table-scroll" ref={scrollRef}>
-                            <div
-                                className="price-table-frame"
-                                dangerouslySetInnerHTML={{ __html: priceHtml }}
-                            />
+                        <div className="price-table-viewport">
+                            <div className="price-table-scroll" ref={scrollRef}>
+                                <div
+                                    className="price-table-frame"
+                                    dangerouslySetInnerHTML={{ __html: priceHtml }}
+                                />
+                            </div>
                         </div>
                     </Spin>
                 )}

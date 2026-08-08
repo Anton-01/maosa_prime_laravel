@@ -54,6 +54,12 @@
     padding: 20px 0;
 }
 
+/* A thin gutter on each side; kept off the scroll container itself so the
+   overflow measurement stays exact. */
+.price-table-viewport {
+    padding: 0 7px;
+}
+
 /* Horizontal scroll for wide price tables, with a deliberately discreet bar. */
 .price-table-scroll {
     width: 100%;
