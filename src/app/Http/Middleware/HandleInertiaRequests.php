@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'avatar' => $user->avatar ?? null,
+                    'banner' => $user->banner ?? null,
                     'user_type' => $user->user_type,
                     'can_view_price_table' => $user->canViewPriceTable(),
                     'is_admin' => $user->user_type === 'admin',
