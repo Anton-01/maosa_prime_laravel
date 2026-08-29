@@ -190,7 +190,7 @@ class RoleUserController extends Controller
         // Headers
         $headers = [
             'ID', 'Nombre', 'Email', 'Telefono', 'Empresa',
-            'Tipo Usuario', 'Rol', 'Aprobado', 'Tabla Precios',
+            'Tipo Usuario', 'Rol', 'Aprobado', 'Precios Internacionales',
             'Sucursales', 'Fecha Registro',
         ];
         $sheet->fromArray($headers, null, 'A1');
@@ -230,7 +230,7 @@ class RoleUserController extends Controller
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ]);
         foreach (['A' => 8, 'B' => 25, 'C' => 30, 'D' => 15, 'E' => 20,
-            'F' => 15, 'G' => 15, 'H' => 10, 'I' => 12, 'J' => 30, 'K' => 18] as $col => $width) {
+            'F' => 15, 'G' => 15, 'H' => 10, 'I' => 22, 'J' => 30, 'K' => 18] as $col => $width) {
             $sheet->getColumnDimension($col)->setWidth($width);
         }
 

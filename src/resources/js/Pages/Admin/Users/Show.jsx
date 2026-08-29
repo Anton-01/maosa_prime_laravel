@@ -98,7 +98,7 @@ export default function Show({ user, urls }) {
                             },
                             {
                                 key: 'priceTable',
-                                label: 'Tabla de precios',
+                                label: 'Precios Internacionales',
                                 children: user.canViewPriceTable ? (
                                     <Tag color="success">Sí</Tag>
                                 ) : (
