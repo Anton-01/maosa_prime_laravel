@@ -120,7 +120,7 @@ export default function Profile({ profile }) {
                                 <Tag color="blue">{profile.user_type}</Tag>
                                 {profile.can_view_price_table && (
                                     <Tag color="orange" icon={<DollarOutlined />}>
-                                        Tabla de Precios
+                                        Precios Internacionales
                                     </Tag>
                                 )}
                             </Space>
@@ -144,7 +144,7 @@ export default function Profile({ profile }) {
                         <Link href={appUrls.priceTable}>
                             <Card hoverable style={{ textAlign: 'center' }}>
                                 <DollarOutlined style={{ fontSize: 24, color: '#fa8c16' }} />
-                                <div style={{ marginTop: 8 }}>Tabla de Precios</div>
+                                <div style={{ marginTop: 8 }}>Precios Internacionales</div>
                             </Card>
                         </Link>
                     </Col>

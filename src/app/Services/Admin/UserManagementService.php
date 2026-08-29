@@ -295,7 +295,7 @@ class UserManagementService
     }
 
     /**
-     * Apply the "Mostrar tabla de precios" toggle and station selection.
+     * Apply the "Precios Internacionales" toggle and station selection.
      * When enabled with a station, the station is assigned respecting the
      * check_socio_estacion_exclusivo constraint (id_socio and id_estacion
      * cannot coexist). When the toggle is off the station is cleared.

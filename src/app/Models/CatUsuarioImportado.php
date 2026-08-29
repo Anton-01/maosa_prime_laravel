@@ -22,7 +22,7 @@ class CatUsuarioImportado extends Model
 
     /**
      * Estaciones activas (activo = true), únicas y ordenadas por nombre,
-     * para poblar el select de "Mostrar tabla de precios".
+     * para poblar el select de "Precios Internacionales".
      */
     public static function estacionesActivas(): Collection
     {

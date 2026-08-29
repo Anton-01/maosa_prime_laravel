@@ -18,7 +18,7 @@ class UserPriceTableController extends Controller
         $user = auth()->user();
 
         if (!$user->canViewPriceTable()) {
-            abort(403, 'No tiene permiso para ver la tabla de precios');
+            abort(403, 'No tiene permiso para ver los precios internacionales');
         }
 
         return Inertia::render('User/PriceTable', [
@@ -101,7 +101,7 @@ class UserPriceTableController extends Controller
         $user = auth()->user();
 
         if (!$user->canViewPriceTable()) {
-            abort(403, 'No tiene permiso para ver la tabla de precios');
+            abort(403, 'No tiene permiso para ver los precios internacionales');
         }
 
         $effectiveDate = $this->resolveEffectiveDate($request->get('fecha_vigencia'));

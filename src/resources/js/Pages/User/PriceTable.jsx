@@ -157,7 +157,7 @@ export default function PriceTable({ endpoints, dates }) {
 
     return (
         <>
-            <Head title="Tabla de precios">
+            <Head title="Precios Internacionales">
                 <link rel="stylesheet" href="/frontend/css/maosa/table-prices.css" />
             </Head>
 
@@ -181,7 +181,7 @@ export default function PriceTable({ endpoints, dates }) {
                     />
                     <div style={{ paddingTop: 12 }}>
                         <Title level={4} style={{ margin: 0 }}>
-                            Tabla de precios de {user?.name}
+                            Precios Internacionales de {user?.name}
                         </Title>
                         <Text type="secondary">
                             <MailOutlined /> {user?.email}
@@ -271,7 +271,7 @@ export default function PriceTable({ endpoints, dates }) {
                                 banner
                                 type="info"
                                 showIcon
-                                message="Debido a la configuración visual de su tabla de precios, es necesario desplazarse horizontalmente para ver el resto del contenido."
+                                message="Debido a la configuración visual de sus precios internacionales, es necesario desplazarse horizontalmente para ver el resto del contenido."
                                 style={{ fontSize: 13 }}
                             />
                         )}

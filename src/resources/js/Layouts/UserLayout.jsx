@@ -87,8 +87,8 @@ export default function UserLayout({ children }) {
             items.push({
                 key: appUrls.priceTable,
                 icon: <DollarOutlined />,
-                title: 'Tabla de precios',
-                label: <Link href={appUrls.priceTable}>Tabla de precios</Link>,
+                title: 'Precios Internacionales',
+                label: <Link href={appUrls.priceTable}>Precios Internacionales</Link>,
             });
         }
         // REQ-04: el submódulo sólo aparece si el usuario tiene el permiso.
