@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Alert, Button, Card, Col, Form, Input, Row, Select, Switch } from 'antd';
+import { Alert, Button, Card, Col, Form, Input, Row, Select } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+
+/** Los tres flags del formulario comparten el mismo par de opciones. */
+const OPCIONES_SI_NO = [
+    { value: true, label: 'Sí' },
+    { value: false, label: 'No' },
+];
 
 export default function UserForm({ user, roles, stations, nationalStations = [], urls }) {
     const { errors } = usePage().props;
@@ -163,34 +169,60 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                 <Select options={roles} placeholder="Selecciona un rol" showSearch optionFilterProp="label" />
                             </Form.Item>
                         </Col>
-                        <Col xs={12} md={6}>
-                            <Form.Item label="Aprobado" name="is_approved" valuePropName="checked">
-                                <Switch checkedChildren="Sí" unCheckedChildren="No" />
-                            </Form.Item>
-                        </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} md={12}>
                             <Form.Item
-                                label="Tabla de precios"
-                                name="can_view_price_table"
-                                valuePropName="checked"
+                                label="Aprobado"
+                                name="is_approved"
+                                tooltip="Permite al usuario iniciar sesión en la plataforma."
+                                validateStatus={errors.is_approved ? 'error' : undefined}
+                                help={errors.is_approved}
                             >
-                                <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
                             </Form.Item>
                         </Col>
-                        <Col xs={12} md={6}>
+                        <Col xs={24} md={12}>
+                            <Form.Item
+                                label="Precios Internacionales"
+                                name="can_view_price_table"
+                                tooltip="Habilita la consulta de precios internacionales y la selección de su estación."
+                                validateStatus={errors.can_view_price_table ? 'error' : undefined}
+                                help={errors.can_view_price_table}
+                            >
+                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
+                            </Form.Item>
+                        </Col>
+                        <Col xs={24} md={12}>
                             <Form.Item
                                 label="PRECIOS PEMEX"
                                 name="permiso_precios_pemex"
-                                valuePropName="checked"
                                 tooltip="Habilita el submódulo de Precios PEMEX y la asignación de estaciones."
                                 validateStatus={errors.permiso_precios_pemex ? 'error' : undefined}
                                 help={errors.permiso_precios_pemex}
                             >
-                                <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
                             </Form.Item>
                         </Col>
+                        {/* Cada selector de estaciones queda bajo su propio permiso. */}
+                        {canViewPriceTable && (
+                            <Col xs={24} md={12}>
+                                <Form.Item
+                                    label="Estación"
+                                    name="id_estacion"
+                                    validateStatus={errors.id_estacion ? 'error' : undefined}
+                                    help={errors.id_estacion}
+                                >
+                                    <Select
+                                        allowClear
+                                        showSearch
+                                        optionFilterProp="label"
+                                        options={stations}
+                                        placeholder="Selecciona una estación"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        )}
                         {hasPemexPermission && (
-                            <Col xs={24}>
+                            <Col xs={24} md={12}>
                                 <Form.Item
                                     label="Estaciones asignadas"
                                     name="estaciones_asignadas"
@@ -218,24 +250,6 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                         options={nationalStations}
                                         notFoundContent="Sin estaciones activas en el catálogo."
                                         placeholder="Busca y selecciona una o más estaciones"
-                                    />
-                                </Form.Item>
-                            </Col>
-                        )}
-                        {canViewPriceTable && (
-                            <Col xs={24} md={12}>
-                                <Form.Item
-                                    label="Estación"
-                                    name="id_estacion"
-                                    validateStatus={errors.id_estacion ? 'error' : undefined}
-                                    help={errors.id_estacion}
-                                >
-                                    <Select
-                                        allowClear
-                                        showSearch
-                                        optionFilterProp="label"
-                                        options={stations}
-                                        placeholder="Selecciona una estación"
                                     />
                                 </Form.Item>
                             </Col>
