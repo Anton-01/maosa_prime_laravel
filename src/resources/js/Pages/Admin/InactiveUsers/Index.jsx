@@ -19,11 +19,13 @@ import {
     SearchOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function Index({ days, users, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [daysInput, setDaysInput] = useState(days);
     const [search, setSearch] = useState('');
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -76,53 +78,58 @@ export default function Index({ days, users, urls }) {
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id', width: 70, sorter: (a, b) => a.id - b.id },
         {
-            title: 'Nombre',
+            title: t('users.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name),
             ellipsis: true,
         },
-        { title: 'Correo', dataIndex: 'email', key: 'email', ellipsis: true },
+        { title: t('users.email'), dataIndex: 'email', key: 'email', ellipsis: true },
         {
-            title: 'Rol',
+            title: t('users.role'),
             dataIndex: 'role',
             key: 'role',
             width: 130,
-            render: (role) => (role ? <Tag color="green">{role}</Tag> : <Tag>Sin rol</Tag>),
+            render: (role) => (role ? <Tag color="green">{role}</Tag> : <Tag>{t('inactive_users.no_role')}</Tag>),
         },
         {
-            title: 'Última sesión',
+            title: t('inactive_users.last_session'),
             dataIndex: 'lastSessionAt',
             key: 'lastSessionAt',
             width: 160,
-            render: (value) => value ?? <Text type="secondary">Nunca ha iniciado sesión</Text>,
+            render: (value) => value ?? <Text type="secondary">{t('inactive_users.never_logged_in')}</Text>,
         },
         {
-            title: 'Ubicación',
+            title: t('inactive_users.location'),
             dataIndex: 'lastSessionLocation',
             key: 'lastSessionLocation',
             ellipsis: true,
-            render: (value) => value ?? <Text type="secondary">Desconocida</Text>,
+            render: (value) => value ?? <Text type="secondary">{t('inactive_users.unknown_location')}</Text>,
         },
         {
-            title: 'Días inactivo',
+            title: t('inactive_users.days_inactive'),
             dataIndex: 'daysInactive',
             key: 'daysInactive',
             width: 130,
             sorter: (a, b) => a.daysInactive - b.daysInactive,
-            render: (value) => <Tag color={value > 90 ? 'error' : 'warning'}>{value} días</Tag>,
+            render: (value) => (
+                <Tag color={value > 90 ? 'error' : 'warning'}>{t('inactive_users.days_count', { count: value })}</Tag>
+            ),
         },
-        { title: 'Registro', dataIndex: 'createdAt', key: 'createdAt', width: 110 },
+        { title: t('inactive_users.registered_at'), dataIndex: 'createdAt', key: 'createdAt', width: 110 },
     ];
 
     return (
         <PageContainer
-            title="Usuarios inactivos"
-            breadcrumbItems={[{ title: 'Gestión de accesos' }, { title: 'Usuarios inactivos' }]}
+            title={t('inactive_users.title')}
+            breadcrumbItems={[
+                { title: t('users.breadcrumb_access') },
+                { title: t('inactive_users.title') },
+            ]}
             extra={
                 <Space wrap>
                     <Button icon={<DownloadOutlined />} href={`${urls.export}?days=${days}`}>
-                        Exportar Excel
+                        {t('inactive_users.export_excel')}
                     </Button>
                     <Button
                         danger
@@ -131,29 +138,29 @@ export default function Index({ days, users, urls }) {
                         disabled={selectedRowKeys.length === 0}
                         onClick={() => setDeleteModalOpen(true)}
                     >
-                        Eliminar seleccionados ({selectedRowKeys.length})
+                        {t('inactive_users.delete_selected', { count: selectedRowKeys.length })}
                     </Button>
                 </Space>
             }
         >
             <Flex gap="small" wrap align="center" style={{ marginBottom: 16 }}>
                 <Space>
-                    <Text>Sin actividad desde hace</Text>
+                    <Text>{t('inactive_users.inactive_since')}</Text>
                     <InputNumber
                         min={1}
                         max={3650}
                         value={daysInput}
                         onChange={(value) => setDaysInput(value ?? 1)}
                     />
-                    <Text>días</Text>
+                    <Text>{t('inactive_users.days')}</Text>
                     <Button icon={<ReloadOutlined />} loading={reloading} onClick={applyDays}>
-                        Aplicar
+                        {t('inactive_users.apply')}
                     </Button>
                 </Space>
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por nombre o correo"
+                    placeholder={t('users.search_placeholder')}
                     style={{ maxWidth: 300 }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -174,18 +181,18 @@ export default function Index({ days, users, urls }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} usuarios inactivos`,
+                    showTotal: (total) => t('inactive_users.total', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay usuarios inactivos para el periodo seleccionado' }}
+                locale={{ emptyText: t('inactive_users.empty') }}
             />
 
             <Modal
-                title="Eliminar usuarios seleccionados"
+                title={t('inactive_users.delete_modal_title')}
                 open={deleteModalOpen}
                 onCancel={() => setDeleteModalOpen(false)}
                 onOk={handleBulkDelete}
-                okText="Eliminar definitivamente"
-                cancelText="Cancelar"
+                okText={t('inactive_users.delete_permanently')}
+                cancelText={t('common.cancel')}
                 okButtonProps={{ danger: true, disabled: !adminPassword }}
                 confirmLoading={deleting}
             >
@@ -193,11 +200,11 @@ export default function Index({ days, users, urls }) {
                     <Alert
                         type="warning"
                         showIcon
-                        message={`Se eliminarán permanentemente ${selectedRowKeys.length} usuario(s).`}
-                        description="Esta acción no se puede deshacer. Confirma con tu contraseña actual."
+                        message={t('inactive_users.delete_warning', { count: selectedRowKeys.length })}
+                        description={t('inactive_users.delete_warning_description')}
                     />
                     <Input.Password
-                        placeholder="Tu contraseña actual"
+                        placeholder={t('inactive_users.current_password')}
                         value={adminPassword}
                         onChange={(event) => setAdminPassword(event.target.value)}
                         status={errors.admin_password ? 'error' : undefined}

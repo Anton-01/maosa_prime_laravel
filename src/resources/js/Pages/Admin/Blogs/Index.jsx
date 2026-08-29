@@ -3,8 +3,10 @@ import { Link, router } from '@inertiajs/react';
 import { Button, Flex, Image, Input, Popconfirm, Table, Tag, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 export default function Index({ blogs, urls }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [deleting, setDeleting] = useState(false);
 
@@ -26,56 +28,64 @@ export default function Index({ blogs, urls }) {
 
     const columns = [
         {
-            title: 'Imagen',
+            title: t('blogs.image'),
             dataIndex: 'imageUrl',
             key: 'image',
             width: 90,
             render: (url) =>
-                url ? <Image src={url} alt="Imagen" width={60} style={{ borderRadius: 6 }} /> : '—',
+                url ? (
+                    <Image src={url} alt={t('blogs.image')} width={60} style={{ borderRadius: 6 }} />
+                ) : (
+                    '—'
+                ),
         },
         {
-            title: 'Título',
+            title: t('common.title'),
             dataIndex: 'title',
             key: 'title',
             sorter: (a, b) => a.title.localeCompare(b.title),
             ellipsis: true,
         },
-        { title: 'Autor', dataIndex: 'author', key: 'author', width: 150, ellipsis: true },
+        { title: t('blogs.author'), dataIndex: 'author', key: 'author', width: 150, ellipsis: true },
         {
-            title: 'Estatus',
+            title: t('common.status'),
             dataIndex: 'status',
             key: 'status',
             width: 110,
             filters: [
-                { text: 'Activo', value: 1 },
-                { text: 'Inactivo', value: 0 },
+                { text: t('common.active'), value: 1 },
+                { text: t('common.inactive'), value: 0 },
             ],
             onFilter: (value, record) => record.status === value,
             render: (status) =>
-                status === 1 ? <Tag color="success">Activo</Tag> : <Tag color="error">Inactivo</Tag>,
+                status === 1 ? (
+                    <Tag color="success">{t('common.active')}</Tag>
+                ) : (
+                    <Tag color="error">{t('common.inactive')}</Tag>
+                ),
         },
         {
-            title: 'Fecha',
+            title: t('blogs.created_at'),
             dataIndex: 'createdAt',
             key: 'createdAt',
             width: 110,
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 120,
             render: (_, record) => (
                 <Flex gap="small">
-                    <Tooltip title="Editar">
+                    <Tooltip title={t('common.edit')}>
                         <Link href={`${urls.base}/${record.id}/edit`}>
                             <Button type="primary" size="small" icon={<EditOutlined />} />
                         </Link>
                     </Tooltip>
                     <Popconfirm
-                        title="Eliminar seminario"
-                        description="¿Seguro que deseas eliminar este seminario?"
-                        okText="Eliminar"
-                        cancelText="Cancelar"
+                        title={t('blogs.delete_title')}
+                        description={t('blogs.delete_confirm')}
+                        okText={t('common.delete')}
+                        cancelText={t('common.cancel')}
                         okButtonProps={{ danger: true }}
                         onConfirm={() => handleDelete(record)}
                     >
@@ -88,12 +98,12 @@ export default function Index({ blogs, urls }) {
 
     return (
         <PageContainer
-            title="Seminarios"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Seminarios' }]}
+            title={t('blogs.title')}
+            breadcrumbItems={[{ title: t('common.control_panel') }, { title: t('blogs.title') }]}
             extra={
                 <Link href={urls.create}>
                     <Button type="primary" icon={<PlusOutlined />}>
-                        Nuevo seminario
+                        {t('blogs.new')}
                     </Button>
                 </Link>
             }
@@ -102,7 +112,7 @@ export default function Index({ blogs, urls }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por título"
+                    placeholder={t('blogs.search_by_title')}
                     style={{ maxWidth: 320 }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -119,9 +129,9 @@ export default function Index({ blogs, urls }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} seminarios`,
+                    showTotal: (total) => t('blogs.total', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay seminarios registrados' }}
+                locale={{ emptyText: t('blogs.empty') }}
             />
         </PageContainer>
     );

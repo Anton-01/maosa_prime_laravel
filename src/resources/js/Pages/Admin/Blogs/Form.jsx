@@ -17,11 +17,13 @@ import { ArrowLeftOutlined, SaveOutlined, UploadOutlined } from '@ant-design/ico
 import PageContainer from '../../../Components/PageContainer';
 import HtmlEditor from '../../../Components/HtmlEditor';
 import ImageDropUpload from '../../../Components/ImageDropUpload';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function BlogForm({ blog, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState(null);
@@ -66,14 +68,16 @@ export default function BlogForm({ blog, urls }) {
 
     return (
         <PageContainer
-            title={isEditing ? `Editar seminario: ${blog.title}` : 'Nuevo seminario'}
+            title={
+                isEditing ? t('blogs.edit_title', { title: blog.title }) : t('blogs.create_title')
+            }
             breadcrumbItems={[
-                { title: 'Seminarios', href: urls.base },
-                { title: isEditing ? 'Editar' : 'Crear' },
+                { title: t('blogs.title'), href: urls.base },
+                { title: isEditing ? t('users.breadcrumb_edit') : t('users.breadcrumb_create') },
             ]}
             extra={
                 <Link href={urls.base}>
-                    <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                    <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                 </Link>
             }
             wrapInCard={false}
@@ -89,9 +93,9 @@ export default function BlogForm({ blog, urls }) {
                     <Row gutter={24}>
                         <Col xs={24} lg={12}>
                             <Form.Item
-                                label="Título"
+                                label={t('common.title')}
                                 name="title"
-                                rules={[{ required: true, message: 'El título es obligatorio.' }]}
+                                rules={[{ required: true, message: t('sections.title_required') }]}
                                 validateStatus={errors.title ? 'error' : undefined}
                                 help={errors.title}
                             >
@@ -100,20 +104,20 @@ export default function BlogForm({ blog, urls }) {
 
                             <Row gutter={[24, 8]}>
                                 <Col xs={12}>
-                                    <Form.Item label="Popular" name="is_popular" valuePropName="checked">
-                                        <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                                    <Form.Item label={t('blogs.popular')} name="is_popular" valuePropName="checked">
+                                        <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                                     </Form.Item>
                                 </Col>
                                 <Col xs={12}>
-                                    <Form.Item label="Activo" name="status" valuePropName="checked">
-                                        <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                                    <Form.Item label={t('listings.active')} name="status" valuePropName="checked">
+                                        <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                                     </Form.Item>
                                 </Col>
                             </Row>
                         </Col>
                         <Col xs={24} lg={12}>
                             <Form.Item
-                                label="Imagen"
+                                label={t('blogs.image')}
                                 required={!isEditing}
                                 validateStatus={errors.image ? 'error' : undefined}
                                 help={errors.image}
@@ -128,13 +132,13 @@ export default function BlogForm({ blog, urls }) {
                         </Col>
                         <Col xs={24}>
                             <Form.Item
-                                label="Contenido"
+                                label={t('blogs.content')}
                                 name="description"
-                                rules={[{ required: true, message: 'El contenido es obligatorio.' }]}
+                                rules={[{ required: true, message: t('blogs.content_required') }]}
                                 validateStatus={errors.description ? 'error' : undefined}
                                 help={errors.description}
                             >
-                                <HtmlEditor rows={14} placeholder="Contenido de la publicación" />
+                                <HtmlEditor rows={14} placeholder={t('blogs.content_placeholder')} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -146,7 +150,7 @@ export default function BlogForm({ blog, urls }) {
                             icon={<SaveOutlined />}
                             loading={submitting}
                         >
-                            {isEditing ? 'Actualizar seminario' : 'Crear seminario'}
+                            {isEditing ? t('blogs.submit_update') : t('blogs.submit_create')}
                         </Button>
                     </Form.Item>
                 </Form>
