@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { Alert, Button, Card, Col, Form, Input, Row, Select } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Col, Form, Input, Row, Select, Space, Tooltip, Typography } from 'antd';
+import { ArrowLeftOutlined, KeyOutlined, SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import PasswordGeneratorModal from '../../../Components/PasswordGeneratorModal';
+import copyToClipboard from '../../../Utils/copyToClipboard';
+
+const { Text } = Typography;
 
 /** Los tres flags del formulario comparten el mismo par de opciones. */
 const OPCIONES_SI_NO = [
@@ -14,6 +18,11 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
     const { errors } = usePage().props;
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
+    const [generatorOpen, setGeneratorOpen] = useState(false);
+    // Una contraseña generada se fija en ambos campos y los bloquea, para que
+    // no se edite a medias y deje de coincidir con la que se copió.
+    const [passwordLocked, setPasswordLocked] = useState(false);
+    const [clipboardNotice, setClipboardNotice] = useState(null);
 
     const isEditing = Boolean(user);
     const canViewPriceTable = Form.useWatch('can_view_price_table', form);
@@ -37,6 +46,28 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
               permiso_precios_pemex: false,
               estaciones_asignadas: [],
           };
+
+    const handleUseGeneratedPassword = async (password) => {
+        form.setFieldsValue({ password, password_confirmation: password });
+        setPasswordLocked(true);
+        setGeneratorOpen(false);
+
+        const copied = await copyToClipboard(password);
+        setClipboardNotice(
+            copied
+                ? 'Contraseña copiada al portapapeles. Resguárdala antes de salir.'
+                : 'No se pudo copiar automáticamente: cópiala desde el campo antes de guardar.',
+        );
+
+        // Limpia los errores previos de "contraseñas no coinciden".
+        form.validateFields(['password', 'password_confirmation']).catch(() => {});
+    };
+
+    const handleUnlockPassword = () => {
+        form.setFieldsValue({ password: '', password_confirmation: '' });
+        setPasswordLocked(false);
+        setClipboardNotice(null);
+    };
 
     const handleSubmit = (values) => {
         const payload = {
@@ -135,7 +166,11 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                 validateStatus={errors.password ? 'error' : undefined}
                                 help={errors.password}
                             >
-                                <Input.Password placeholder="Mínimo 8 caracteres" autoComplete="new-password" />
+                                <Input.Password
+                                    placeholder="Mínimo 8 caracteres"
+                                    autoComplete="new-password"
+                                    readOnly={passwordLocked}
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -154,8 +189,40 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                         },
                                     }),
                                 ]}
+                                extra={
+                                    clipboardNotice ? (
+                                        <Space size={6} wrap>
+                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                                {clipboardNotice}
+                                            </Text>
+                                            <Button
+                                                type="link"
+                                                size="small"
+                                                style={{ padding: 0, height: 'auto', fontSize: 12 }}
+                                                onClick={handleUnlockPassword}
+                                            >
+                                                Escribir otra
+                                            </Button>
+                                        </Space>
+                                    ) : undefined
+                                }
                             >
-                                <Input.Password placeholder="Repita la contraseña" autoComplete="new-password" />
+                                <Input.Password
+                                    placeholder="Repita la contraseña"
+                                    autoComplete="new-password"
+                                    readOnly={passwordLocked}
+                                    addonAfter={
+                                        <Tooltip title="Generar contraseña segura">
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<KeyOutlined />}
+                                                aria-label="Generar contraseña segura"
+                                                onClick={() => setGeneratorOpen(true)}
+                                            />
+                                        </Tooltip>
+                                    }
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
@@ -263,6 +330,12 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                     </Form.Item>
                 </Form>
             </Card>
+
+            <PasswordGeneratorModal
+                open={generatorOpen}
+                onCancel={() => setGeneratorOpen(false)}
+                onUse={handleUseGeneratedPassword}
+            />
         </PageContainer>
     );
 }
