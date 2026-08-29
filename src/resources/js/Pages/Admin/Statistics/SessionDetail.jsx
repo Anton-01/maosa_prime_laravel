@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import { Button, Card, Descriptions, Flex, Space, Table, Tabs, Tag, Typography } from 'antd';
 import { ArrowLeftOutlined, EyeOutlined, InteractionOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import ActivityMetadata from '../../../Components/ActivityMetadata';
 
 const { Text } = Typography;
 
@@ -47,6 +48,13 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
             key: 'description',
             ellipsis: true,
             render: (value) => value ?? '—',
+        },
+        {
+            title: 'Detalle',
+            dataIndex: 'metadata',
+            key: 'metadata',
+            width: 320,
+            render: (value) => <ActivityMetadata metadata={value} />,
         },
         {
             title: 'URL',

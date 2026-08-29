@@ -15,15 +15,18 @@ use Illuminate\Support\Facades\DB;
 class StatisticsService
 {
     /**
-     * Column used to group each breakdown type.
+     * Column used to group each breakdown type. `group` permite agrupar por
+     * una expresión distinta de la columna filtrada; las páginas se agrupan
+     * por su nombre legible (config/tracking.php) para que cada módulo cuente
+     * como una sola fila en vez de una por variante de URL.
      *
-     * @var array<string, array{model: class-string, column: string}>
+     * @var array<string, array{model: class-string, column: string, group?: string}>
      */
     private const BREAKDOWNS = [
         'devices' => ['model' => UserSession::class, 'column' => 'device_type'],
         'browsers' => ['model' => UserSession::class, 'column' => 'browser'],
         'countries' => ['model' => UserSession::class, 'column' => 'country'],
-        'pages' => ['model' => PageVisit::class, 'column' => 'url'],
+        'pages' => ['model' => PageVisit::class, 'column' => 'url', 'group' => 'COALESCE(page_title, url)'],
     ];
 
     /**
@@ -61,16 +64,17 @@ class StatisticsService
         abort_unless(isset(self::BREAKDOWNS[$type]), 404);
 
         ['model' => $model, 'column' => $column] = self::BREAKDOWNS[$type];
+        $group = self::BREAKDOWNS[$type]['group'] ?? $column;
         [$dateFrom, $dateTo] = $this->range($request);
 
         $query = $model::query()
-            ->selectRaw("{$column} as label, COUNT(*) as total")
+            ->selectRaw("{$group} as label, COUNT(*) as total")
             ->whereBetween('created_at', [$dateFrom, $dateTo . ' 23:59:59'])
             ->whereNotNull($column)
-            ->groupBy($column);
+            ->groupByRaw($group);
 
         if ($search = $request->string('search')->toString()) {
-            $query->where($column, 'like', "%{$search}%");
+            $query->whereRaw("{$group} LIKE ?", ["%{$search}%"]);
         }
 
         $sortField = $request->input('sort_field');
@@ -299,6 +303,7 @@ class StatisticsService
                     'id' => $activity->id,
                     'type' => $activity->activity_type,
                     'description' => $activity->activity_description,
+                    'metadata' => $activity->metadata,
                     'url' => $activity->url,
                     'createdAt' => $activity->created_at?->format('d/m/Y H:i:s'),
                 ]),
@@ -326,6 +331,7 @@ class StatisticsService
                 'id' => $activity->id,
                 'type' => $activity->activity_type,
                 'description' => $activity->activity_description,
+                'metadata' => $activity->metadata,
                 'url' => $activity->url,
                 'createdAt' => $activity->created_at?->format('d/m/Y H:i:s'),
             ])->all(),

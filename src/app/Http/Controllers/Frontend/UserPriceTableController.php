@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Services\MaosaPriceApiService;
+use App\Services\UserTrackingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -11,7 +12,10 @@ use Inertia\Inertia;
 
 class UserPriceTableController extends Controller
 {
-    public function __construct(private MaosaPriceApiService $apiService) {}
+    public function __construct(
+        private MaosaPriceApiService $apiService,
+        private UserTrackingService $tracking,
+    ) {}
 
     public function index(): \Inertia\Response
     {
@@ -81,6 +85,18 @@ class UserPriceTableController extends Controller
 
         $apiResponse = $this->apiService->getPriceHtml($idStations, $effectiveDate ?: null);
 
+        $this->tracking->logActivity(
+            UserTrackingService::ACTIVITY_PRECIOS_INTERNACIONALES_CONSULTA,
+            "Consultó los precios internacionales de la estación {$idStations}",
+            [
+                'modulo' => 'precios_internacionales',
+                'id_estacion' => $idStations,
+                'fecha_vigencia' => $effectiveDate ?: null,
+                'formato' => 'HTML',
+                'estado_http' => $apiResponse->status(),
+            ],
+        );
+
         if ($apiResponse->status() === 404) {
             return response('<p class="text-center text-muted py-4">Sin precios disponibles para la fecha seleccionada.</p>', 200)->header('Content-Type', 'text/html');
         }
@@ -130,6 +146,17 @@ class UserPriceTableController extends Controller
         if (empty($pdfContents)) {
             abort(502, 'No fue posible obtener los PDF de precios. Intente más tarde.');
         }
+
+        $this->tracking->logActivity(
+            UserTrackingService::ACTIVITY_PRECIOS_INTERNACIONALES_PDF,
+            'Descargó el PDF de precios internacionales',
+            [
+                'modulo' => 'precios_internacionales',
+                'estaciones' => array_map('intval', $stationIds),
+                'fecha_vigencia' => $dateString,
+                'formato' => 'pdf',
+            ],
+        );
 
         $filename = 'maosa-prime-precios-combustible-' . $effectiveDate->format('Y-m-d') . '.pdf';
 

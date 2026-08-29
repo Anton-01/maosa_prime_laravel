@@ -4,6 +4,7 @@ import { Button, DatePicker, Flex, Select, Space, Table, Tag, Typography } from 
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PageContainer from '../../../Components/PageContainer';
+import ActivityMetadata from '../../../Components/ActivityMetadata';
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -52,6 +53,13 @@ export default function Activities({ user, dateFrom, dateTo, activityType, activ
             key: 'description',
             ellipsis: true,
             render: (value) => value ?? '—',
+        },
+        {
+            title: 'Detalle',
+            dataIndex: 'metadata',
+            key: 'metadata',
+            width: 320,
+            render: (value) => <ActivityMetadata metadata={value} />,
         },
         {
             title: 'URL',

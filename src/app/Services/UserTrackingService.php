@@ -12,6 +12,21 @@ use Jenssegers\Agent\Agent;
 
 class UserTrackingService
 {
+    /** Consulta del layout de precios internacionales de una estación. */
+    public const ACTIVITY_PRECIOS_INTERNACIONALES_CONSULTA = 'precios_internacionales.consulta';
+
+    /** Descarga del PDF de precios internacionales. */
+    public const ACTIVITY_PRECIOS_INTERNACIONALES_PDF = 'precios_internacionales.descarga_pdf';
+
+    /** Consulta del layout de precios PEMEX de una estación. */
+    public const ACTIVITY_PRECIOS_PEMEX_CONSULTA = 'precios_pemex.consulta';
+
+    /** Descarga del Excel de precios PEMEX. */
+    public const ACTIVITY_PRECIOS_PEMEX_EXCEL = 'precios_pemex.descarga_excel';
+
+    /** Descarga del PDF de precios PEMEX. */
+    public const ACTIVITY_PRECIOS_PEMEX_PDF = 'precios_pemex.descarga_pdf';
+
     protected ?Agent $agent = null;
 
     /**
@@ -136,7 +151,7 @@ class UserTrackingService
             'user_session_id' => $sessionId,
             'url' => $request->fullUrl(),
             'route_name' => $request->route()?->getName(),
-            'page_title' => null, // Will be updated via JS if needed
+            'page_title' => $this->resolvePageTitle($request),
             'referrer' => $request->header('referer'),
             'ip_address' => $request->ip(),
             'visited_at' => now(),
@@ -149,6 +164,22 @@ class UserTrackingService
         session(['current_page_visit_id' => $pageVisit->id]);
 
         return $pageVisit;
+    }
+
+    /**
+     * Nombre legible de la página a partir del nombre de la ruta
+     * (config/tracking.php). Permite agrupar las visitas por módulo en las
+     * estadísticas en vez de por URL suelta.
+     */
+    protected function resolvePageTitle(Request $request): ?string
+    {
+        $routeName = $request->route()?->getName();
+
+        if (!$routeName) {
+            return null;
+        }
+
+        return config("tracking.page_titles.{$routeName}");
     }
 
     /**
@@ -199,17 +230,28 @@ class UserTrackingService
         string $type,
         ?string $description = null,
         ?array $metadata = null
-    ): UserActivity {
-        return UserActivity::create([
-            'user_id' => auth()->id(),
-            'user_session_id' => session('user_session_id'),
-            'page_visit_id' => session('current_page_visit_id'),
-            'activity_type' => $type,
-            'activity_description' => $description,
-            'url' => request()->fullUrl(),
-            'metadata' => $metadata,
-            'ip_address' => request()->ip(),
-        ]);
+    ): ?UserActivity {
+        try {
+            return UserActivity::create([
+                'user_id' => auth()->id(),
+                'user_session_id' => session('user_session_id'),
+                'page_visit_id' => session('current_page_visit_id'),
+                'activity_type' => $type,
+                'activity_description' => $description,
+                'url' => request()->fullUrl(),
+                'metadata' => $metadata,
+                'ip_address' => request()->ip(),
+            ]);
+        } catch (\Throwable $e) {
+            // La trazabilidad nunca debe tumbar la acción del usuario
+            // (una descarga, por ejemplo): se registra el fallo y se sigue.
+            logger()->warning('No fue posible registrar la actividad del usuario', [
+                'activity_type' => $type,
+                'exception' => $e,
+            ]);
+
+            return null;
+        }
     }
 
     /**

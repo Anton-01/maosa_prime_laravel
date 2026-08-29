@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\EstacionNacional;
 use App\Models\User;
 use App\Services\PrecioPemexApiService;
+use App\Services\UserTrackingService;
 use Illuminate\Http\Client\Response as ApiResponse;
 use Illuminate\Http\Response;
 use Inertia\Inertia;
@@ -22,7 +23,10 @@ use Inertia\Response as InertiaResponse;
  */
 class PrecioPemexController extends Controller
 {
-    public function __construct(private readonly PrecioPemexApiService $api) {}
+    public function __construct(
+        private readonly PrecioPemexApiService $api,
+        private readonly UserTrackingService $tracking,
+    ) {}
 
     /**
      * Vista del submódulo con las estaciones asignadas al usuario (REQ-06).
@@ -48,6 +52,14 @@ class PrecioPemexController extends Controller
 
         $response = $this->api->layoutHtml($idEstacion);
 
+        $this->logActivity(
+            UserTrackingService::ACTIVITY_PRECIOS_PEMEX_CONSULTA,
+            "Consultó los precios PEMEX de la estación {$idEstacion}",
+            $idEstacion,
+            'HTML',
+            ['estado_http' => $response->status()],
+        );
+
         if (! $response->successful()) {
             return response($this->htmlMessage($response->status()), 200)
                 ->header('Content-Type', 'text/html; charset=utf-8');
@@ -64,11 +76,21 @@ class PrecioPemexController extends Controller
     {
         $this->authorizeStation($idEstacion);
 
-        return $this->download(
+        $archivo = $this->download(
             $this->api->layoutExcel($idEstacion),
             "precios-pemex-estacion-{$idEstacion}-" . now()->format('Y-m-d') . '.xlsx',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         );
+
+        // Se registra después de la descarga para no contar los intentos fallidos.
+        $this->logActivity(
+            UserTrackingService::ACTIVITY_PRECIOS_PEMEX_EXCEL,
+            "Descargó el Excel de precios PEMEX de la estación {$idEstacion}",
+            $idEstacion,
+            'Excel',
+        );
+
+        return $archivo;
     }
 
     /**
@@ -78,11 +100,40 @@ class PrecioPemexController extends Controller
     {
         $this->authorizeStation($idEstacion);
 
-        return $this->download(
+        $archivo = $this->download(
             $this->api->layoutPdf($idEstacion),
             "precios-pemex-estacion-{$idEstacion}-" . now()->format('Y-m-d') . '.pdf',
             'application/pdf',
         );
+
+        $this->logActivity(
+            UserTrackingService::ACTIVITY_PRECIOS_PEMEX_PDF,
+            "Descargó el PDF de precios PEMEX de la estación {$idEstacion}",
+            $idEstacion,
+            'pdf',
+        );
+
+        return $archivo;
+    }
+
+    /**
+     * Deja traza de lo que el usuario hace dentro del módulo (consultas y
+     * descargas por estación). La actividad se ata a la última visita de
+     * página registrada, así queda dentro de la sesión de navegación.
+     */
+    private function logActivity(
+        string $tipo,
+        string $descripcion,
+        int $idEstacion,
+        string $formato,
+        array $extra = [],
+    ): void {
+        $this->tracking->logActivity($tipo, $descripcion, [
+            'modulo' => 'precios_pemex',
+            'id_estacion' => $idEstacion,
+            'formato' => $formato,
+            ...$extra,
+        ]);
     }
 
     /**

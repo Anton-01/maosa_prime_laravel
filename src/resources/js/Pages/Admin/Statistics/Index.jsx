@@ -267,7 +267,7 @@ export default function Index({ dateFrom, dateTo, metrics, urls }) {
                 <BreakdownTable
                     dataUrl={`${urls.dataBase}/pages`}
                     exportUrl={`${urls.exportBase}/pages`}
-                    labelTitle="Página (URL)"
+                    labelTitle="Página"
                     dateRange={dateRange}
                 />
             ),

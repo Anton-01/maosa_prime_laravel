@@ -36,7 +36,8 @@ class StatisticsExportController extends Controller
             'browsers'     => $this->exportBreakdown($request, UserSession::class, 'browser', 'Navegadores', 'Navegador'),
             'countries'    => $this->exportBreakdown($request, UserSession::class, 'country', 'Paises', 'País'),
             'devices'      => $this->exportBreakdown($request, UserSession::class, 'device_type', 'Dispositivos', 'Dispositivo'),
-            'pages'        => $this->exportBreakdown($request, PageVisit::class, 'url', 'Paginas', 'Página (URL)'),
+            // Mismo agrupado que la pantalla: nombre legible y, si falta, la URL.
+            'pages'        => $this->exportBreakdown($request, PageVisit::class, 'url', 'Paginas', 'Página', 'COALESCE(page_title, url)'),
             'active-users' => $this->exportActiveUsers($request),
             default        => abort(404),
         };
@@ -47,21 +48,30 @@ class StatisticsExportController extends Controller
      *
      * @param  class-string<\Illuminate\Database\Eloquent\Model>  $modelClass
      */
-    private function exportBreakdown(Request $request, string $modelClass, string $column, string $sheetTitle, string $labelTitle)
-    {
+    private function exportBreakdown(
+        Request $request,
+        string $modelClass,
+        string $column,
+        string $sheetTitle,
+        string $labelTitle,
+        ?string $group = null,
+    ) {
         [$from, $to] = $this->range($request);
 
-        // $column es un literal fijo (browser/country/device_type/url), no entrada del usuario.
+        // $column y $group son literales fijos definidos aquí, no entrada del usuario.
+        $group ??= $column;
+
         $query = $modelClass::query()
-            ->selectRaw("{$column} as label, COUNT(*) as total")
+            ->selectRaw("{$group} as label, COUNT(*) as total")
             ->whereBetween('created_at', [$from, $to . ' 23:59:59'])
             ->whereNotNull($column)
-            ->groupBy($column)
+            ->groupByRaw($group)
             ->orderByDesc('total');
 
         $keys = $this->selectedKeys($request);
         if (!empty($keys)) {
-            $query->whereIn($column, $keys);
+            $placeholders = implode(', ', array_fill(0, count($keys), '?'));
+            $query->whereRaw("{$group} IN ({$placeholders})", $keys);
         }
 
         $rows = $query->get();
