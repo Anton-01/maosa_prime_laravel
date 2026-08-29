@@ -3,12 +3,14 @@ import { router, usePage } from '@inertiajs/react';
 import { Button, Form, Typography } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import HtmlEditor from '../../../../Components/HtmlEditor';
+import useTranslation from '../../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 /** Shared form for pages that only edit one HTML content field. */
 export default function HtmlContentForm({ content, submitUrl, description }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +35,7 @@ export default function HtmlContentForm({ content, submitUrl, description }) {
 
             <Form.Item
                 name="description"
-                rules={[{ required: true, message: 'El contenido es obligatorio.' }]}
+                rules={[{ required: true, message: t('pages.content_required') }]}
                 validateStatus={errors.description ? 'error' : undefined}
                 help={errors.description}
                 style={{ marginTop: 16 }}
@@ -43,7 +45,7 @@ export default function HtmlContentForm({ content, submitUrl, description }) {
 
             <Form.Item>
                 <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={submitting}>
-                    Actualizar
+                    {t('common.update')}
                 </Button>
             </Form.Item>
         </Form>

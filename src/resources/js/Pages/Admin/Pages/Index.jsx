@@ -7,11 +7,13 @@ import {
     InfoCircleOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 import AboutForm from './Partials/AboutForm';
 import ContactForm from './Partials/ContactForm';
 import HtmlContentForm from './Partials/HtmlContentForm';
 
 export default function Index({ initialTab, about, contact, privacyPolicy, terms, urls }) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState(initialTab || 'about');
 
     const handleTabChange = (tabKey) => {
@@ -22,37 +24,37 @@ export default function Index({ initialTab, about, contact, privacyPolicy, terms
     const tabItems = [
         {
             key: 'about',
-            label: 'Sobre nosotros',
+            label: t('pages.tab_about'),
             icon: <InfoCircleOutlined />,
             children: <AboutForm about={about} submitUrl={urls.aboutUpdate} />,
         },
         {
             key: 'contact',
-            label: 'Contacto',
+            label: t('pages.tab_contact'),
             icon: <EnvironmentOutlined />,
             children: <ContactForm contact={contact} submitUrl={urls.contactUpdate} />,
         },
         {
             key: 'privacy-policy',
-            label: 'Política de privacidad',
+            label: t('pages.tab_privacy'),
             icon: <FileProtectOutlined />,
             children: (
                 <HtmlContentForm
                     content={privacyPolicy.description}
                     submitUrl={urls.privacyPolicyUpdate}
-                    description="Contenido de la página de política de privacidad."
+                    description={t('pages.privacy_description')}
                 />
             ),
         },
         {
             key: 'terms',
-            label: 'Términos y condiciones',
+            label: t('pages.tab_terms'),
             icon: <FileTextOutlined />,
             children: (
                 <HtmlContentForm
                     content={terms.description}
                     submitUrl={urls.termsUpdate}
-                    description="Contenido de la página de términos y condiciones."
+                    description={t('pages.terms_description')}
                 />
             ),
         },
@@ -60,8 +62,8 @@ export default function Index({ initialTab, about, contact, privacyPolicy, terms
 
     return (
         <PageContainer
-            title="Páginas"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Páginas' }]}
+            title={t('pages.title')}
+            breadcrumbItems={[{ title: t('common.control_panel') }, { title: t('pages.title') }]}
             wrapInCard={false}
         >
             <Card>

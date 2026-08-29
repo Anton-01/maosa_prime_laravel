@@ -4,11 +4,13 @@ import { Button, Form, Image, Input, Space, Typography, Upload } from 'antd';
 import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import HtmlEditor from '../../../../Components/HtmlEditor';
 import ImageDropUpload from '../../../../Components/ImageDropUpload';
+import useTranslation from '../../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function AboutForm({ about, submitUrl }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState(null);
@@ -54,7 +56,7 @@ export default function AboutForm({ about, submitUrl }) {
             }}
         >
             <Form.Item
-                label="Imagen"
+                label={t('pages.image')}
                 validateStatus={errors.image ? 'error' : undefined}
                 help={errors.image}
             >
@@ -67,11 +69,11 @@ export default function AboutForm({ about, submitUrl }) {
             </Form.Item>
 
             <Form.Item
-                label="URL del video"
+                label={t('pages.video_url')}
                 name="video_url"
                 rules={[
-                    { required: true, message: 'La URL del video es obligatoria.' },
-                    { type: 'url', message: 'Debe ser una URL válida.' },
+                    { required: true, message: t('pages.video_url_required') },
+                    { type: 'url', message: t('common.url_invalid') },
                 ]}
                 validateStatus={errors.video_url ? 'error' : undefined}
                 help={errors.video_url}
@@ -80,19 +82,19 @@ export default function AboutForm({ about, submitUrl }) {
             </Form.Item>
 
             <Form.Item
-                label="Descripción"
+                label={t('common.description')}
                 name="description"
-                rules={[{ required: true, message: 'La descripción es obligatoria.' }]}
+                rules={[{ required: true, message: t('listings.description_required') }]}
                 validateStatus={errors.description ? 'error' : undefined}
                 help={errors.description}
             >
-                <HtmlEditor placeholder="Contenido de la página Sobre nosotros" />
+                <HtmlEditor placeholder={t('pages.about_description_placeholder')} />
             </Form.Item>
 
             <Form.Item
-                label="URL del botón"
+                label={t('pages.button_url')}
                 name="button_url"
-                rules={[{ type: 'url', message: 'Debe ser una URL válida.' }]}
+                rules={[{ type: 'url', message: t('common.url_invalid') }]}
                 validateStatus={errors.button_url ? 'error' : undefined}
                 help={errors.button_url}
             >
@@ -101,7 +103,7 @@ export default function AboutForm({ about, submitUrl }) {
 
             <Form.Item>
                 <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={submitting}>
-                    Actualizar
+                    {t('common.update')}
                 </Button>
             </Form.Item>
         </Form>

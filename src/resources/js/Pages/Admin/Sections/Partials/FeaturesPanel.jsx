@@ -21,6 +21,7 @@ import {
     SearchOutlined,
 } from '@ant-design/icons';
 import HtmlEditor from '../../../../Components/HtmlEditor';
+import useTranslation from '../../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -33,6 +34,7 @@ const STATUS_ACTIVE = 1;
  */
 export default function FeaturesPanel({ features, baseUrl }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingFeature, setEditingFeature] = useState(null);
@@ -100,48 +102,48 @@ export default function FeaturesPanel({ features, baseUrl }) {
 
     const columns = [
         {
-            title: 'Icono',
+            title: t('sections.icon'),
             dataIndex: 'icon',
             key: 'icon',
             width: 220,
             render: (icon) => <Text code>{icon}</Text>,
         },
         {
-            title: 'Título',
+            title: t('common.title'),
             dataIndex: 'title',
             key: 'title',
             sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
-            title: 'Descripción corta',
+            title: t('sections.short_description'),
             dataIndex: 'shortDescription',
             key: 'shortDescription',
             ellipsis: true,
         },
         {
-            title: 'Estatus',
+            title: t('common.status'),
             dataIndex: 'status',
             key: 'status',
             width: 120,
             filters: [
-                { text: 'Activo', value: STATUS_ACTIVE },
-                { text: 'Inactivo', value: 0 },
+                { text: t('common.active'), value: STATUS_ACTIVE },
+                { text: t('common.inactive'), value: 0 },
             ],
             onFilter: (value, record) => record.status === value,
             render: (status) =>
                 status === STATUS_ACTIVE ? (
-                    <Tag color="success">Activo</Tag>
+                    <Tag color="success">{t('common.active')}</Tag>
                 ) : (
-                    <Tag color="error">Inactivo</Tag>
+                    <Tag color="error">{t('common.inactive')}</Tag>
                 ),
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 120,
             render: (_, record) => (
                 <Flex gap="small">
-                    <Tooltip title="Editar">
+                    <Tooltip title={t('common.edit')}>
                         <Button
                             type="primary"
                             size="small"
@@ -150,10 +152,10 @@ export default function FeaturesPanel({ features, baseUrl }) {
                         />
                     </Tooltip>
                     <Popconfirm
-                        title="Eliminar función"
-                        description="¿Seguro que deseas eliminar esta función?"
-                        okText="Eliminar"
-                        cancelText="Cancelar"
+                        title={t('sections.delete_feature')}
+                        description={t('sections.delete_feature_confirm')}
+                        okText={t('common.delete')}
+                        cancelText={t('common.cancel')}
                         okButtonProps={{ danger: true }}
                         onConfirm={() => handleDelete(record)}
                     >
@@ -170,13 +172,13 @@ export default function FeaturesPanel({ features, baseUrl }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por título o descripción"
+                    placeholder={t('sections.search_by_title_or_description')}
                     style={{ maxWidth: 320 }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                 />
                 <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
-                    Nueva función
+                    {t('sections.new_feature')}
                 </Button>
             </Flex>
 
@@ -189,18 +191,18 @@ export default function FeaturesPanel({ features, baseUrl }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} funciones`,
+                    showTotal: (total) => t('sections.total_features', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay funciones registradas' }}
+                locale={{ emptyText: t('sections.no_features') }}
             />
 
             <Modal
-                title={editingFeature ? 'Editar función' : 'Nueva función'}
+                title={editingFeature ? t('sections.edit_feature') : t('sections.new_feature')}
                 open={modalOpen}
                 onCancel={() => setModalOpen(false)}
                 onOk={() => form.submit()}
-                okText={editingFeature ? 'Actualizar' : 'Crear'}
-                cancelText="Cancelar"
+                okText={editingFeature ? t('common.update') : t('common.create')}
+                cancelText={t('common.cancel')}
                 confirmLoading={submitting}
                 destroyOnHidden
             >
@@ -208,14 +210,14 @@ export default function FeaturesPanel({ features, baseUrl }) {
                     <Form.Item
                         label={
                             <>
-                                Icono&nbsp;
-                                <Tooltip title="Clase de icono FontAwesome que se muestra en el sitio público, por ejemplo: fas fa-star">
+                                {t('sections.icon')}&nbsp;
+                                <Tooltip title={t('sections.icon_tooltip')}>
                                     <QuestionCircleOutlined />
                                 </Tooltip>
                             </>
                         }
                         name="icon"
-                        rules={[{ required: true, message: 'El icono es obligatorio.' }]}
+                        rules={[{ required: true, message: t('sections.icon_required') }]}
                         validateStatus={errors.icon ? 'error' : undefined}
                         help={errors.icon}
                     >
@@ -223,9 +225,9 @@ export default function FeaturesPanel({ features, baseUrl }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Título"
+                        label={t('common.title')}
                         name="title"
-                        rules={[{ required: true, message: 'El título es obligatorio.' }]}
+                        rules={[{ required: true, message: t('sections.title_required') }]}
                         validateStatus={errors.title ? 'error' : undefined}
                         help={errors.title}
                     >
@@ -233,26 +235,26 @@ export default function FeaturesPanel({ features, baseUrl }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Descripción corta"
+                        label={t('sections.short_description')}
                         name="short_description"
-                        rules={[{ required: true, message: 'La descripción corta es obligatoria.' }]}
+                        rules={[{ required: true, message: t('sections.short_description_required') }]}
                         validateStatus={errors.short_description ? 'error' : undefined}
                         help={errors.short_description}
                     >
-                        <HtmlEditor rows={3} placeholder="Descripción corta" />
+                        <HtmlEditor rows={3} placeholder={t('sections.short_description')} />
                     </Form.Item>
 
                     <Form.Item
-                        label="Estatus"
+                        label={t('common.status')}
                         name="status"
-                        rules={[{ required: true, message: 'El estatus es obligatorio.' }]}
+                        rules={[{ required: true, message: t('catalog.status_required') }]}
                         validateStatus={errors.status ? 'error' : undefined}
                         help={errors.status}
                     >
                         <Select
                             options={[
-                                { value: STATUS_ACTIVE, label: 'Activo' },
-                                { value: 0, label: 'Inactivo' },
+                                { value: STATUS_ACTIVE, label: t('common.active') },
+                                { value: 0, label: t('common.inactive') },
                             ]}
                         />
                     </Form.Item>

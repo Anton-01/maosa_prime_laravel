@@ -7,6 +7,7 @@ import {
     StarOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 import BannerForm from './Partials/BannerForm';
 import FeaturesPanel from './Partials/FeaturesPanel';
 import SectionTitlesForm from './Partials/SectionTitlesForm';
@@ -19,6 +20,7 @@ export default function Index({
     sectionTitles,
     urls,
 }) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState(initialTab || 'private-banner');
 
     const handleTabChange = (tabKey) => {
@@ -32,37 +34,37 @@ export default function Index({
     const tabItems = [
         {
             key: 'private-banner',
-            label: 'Banner',
+            label: t('sections.tab_banner'),
             icon: <PictureOutlined />,
             children: (
                 <BannerForm
                     hero={privateHero}
                     submitUrl={urls.privateHeroUpdate}
-                    description="Banner principal que ven los usuarios autenticados."
+                    description={t('sections.private_banner_description')}
                 />
             ),
         },
         {
             key: 'public-banner',
-            label: 'Banner público',
+            label: t('sections.tab_public_banner'),
             icon: <GlobalOutlined />,
             children: (
                 <BannerForm
                     hero={publicHero}
                     submitUrl={urls.publicHeroUpdate}
-                    description="Banner que ven los visitantes sin sesión iniciada."
+                    description={t('sections.public_banner_description')}
                 />
             ),
         },
         {
             key: 'features',
-            label: 'Nuestras funciones',
+            label: t('sections.tab_features'),
             icon: <StarOutlined />,
             children: <FeaturesPanel features={features} baseUrl={urls.featuresBase} />,
         },
         {
             key: 'titles',
-            label: 'Títulos de secciones',
+            label: t('sections.tab_titles'),
             icon: <FontSizeOutlined />,
             children: (
                 <SectionTitlesForm
@@ -75,8 +77,8 @@ export default function Index({
 
     return (
         <PageContainer
-            title="Secciones"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Secciones' }]}
+            title={t('sections.title')}
+            breadcrumbItems={[{ title: t('common.control_panel') }, { title: t('sections.title') }]}
             wrapInCard={false}
         >
             <Card>

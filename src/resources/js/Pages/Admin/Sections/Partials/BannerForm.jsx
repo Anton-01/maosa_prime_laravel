@@ -4,6 +4,7 @@ import { Alert, Button, Form, Image, Input, Space, Typography, Upload } from 'an
 import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import HtmlEditor from '../../../../Components/HtmlEditor';
 import ImageDropUpload from '../../../../Components/ImageDropUpload';
+import useTranslation from '../../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -13,6 +14,7 @@ const { Text } = Typography;
  */
 export default function BannerForm({ hero, submitUrl, description }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
     const [backgroundFile, setBackgroundFile] = useState(null);
@@ -28,7 +30,7 @@ export default function BannerForm({ hero, submitUrl, description }) {
     }, [hero, form]);
 
     if (!hero) {
-        return <Alert type="warning" showIcon message="No hay un banner activo configurado." />;
+        return <Alert type="warning" showIcon message={t('sections.no_active_banner')} />;
     }
 
     const handleSelectFile = (file) => {
@@ -65,7 +67,7 @@ export default function BannerForm({ hero, submitUrl, description }) {
 
             <Form form={form} layout="vertical" onFinish={handleSubmit} disabled={submitting}>
                 <Form.Item
-                    label="Imagen de fondo"
+                    label={t('sections.background_image')}
                     validateStatus={errors.background ? 'error' : undefined}
                     help={errors.background}
                 >
@@ -78,23 +80,23 @@ export default function BannerForm({ hero, submitUrl, description }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Título"
+                    label={t('common.title')}
                     name="title"
-                    rules={[{ required: true, message: 'El título es obligatorio.' }]}
+                    rules={[{ required: true, message: t('sections.title_required') }]}
                     validateStatus={errors.title ? 'error' : undefined}
                     help={errors.title}
                 >
-                    <Input maxLength={255} showCount placeholder="Título del banner" />
+                    <Input maxLength={255} showCount placeholder={t('sections.banner_title')} />
                 </Form.Item>
 
                 <Form.Item
-                    label="Sub título"
+                    label={t('sections.subtitle')}
                     name="sub_title"
-                    rules={[{ required: true, message: 'El sub título es obligatorio.' }]}
+                    rules={[{ required: true, message: t('sections.subtitle_required') }]}
                     validateStatus={errors.sub_title ? 'error' : undefined}
                     help={errors.sub_title}
                 >
-                    <HtmlEditor rows={3} placeholder="Sub título del banner" />
+                    <HtmlEditor rows={3} placeholder={t('sections.subtitle_placeholder')} />
                 </Form.Item>
 
                 <Form.Item>
@@ -104,7 +106,7 @@ export default function BannerForm({ hero, submitUrl, description }) {
                         icon={<SaveOutlined />}
                         loading={submitting}
                     >
-                        Actualizar
+                        {t('common.update')}
                     </Button>
                 </Form.Item>
             </Form>

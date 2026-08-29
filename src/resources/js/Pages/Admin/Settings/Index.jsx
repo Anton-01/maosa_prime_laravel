@@ -10,11 +10,13 @@ import {
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import ImageDropUpload from '../../../Components/ImageDropUpload';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 function GeneralSettingsForm({ general, submitUrl }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
@@ -37,9 +39,9 @@ function GeneralSettingsForm({ general, submitUrl }) {
             style={{ maxWidth: 640 }}
         >
             <Form.Item
-                label="Nombre del sitio"
+                label={t('settings.site_name')}
                 name="site_name"
-                rules={[{ required: true, message: 'El nombre del sitio es obligatorio.' }]}
+                rules={[{ required: true, message: t('settings.site_name_required') }]}
                 validateStatus={errors.site_name ? 'error' : undefined}
                 help={errors.site_name}
             >
@@ -47,11 +49,11 @@ function GeneralSettingsForm({ general, submitUrl }) {
             </Form.Item>
 
             <Form.Item
-                label="Email del sitio"
+                label={t('settings.site_email')}
                 name="site_email"
                 rules={[
-                    { required: true, message: 'El email del sitio es obligatorio.' },
-                    { type: 'email', message: 'Debe ser un email válido.' },
+                    { required: true, message: t('settings.site_email_required') },
+                    { type: 'email', message: t('common.email_invalid') },
                 ]}
                 validateStatus={errors.site_email ? 'error' : undefined}
                 help={errors.site_email}
@@ -60,9 +62,9 @@ function GeneralSettingsForm({ general, submitUrl }) {
             </Form.Item>
 
             <Form.Item
-                label="Teléfono del sitio"
+                label={t('settings.site_phone')}
                 name="site_phone"
-                rules={[{ required: true, message: 'El teléfono del sitio es obligatorio.' }]}
+                rules={[{ required: true, message: t('settings.site_phone_required') }]}
                 validateStatus={errors.site_phone ? 'error' : undefined}
                 help={errors.site_phone}
             >
@@ -71,7 +73,7 @@ function GeneralSettingsForm({ general, submitUrl }) {
 
             <Form.Item style={{ marginBottom: 0 }}>
                 <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={submitting}>
-                    Actualizar
+                    {t('common.update')}
                 </Button>
             </Form.Item>
         </Form>
@@ -80,6 +82,7 @@ function GeneralSettingsForm({ general, submitUrl }) {
 
 function LogoSettingsForm({ logos, submitUrl }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [submitting, setSubmitting] = useState(false);
     const [logoFile, setLogoFile] = useState(null);
     const [faviconFile, setFaviconFile] = useState(null);
@@ -111,7 +114,7 @@ function LogoSettingsForm({ logos, submitUrl }) {
         <Space direction="vertical" size="large" style={{ display: 'flex', maxWidth: 640 }}>
             <div>
                 <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                    Logo
+                    {t('settings.logo')}
                 </Text>
                 <ImageDropUpload
                     value={logoFile}
@@ -124,7 +127,7 @@ function LogoSettingsForm({ logos, submitUrl }) {
 
             <div>
                 <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                    Favicon
+                    {t('settings.favicon')}
                 </Text>
                 <ImageDropUpload
                     value={faviconFile}
@@ -142,7 +145,7 @@ function LogoSettingsForm({ logos, submitUrl }) {
                 disabled={!logoFile && !faviconFile}
                 onClick={handleSubmit}
             >
-                Actualizar
+                {t('common.update')}
             </Button>
         </Space>
     );
@@ -150,6 +153,7 @@ function LogoSettingsForm({ logos, submitUrl }) {
 
 function AppearanceSettingsForm({ appearance, submitUrl }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [color, setColor] = useState(appearance.site_default_color || '#6777ef');
     const [submitting, setSubmitting] = useState(false);
 
@@ -166,7 +170,7 @@ function AppearanceSettingsForm({ appearance, submitUrl }) {
         <Space direction="vertical" size="large" style={{ display: 'flex', maxWidth: 640 }}>
             <div>
                 <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                    Color por defecto del sitio
+                    {t('settings.default_color')}
                 </Text>
                 <Space>
                     <ColorPicker
@@ -184,13 +188,14 @@ function AppearanceSettingsForm({ appearance, submitUrl }) {
             </div>
 
             <Button type="primary" icon={<SaveOutlined />} loading={submitting} onClick={handleSubmit}>
-                Actualizar
+                {t('common.update')}
             </Button>
         </Space>
     );
 }
 
 export default function Index({ initialTab, general, logos, appearance, urls }) {
+    const { t } = useTranslation();
     const [activeTab, setActiveTab] = useState(initialTab || 'general');
 
     const handleTabChange = (tabKey) => {
@@ -201,19 +206,19 @@ export default function Index({ initialTab, general, logos, appearance, urls }) 
     const tabItems = [
         {
             key: 'general',
-            label: 'Ajustes generales',
+            label: t('settings.tab_general'),
             icon: <SettingOutlined />,
             children: <GeneralSettingsForm general={general} submitUrl={urls.generalUpdate} />,
         },
         {
             key: 'logos',
-            label: 'Logo y favicon',
+            label: t('settings.tab_logos'),
             icon: <PictureOutlined />,
             children: <LogoSettingsForm logos={logos} submitUrl={urls.logoUpdate} />,
         },
         {
             key: 'appearance',
-            label: 'Apariencia',
+            label: t('settings.tab_appearance'),
             icon: <BgColorsOutlined />,
             children: (
                 <AppearanceSettingsForm appearance={appearance} submitUrl={urls.appearanceUpdate} />
@@ -223,8 +228,8 @@ export default function Index({ initialTab, general, logos, appearance, urls }) 
 
     return (
         <PageContainer
-            title="Ajustes"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Ajustes' }]}
+            title={t('settings.title')}
+            breadcrumbItems={[{ title: t('common.control_panel') }, { title: t('settings.title') }]}
             wrapInCard={false}
         >
             <Card>

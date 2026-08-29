@@ -4,9 +4,11 @@ import { Button, Col, Form, Input, Row } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import HtmlEditor from '../../../Components/HtmlEditor';
+import useTranslation from '../../../Hooks/useTranslation';
 
 export default function Index({ footerInfo, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
@@ -21,8 +23,8 @@ export default function Index({ footerInfo, urls }) {
 
     return (
         <PageContainer
-            title="Footer"
-            breadcrumbItems={[{ title: 'Panel de Control' }, { title: 'Footer' }]}
+            title={t('footer.title')}
+            breadcrumbItems={[{ title: t('common.control_panel') }, { title: t('footer.title') }]}
         >
             <Form
                 form={form}
@@ -32,21 +34,21 @@ export default function Index({ footerInfo, urls }) {
                 initialValues={footerInfo}
             >
                 <Form.Item
-                    label="Descripción corta"
+                    label={t('footer.short_description')}
                     name="short_description"
-                    rules={[{ required: true, message: 'La descripción corta es obligatoria.' }]}
+                    rules={[{ required: true, message: t('footer.short_description_required') }]}
                     validateStatus={errors.short_description ? 'error' : undefined}
                     help={errors.short_description}
                 >
-                    <HtmlEditor rows={3} placeholder="Descripción corta del footer" />
+                    <HtmlEditor rows={3} placeholder={t('footer.short_description_placeholder')} />
                 </Form.Item>
 
                 <Row gutter={24}>
                     <Col xs={24} md={12}>
                         <Form.Item
-                            label="Dirección"
+                            label={t('common.address')}
                             name="address"
-                            rules={[{ required: true, message: 'La dirección es obligatoria.' }]}
+                            rules={[{ required: true, message: t('common.address_required') }]}
                             validateStatus={errors.address ? 'error' : undefined}
                             help={errors.address}
                         >
@@ -55,11 +57,11 @@ export default function Index({ footerInfo, urls }) {
                     </Col>
                     <Col xs={24} md={12}>
                         <Form.Item
-                            label="Email"
+                            label={t('common.email')}
                             name="email"
                             rules={[
-                                { required: true, message: 'El email es obligatorio.' },
-                                { type: 'email', message: 'Debe ser un email válido.' },
+                                { required: true, message: t('common.email_required') },
+                                { type: 'email', message: t('common.email_invalid') },
                             ]}
                             validateStatus={errors.email ? 'error' : undefined}
                             help={errors.email}
@@ -69,9 +71,9 @@ export default function Index({ footerInfo, urls }) {
                     </Col>
                     <Col xs={24} md={12}>
                         <Form.Item
-                            label="Teléfono"
+                            label={t('common.phone')}
                             name="phone"
-                            rules={[{ required: true, message: 'El teléfono es obligatorio.' }]}
+                            rules={[{ required: true, message: t('common.phone_required') }]}
                             validateStatus={errors.phone ? 'error' : undefined}
                             help={errors.phone}
                         >
@@ -80,9 +82,9 @@ export default function Index({ footerInfo, urls }) {
                     </Col>
                     <Col xs={24} md={12}>
                         <Form.Item
-                            label="Copyright"
+                            label={t('footer.copyright')}
                             name="copyright"
-                            rules={[{ required: true, message: 'El copyright es obligatorio.' }]}
+                            rules={[{ required: true, message: t('footer.copyright_required') }]}
                             validateStatus={errors.copyright ? 'error' : undefined}
                             help={errors.copyright}
                         >
@@ -93,7 +95,7 @@ export default function Index({ footerInfo, urls }) {
 
                 <Form.Item style={{ marginBottom: 0 }}>
                     <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={submitting}>
-                        Actualizar
+                        {t('common.update')}
                     </Button>
                 </Form.Item>
             </Form>
