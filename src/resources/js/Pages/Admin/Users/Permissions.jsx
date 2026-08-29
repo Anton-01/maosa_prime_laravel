@@ -16,6 +16,7 @@ import {
 } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -25,6 +26,7 @@ const { Text } = Typography;
  */
 export default function Permissions({ user, allPermissionsGrouped, directPermissions, rolePermissions, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [selected, setSelected] = useState(new Set(directPermissions));
     const [submitting, setSubmitting] = useState(false);
 
@@ -59,16 +61,16 @@ export default function Permissions({ user, allPermissionsGrouped, directPermiss
 
     return (
         <PageContainer
-            title={`Permisos directos: ${user.name}`}
+            title={t('users.permissions_title', { name: user.name })}
             breadcrumbItems={[
-                { title: 'Gestión de accesos' },
-                { title: 'Usuarios', href: urls.base },
-                { title: 'Permisos directos' },
+                { title: t('users.breadcrumb_access') },
+                { title: t('users.breadcrumb_users'), href: urls.base },
+                { title: t('users.direct_permissions') },
             ]}
             extra={
                 <Space wrap>
                     <Link href={urls.show}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver al detalle</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_detail')}</Button>
                     </Link>
                     <Button
                         type="primary"
@@ -77,7 +79,7 @@ export default function Permissions({ user, allPermissionsGrouped, directPermiss
                         disabled={user.isSuperAdmin}
                         onClick={handleSubmit}
                     >
-                        Guardar permisos
+                        {t('users.permissions_save')}
                     </Button>
                 </Space>
             }
@@ -88,7 +90,7 @@ export default function Permissions({ user, allPermissionsGrouped, directPermiss
                     <Alert
                         type="warning"
                         showIcon
-                        message="No se pueden modificar permisos directos del Super Admin."
+                        message={t('users.permissions_super_admin')}
                     />
                 )}
 
@@ -104,14 +106,13 @@ export default function Permissions({ user, allPermissionsGrouped, directPermiss
                         ))}
                     </Space>
                     <Text type="secondary" style={{ display: 'block' }}>
-                        Los permisos deshabilitados ya están otorgados por el rol del usuario.
-                        Marca permisos adicionales para asignarlos de forma directa.
+                        {t('users.permissions_edit_hint')}
                     </Text>
 
                     {groupedEntries.map(([groupName, permissions]) => (
                         <React.Fragment key={groupName || 'general'}>
                             <Divider orientation="left" orientationMargin={0}>
-                                {groupName || 'General'}
+                                {groupName || t('common.general')}
                             </Divider>
                             <Row gutter={[16, 8]}>
                                 {permissions.map((permission) => {
@@ -122,7 +123,7 @@ export default function Permissions({ user, allPermissionsGrouped, directPermiss
                                             <Tooltip
                                                 title={
                                                     inheritedFromRole
-                                                        ? 'Otorgado por el rol del usuario'
+                                                        ? t('users.permissions_from_role')
                                                         : undefined
                                                 }
                                             >

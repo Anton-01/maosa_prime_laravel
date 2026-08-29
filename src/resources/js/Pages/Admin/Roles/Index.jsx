@@ -3,10 +3,12 @@ import { Link, router } from '@inertiajs/react';
 import { Button, Flex, Popconfirm, Space, Table, Tag, Tooltip } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const VISIBLE_PERMISSION_TAGS = 6;
 
 export default function Index({ roles, urls }) {
+    const { t } = useTranslation();
     const [deleting, setDeleting] = useState(false);
 
     const handleDelete = (role) => {
@@ -20,7 +22,7 @@ export default function Index({ roles, urls }) {
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id', width: 70 },
         {
-            title: 'Rol',
+            title: t('roles.role'),
             dataIndex: 'name',
             key: 'name',
             width: 200,
@@ -29,12 +31,12 @@ export default function Index({ roles, urls }) {
                 record.isProtected ? <Tag color="red">{name}</Tag> : <Tag color="green">{name}</Tag>,
         },
         {
-            title: 'Permisos',
+            title: t('roles.permissions'),
             dataIndex: 'permissions',
             key: 'permissions',
             render: (permissions, record) => {
                 if (record.isProtected) {
-                    return <Tag color="red">Todos los permisos</Tag>;
+                    return <Tag color="red">{t('roles.all_permissions')}</Tag>;
                 }
 
                 const visible = permissions.slice(0, VISIBLE_PERMISSION_TAGS);
@@ -49,7 +51,7 @@ export default function Index({ roles, urls }) {
                         ))}
                         {hidden > 0 && (
                             <Tooltip title={permissions.slice(VISIBLE_PERMISSION_TAGS).join(', ')}>
-                                <Tag>+{hidden} más</Tag>
+                                <Tag>{t('roles.more', { count: hidden })}</Tag>
                             </Tooltip>
                         )}
                     </Space>
@@ -57,22 +59,22 @@ export default function Index({ roles, urls }) {
             },
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 120,
             render: (_, record) =>
                 record.isProtected ? null : (
                     <Flex gap="small">
-                        <Tooltip title="Editar">
+                        <Tooltip title={t('common.edit')}>
                             <Link href={`${urls.base}/${record.id}/edit`}>
                                 <Button type="primary" size="small" icon={<EditOutlined />} />
                             </Link>
                         </Tooltip>
                         <Popconfirm
-                            title="Eliminar rol"
-                            description={`¿Seguro que deseas eliminar "${record.name}"?`}
-                            okText="Eliminar"
-                            cancelText="Cancelar"
+                            title={t('roles.delete_title')}
+                            description={t('roles.delete_confirm', { name: record.name })}
+                            okText={t('common.delete')}
+                            cancelText={t('common.cancel')}
                             okButtonProps={{ danger: true }}
                             onConfirm={() => handleDelete(record)}
                         >
@@ -85,12 +87,12 @@ export default function Index({ roles, urls }) {
 
     return (
         <PageContainer
-            title="Roles y permisos"
-            breadcrumbItems={[{ title: 'Gestión de accesos' }, { title: 'Roles y permisos' }]}
+            title={t('roles.title')}
+            breadcrumbItems={[{ title: t('users.breadcrumb_access') }, { title: t('roles.title') }]}
             extra={
                 <Link href={urls.create}>
                     <Button type="primary" icon={<PlusOutlined />}>
-                        Nuevo rol
+                        {t('roles.new')}
                     </Button>
                 </Link>
             }
@@ -104,9 +106,9 @@ export default function Index({ roles, urls }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} roles`,
+                    showTotal: (total) => t('roles.total', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay roles registrados' }}
+                locale={{ emptyText: t('roles.empty') }}
             />
         </PageContainer>
     );

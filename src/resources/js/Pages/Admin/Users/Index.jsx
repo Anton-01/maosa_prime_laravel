@@ -16,10 +16,12 @@ import {
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import useDataTable from '../../../Hooks/useDataTable';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function Index({ stations, urls }) {
+    const { t } = useTranslation();
     const [modal, contextHolder] = Modal.useModal();
     const [searchValue, setSearchValue] = useState('');
     const [stationFilter, setStationFilter] = useState(null);
@@ -59,11 +61,11 @@ export default function Index({ stations, urls }) {
 
     const handleDelete = (user) => {
         modal.confirm({
-            title: 'Eliminar usuario',
+            title: t('users.delete_title'),
             icon: <ExclamationCircleOutlined />,
-            content: `¿Seguro que deseas eliminar a "${user.name}"?`,
-            okText: 'Eliminar',
-            cancelText: 'Cancelar',
+            content: t('users.delete_confirm', { name: user.name }),
+            okText: t('common.delete'),
+            cancelText: t('common.cancel'),
             okButtonProps: { danger: true },
             onOk: () =>
                 router.delete(`${urls.base}/${user.id}`, {
@@ -76,7 +78,7 @@ export default function Index({ stations, urls }) {
 
     const columns = [
         {
-            title: 'Nombre',
+            title: t('users.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: true,
@@ -88,7 +90,7 @@ export default function Index({ stations, urls }) {
             ),
         },
         {
-            title: 'Correo',
+            title: t('users.email'),
             dataIndex: 'email',
             key: 'email',
             sorter: true,
@@ -101,28 +103,28 @@ export default function Index({ stations, urls }) {
                                 {record.role}
                             </Tag>
                         ) : (
-                            <Tag style={{ marginInlineEnd: 0 }}>Sin rol</Tag>
+                            <Tag style={{ marginInlineEnd: 0 }}>{t('users.no_role')}</Tag>
                         )}
                     </div>
                 </div>
             ),
         },
         {
-            title: 'Aprobado',
+            title: t('users.approved'),
             dataIndex: 'isApproved',
             key: 'isApproved',
             width: 110,
             render: (isApproved, record) => (
                 <Switch
                     checked={isApproved}
-                    checkedChildren="Sí"
-                    unCheckedChildren="No"
+                    checkedChildren={t('common.yes')}
+                    unCheckedChildren={t('common.no')}
                     onChange={() => handleToggleApproval(record)}
                 />
             ),
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 110,
             render: (_, record) => (
@@ -132,19 +134,27 @@ export default function Index({ stations, urls }) {
                             {
                                 key: 'show',
                                 icon: <EyeOutlined />,
-                                label: <Link href={`${urls.base}/${record.id}`}>Ver detalle</Link>,
+                                label: (
+                                    <Link href={`${urls.base}/${record.id}`}>
+                                        {t('users.view_detail')}
+                                    </Link>
+                                ),
                             },
                             {
                                 key: 'edit',
                                 icon: <EditOutlined />,
-                                label: <Link href={`${urls.base}/${record.id}/edit`}>Editar</Link>,
+                                label: (
+                                    <Link href={`${urls.base}/${record.id}/edit`}>
+                                        {t('common.edit')}
+                                    </Link>
+                                ),
                             },
                             {
                                 key: 'permissions',
                                 icon: <KeyOutlined />,
                                 label: (
                                     <Link href={`${urls.permissionsBase}/${record.id}/edit`}>
-                                        Permisos directos
+                                        {t('users.direct_permissions')}
                                     </Link>
                                 ),
                             },
@@ -153,7 +163,7 @@ export default function Index({ stations, urls }) {
                                 icon: <BarChartOutlined />,
                                 label: (
                                     <Link href={`${urls.statisticsBase}/${record.id}`}>
-                                        Estadísticas
+                                        {t('nav.statistics')}
                                     </Link>
                                 ),
                             },
@@ -161,7 +171,7 @@ export default function Index({ stations, urls }) {
                             {
                                 key: 'delete',
                                 icon: <DeleteOutlined />,
-                                label: 'Eliminar',
+                                label: t('common.delete'),
                                 danger: true,
                                 disabled: record.isSuperAdmin,
                                 onClick: () => handleDelete(record),
@@ -170,7 +180,7 @@ export default function Index({ stations, urls }) {
                     }}
                 >
                     <Button size="small" icon={<MoreOutlined />}>
-                        Acciones
+                        {t('common.actions')}
                     </Button>
                 </Dropdown>
             ),
@@ -179,19 +189,22 @@ export default function Index({ stations, urls }) {
 
     return (
         <PageContainer
-            title="Usuarios"
-            breadcrumbItems={[{ title: 'Gestión de accesos' }, { title: 'Usuarios' }]}
+            title={t('users.title')}
+            breadcrumbItems={[
+                { title: t('users.breadcrumb_access') },
+                { title: t('users.breadcrumb_users') },
+            ]}
             extra={
                 <Space wrap>
                     <Button icon={<DownloadOutlined />} href={urls.export}>
-                        Exportar Excel
+                        {t('users.export_excel')}
                     </Button>
                     <Link href={urls.import}>
-                        <Button icon={<UploadOutlined />}>Importar usuarios</Button>
+                        <Button icon={<UploadOutlined />}>{t('users.import')}</Button>
                     </Link>
                     <Link href={urls.create}>
                         <Button type="primary" icon={<PlusOutlined />}>
-                            Nuevo usuario
+                            {t('users.create_title')}
                         </Button>
                     </Link>
                 </Space>
@@ -203,7 +216,7 @@ export default function Index({ stations, urls }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por nombre o correo"
+                    placeholder={t('users.search_placeholder')}
                     style={{ maxWidth: 320 }}
                     value={searchValue}
                     onChange={(event) => handleSearchChange(event.target.value)}
@@ -212,7 +225,7 @@ export default function Index({ stations, urls }) {
                     allowClear
                     showSearch
                     optionFilterProp="label"
-                    placeholder="Todas las estaciones"
+                    placeholder={t('users.all_stations')}
                     style={{ minWidth: 240 }}
                     options={stations}
                     value={stationFilter}
@@ -233,9 +246,9 @@ export default function Index({ stations, urls }) {
                     pageSize: tableParams.perPage,
                     total,
                     showSizeChanger: true,
-                    showTotal: (totalRows) => `${totalRows} usuarios`,
+                    showTotal: (totalRows) => t('users.total', { count: totalRows }),
                 }}
-                locale={{ emptyText: 'No hay usuarios registrados' }}
+                locale={{ emptyText: t('users.empty') }}
             />
         </PageContainer>
     );

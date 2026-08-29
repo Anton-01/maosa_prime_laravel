@@ -3,30 +3,32 @@ import { Link } from '@inertiajs/react';
 import { Alert, Button, Card, Flex, Typography, theme } from 'antd';
 import { ArrowLeftOutlined, DownloadOutlined, RedoOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Paragraph } = Typography;
 
 export default function ImportResult({ content, filename, urls }) {
+    const { t } = useTranslation();
     const { token } = theme.useToken();
 
     return (
         <PageContainer
-            title="Resultado de la importación"
+            title={t('user_import.result_title')}
             breadcrumbItems={[
-                { title: 'Gestión de accesos' },
-                { title: 'Usuarios', href: urls.users },
-                { title: 'Resultado de importación' },
+                { title: t('users.breadcrumb_access') },
+                { title: t('users.breadcrumb_users'), href: urls.users },
+                { title: t('user_import.result_breadcrumb') },
             ]}
             extra={
                 <Flex gap="small" wrap>
                     <Link href={urls.import}>
-                        <Button icon={<RedoOutlined />}>Nueva importación</Button>
+                        <Button icon={<RedoOutlined />}>{t('user_import.new_import')}</Button>
                     </Link>
                     <Link href={urls.users}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver a usuarios</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('user_import.back_to_users')}</Button>
                     </Link>
                     <Button type="primary" icon={<DownloadOutlined />} href={urls.download}>
-                        Descargar reporte ({filename})
+                        {t('user_import.download_report', { filename })}
                     </Button>
                 </Flex>
             }
@@ -36,8 +38,8 @@ export default function ImportResult({ content, filename, urls }) {
                 <Alert
                     type="warning"
                     showIcon
-                    message="Descarga el reporte antes de salir"
-                    description="El reporte incluye las contraseñas generadas y solo está disponible en esta sesión; al descargarlo se elimina del servidor."
+                    message={t('user_import.warning_title')}
+                    description={t('user_import.warning_description')}
                 />
 
                 <Card>

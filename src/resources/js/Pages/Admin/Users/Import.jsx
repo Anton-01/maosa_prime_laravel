@@ -9,19 +9,17 @@ import {
     UploadOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 const { Dragger } = Upload;
 
-const IMPORT_NOTES = [
-    'Las columnas NOMBRE y EMAIL son obligatorias (el email debe ser único).',
-    'Los usuarios importados tendrán rol "User" y estado aprobado.',
-    'La contraseña se genera automáticamente (12 caracteres seguros).',
-    'Al finalizar podrás descargar un TXT con el resultado y las contraseñas asignadas.',
-];
+/** Claves de las notas de la pantalla, en el orden en que se listan. */
+const IMPORT_NOTE_KEYS = ['note_columns', 'note_role', 'note_password', 'note_report'];
 
 export default function Import({ urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [file, setFile] = useState(null);
     const [uploading, setUploading] = useState(false);
 
@@ -36,38 +34,38 @@ export default function Import({ urls }) {
 
     return (
         <PageContainer
-            title="Importar usuarios"
+            title={t('user_import.title')}
             breadcrumbItems={[
-                { title: 'Gestión de accesos' },
-                { title: 'Usuarios', href: urls.users },
-                { title: 'Importar' },
+                { title: t('users.breadcrumb_access') },
+                { title: t('users.breadcrumb_users'), href: urls.users },
+                { title: t('user_import.breadcrumb') },
             ]}
             extra={
                 <Flex gap="small" wrap>
                     <Link href={urls.users}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver a usuarios</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('user_import.back_to_users')}</Button>
                     </Link>
                     <Button icon={<DownloadOutlined />} href={urls.layout}>
-                        Descargar layout
+                        {t('user_import.download_layout')}
                     </Button>
                 </Flex>
             }
             wrapInCard={false}
         >
             <Flex vertical gap={16} style={{ maxWidth: 720 }}>
-                <Card title="Instrucciones">
+                <Card title={t('user_import.instructions')}>
                     <List
                         size="small"
-                        dataSource={IMPORT_NOTES}
-                        renderItem={(note) => (
+                        dataSource={IMPORT_NOTE_KEYS}
+                        renderItem={(key) => (
                             <List.Item>
-                                <Text>{note}</Text>
+                                <Text>{t(`user_import.${key}`)}</Text>
                             </List.Item>
                         )}
                     />
                 </Card>
 
-                <Card title="Archivo Excel">
+                <Card title={t('user_import.excel_file')}>
                     {errors.excel_file && (
                         <Alert
                             type="error"
@@ -91,9 +89,9 @@ export default function Import({ urls }) {
                             {file ? <FileExcelOutlined /> : <InboxOutlined />}
                         </p>
                         <p className="ant-upload-text">
-                            {file ? file.name : 'Haz clic o arrastra el archivo Excel aquí'}
+                            {file ? file.name : t('user_import.dropzone')}
                         </p>
-                        <p className="ant-upload-hint">Formatos permitidos: .xlsx, .xls</p>
+                        <p className="ant-upload-hint">{t('user_import.allowed_formats')}</p>
                     </Dragger>
 
                     <Button
@@ -104,7 +102,7 @@ export default function Import({ urls }) {
                         onClick={handleImport}
                         style={{ marginTop: 16 }}
                     >
-                        Importar usuarios
+                        {t('user_import.submit')}
                     </Button>
                 </Card>
             </Flex>

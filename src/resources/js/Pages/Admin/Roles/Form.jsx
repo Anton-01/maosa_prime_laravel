@@ -14,11 +14,13 @@ import {
 } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function RoleForm({ role, permissionsGrouped, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [roleName, setRoleName] = useState(role?.name ?? '');
     const [selected, setSelected] = useState(new Set(role?.permissions ?? []));
     const [submitting, setSubmitting] = useState(false);
@@ -77,15 +79,17 @@ export default function RoleForm({ role, permissionsGrouped, urls }) {
 
     return (
         <PageContainer
-            title={isEditing ? `Editar rol: ${role.name}` : 'Nuevo rol'}
+            title={
+                isEditing ? t('roles.edit_title', { name: role.name }) : t('roles.create_title')
+            }
             breadcrumbItems={[
-                { title: 'Gestión de accesos' },
-                { title: 'Roles y permisos', href: urls.base },
-                { title: isEditing ? 'Editar' : 'Crear' },
+                { title: t('users.breadcrumb_access') },
+                { title: t('roles.title'), href: urls.base },
+                { title: isEditing ? t('users.breadcrumb_edit') : t('users.breadcrumb_create') },
             ]}
             extra={
                 <Link href={urls.base}>
-                    <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                    <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                 </Link>
             }
             wrapInCard={false}
@@ -95,13 +99,13 @@ export default function RoleForm({ role, permissionsGrouped, urls }) {
 
                 <Card>
                     <Flex vertical gap={4} style={{ maxWidth: 420, marginBottom: 8 }}>
-                        <Text strong>Nombre del rol</Text>
+                        <Text strong>{t('roles.name')}</Text>
                         <Input
                             maxLength={40}
                             showCount
                             value={roleName}
                             onChange={(event) => setRoleName(event.target.value)}
-                            placeholder="Nombre del rol"
+                            placeholder={t('roles.name')}
                             status={errors.role_name ? 'error' : undefined}
                         />
                         {errors.role_name && <Text type="danger">{errors.role_name}</Text>}
@@ -116,14 +120,14 @@ export default function RoleForm({ role, permissionsGrouped, urls }) {
                         return (
                             <React.Fragment key={groupName || 'general'}>
                                 <Divider orientation="left" orientationMargin={0}>
-                                    {groupName || 'General'}
+                                    {groupName || t('common.general')}
                                     <Checkbox
                                         style={{ marginLeft: 12, fontWeight: 'normal' }}
                                         checked={allSelected}
                                         indeterminate={selectedInGroup > 0 && !allSelected}
                                         onChange={(event) => toggleGroup(permissions, event.target.checked)}
                                     >
-                                        Seleccionar todo
+                                        {t('common.select_all')}
                                     </Checkbox>
                                 </Divider>
                                 <Row gutter={[16, 8]}>
@@ -151,7 +155,7 @@ export default function RoleForm({ role, permissionsGrouped, urls }) {
                         onClick={handleSubmit}
                         style={{ marginTop: 24 }}
                     >
-                        {isEditing ? 'Actualizar rol' : 'Crear rol'}
+                        {isEditing ? t('roles.submit_update') : t('roles.submit_create')}
                     </Button>
                 </Card>
             </Flex>
