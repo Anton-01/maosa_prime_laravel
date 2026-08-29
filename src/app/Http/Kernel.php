@@ -88,6 +88,7 @@ class Kernel extends HttpKernel
         'role_or_permission' => RoleOrPermissionMiddleware::class,
         'honeypot' => Honeypot::class,
         'track.user.activity' => TrackUserActivity::class,
+        'precios.pemex' => \App\Http\Middleware\EnsurePreciosPemexAccess::class,
         'Agent' => Jenssegers\Agent\Facades\Agent::class,
     ];
 }

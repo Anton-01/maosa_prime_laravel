@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\RoleUserCreateRequest;
 use App\Http\Requests\Admin\RoleUserUpdateRequest;
 use App\Models\CatUsuarioImportado;
+use App\Models\EstacionNacional;
 use App\Models\User;
 use App\Services\Admin\UserManagementService;
 use Illuminate\Http\JsonResponse;
@@ -62,6 +63,7 @@ class RoleUserController extends Controller
             'user' => null,
             'roles' => $this->roleOptions(),
             'stations' => $this->stationOptions(),
+            'nationalStations' => $this->nationalStationOptions(),
             'urls' => [
                 'base' => route('admin.role-user.index'),
             ],
@@ -92,6 +94,7 @@ class RoleUserController extends Controller
             'user' => $this->userManagementService->getForEdit((int) $id),
             'roles' => $this->roleOptions(),
             'stations' => $this->stationOptions(),
+            'nationalStations' => $this->nationalStationOptions(),
             'urls' => [
                 'base' => route('admin.role-user.index'),
             ],
@@ -153,6 +156,17 @@ class RoleUserController extends Controller
             ->map(fn ($station) => ['value' => $station->id_estacion, 'label' => $station->estacion])
             ->values()
             ->all();
+    }
+
+    /**
+     * Estaciones activas del catálogo nacional (origen.cat_estacion_nacional)
+     * para el multiselect de "PRECIOS PEMEX" (REQ-02 / REQ-03).
+     *
+     * @return array<int, array{value: int, label: string}>
+     */
+    private function nationalStationOptions(): array
+    {
+        return EstacionNacional::comoOpciones();
     }
 
     /**

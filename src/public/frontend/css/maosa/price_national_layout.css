@@ -1,0 +1,359 @@
+/*
+ * price_national_layout.css
+ * -------------------------------------------------------------------------
+ * Estilos del layout de precios nacionales (PEMEX) que devuelve la API
+ * `/api/precio_pemex/layout/estacion/{id}/HTML`.
+ *
+ * El fragmento llega con estilos en línea (font-size, width, colores) que la
+ * API calcula por estación; por eso las reglas que deben ganarle a ese inline
+ * llevan `!important`. Todo está acotado a `.precio-layout` para no filtrarse
+ * al resto del panel.
+ *
+ * Estrategia responsiva:
+ *   - Escalas fluidas con clamp() en lugar de saltos bruscos por breakpoint.
+ *   - La tabla NUNCA se deforma: se desplaza en horizontal dentro de
+ *     `.table-responsive` (o del envoltorio que inyecta el componente React),
+ *     con la primera columna fija y una sombra que indica que hay más
+ *     contenido.
+ *   - Impresión / PDF: sin scroll, sin columnas fijas, sin sombras.
+ * -------------------------------------------------------------------------
+ */
+
+.precio-layout {
+    /* Puntos de ajuste del layout en un solo lugar. */
+    --pl-max-width: 900px;
+    --pl-padding: clamp(10px, 3vw, 32px);
+    --pl-gap: clamp(10px, 2.2vw, 16px);
+    --pl-font-size: clamp(11px, 2.6vw, 13px);
+    --pl-title-size: clamp(14px, 3.6vw, 20px);
+    --pl-meta-size: clamp(10px, 2.4vw, 12px);
+    --pl-cell-padding-y: clamp(3px, 0.9vw, 6px);
+    --pl-cell-padding-x: clamp(6px, 1.6vw, 10px);
+    --pl-table-min-width: 600px;
+    --pl-watermark-size: clamp(42px, 14vw, 100px);
+    --pl-watermark-color: #cbd5e1;
+    --pl-surface: #ffffff;
+    --pl-border: #e2e8f0;
+    --pl-logo-max-width: clamp(72px, 18vw, 140px);
+
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--pl-max-width);
+    margin: 0 auto;
+    padding: var(--pl-padding);
+    position: relative;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    font-size: var(--pl-font-size);
+    /* Evita que iOS reescale el texto al girar el dispositivo. */
+    -webkit-text-size-adjust: 100%;
+}
+
+.precio-layout *,
+.precio-layout *::before,
+.precio-layout *::after {
+    box-sizing: inherit;
+}
+
+/* Las imágenes del fragmento (logo, sellos) nunca desbordan. */
+.precio-layout img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ---------------------------------------------------------------- Marca de agua */
+
+.precio-layout .wm {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    overflow: hidden;
+    /* Detrás del contenido, pase lo que pase con el orden del markup. */
+    z-index: 0;
+}
+
+.precio-layout .wm span {
+    font-size: var(--pl-watermark-size) !important;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--pl-watermark-color);
+    opacity: 0.55;
+    user-select: none;
+    transform: rotate(-30deg);
+}
+
+/* ---------------------------------------------------------------- Encabezado */
+
+.precio-layout .pl-header {
+    text-align: center;
+    margin-bottom: var(--pl-gap);
+    padding-bottom: clamp(8px, 1.8vw, 12px);
+    position: relative;
+    z-index: 1;
+}
+
+.precio-layout .pl-header h2 {
+    margin: 0;
+    font-size: var(--pl-title-size) !important;
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: 0.5px;
+    /* Nombres de estación largos parten en varias líneas en móvil. */
+    overflow-wrap: anywhere;
+}
+
+.precio-layout .pl-header .tipo,
+.precio-layout .pl-header .fecha {
+    font-size: var(--pl-meta-size) !important;
+}
+
+.precio-layout .pl-header .tipo {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.precio-layout .pl-header .fecha {
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* ---------------------------------------------------------------- Tabla */
+
+/*
+ * Envoltorio con scroll horizontal. `.table-responsive` es el que emite la
+ * API; `.pl-table-scroll` es el que añade el componente React cuando el
+ * fragmento llega sin envoltorio propio.
+ */
+.precio-layout .table-responsive,
+.precio-layout .pl-table-scroll,
+.table-responsive {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    margin-bottom: var(--pl-gap);
+    /* Sombra a la derecha mientras quede contenido por desplazar. */
+    background:
+        linear-gradient(to right, var(--pl-surface) 30%, rgba(255, 255, 255, 0)) left center,
+        linear-gradient(to left, var(--pl-surface) 30%, rgba(255, 255, 255, 0)) right center,
+        radial-gradient(farthest-side at 0 50%, rgba(15, 23, 42, 0.16), rgba(15, 23, 42, 0)) left center,
+        radial-gradient(farthest-side at 100% 50%, rgba(15, 23, 42, 0.16), rgba(15, 23, 42, 0)) right center;
+    background-repeat: no-repeat;
+    background-size: 32px 100%, 32px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+}
+
+/* Barra de scroll discreta pero visible (pista de que hay más columnas). */
+.precio-layout .table-responsive::-webkit-scrollbar,
+.precio-layout .pl-table-scroll::-webkit-scrollbar,
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.precio-layout .table-responsive::-webkit-scrollbar-thumb,
+.precio-layout .pl-table-scroll::-webkit-scrollbar-thumb,
+.table-responsive::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.45);
+    border-radius: 8px;
+}
+
+.precio-layout table {
+    width: 100%;
+    /* Sin encoger por debajo de lo legible: a partir de ahí, scroll. */
+    min-width: var(--pl-table-min-width);
+    border-collapse: collapse;
+    position: relative;
+    font-size: inherit !important;
+    font-variant-numeric: tabular-nums;
+}
+
+.precio-layout th,
+.precio-layout td {
+    padding: var(--pl-cell-padding-y) var(--pl-cell-padding-x) !important;
+    vertical-align: middle;
+}
+
+.precio-layout th {
+    font-weight: 600;
+}
+
+.precio-layout th.prod-h {
+    text-align: center;
+    font-weight: 700;
+    color: #fff;
+}
+
+.precio-layout td {
+    white-space: nowrap;
+}
+
+.precio-layout td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Primera columna fija durante el scroll horizontal. */
+.precio-layout table th:first-child,
+.precio-layout table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background-color: var(--pl-surface);
+    /* El nombre de la estación/producto sí puede partirse. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 46vw;
+}
+
+.precio-layout table th:first-child {
+    z-index: 3;
+}
+
+.precio-layout table th:first-child::after,
+.precio-layout table td:first-child::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    border-right: 1px solid var(--pl-border);
+}
+
+/* ---------------------------------------------------------------- Notas */
+
+.precio-layout .pl-notas {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--pl-gap);
+    border-radius: 4px;
+    /* El hueco a la derecha era para el logo: sólo se reserva en escritorio. */
+    padding: clamp(8px, 1.8vw, 10px) clamp(10px, 2vw, 14px);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- Pie */
+
+.precio-layout .pl-footer {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--pl-gap);
+    min-height: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.precio-layout .pl-footer .logo {
+    align-self: flex-end;
+}
+
+.precio-layout .pl-footer .logo img {
+    max-width: var(--pl-logo-max-width);
+    height: auto !important;
+    object-fit: contain;
+}
+
+/* ---------------------------------------------------------------- Escritorio */
+
+@media screen and (min-width: 769px) {
+    /* Hueco para el logo superpuesto sólo cuando hay ancho de sobra. */
+    .precio-layout .pl-notas {
+        padding-right: 120px;
+    }
+
+    .precio-layout .pl-footer {
+        display: block;
+    }
+
+    .precio-layout .pl-footer .logo {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+/* ---------------------------------------------------------------- Móvil */
+
+@media screen and (max-width: 480px) {
+    .precio-layout {
+        /* Menos ancho mínimo para reducir el desplazamiento en pantallas chicas. */
+        --pl-table-min-width: 520px;
+    }
+}
+
+/* Pantallas muy angostas (≤360px) o texto muy ampliado. */
+@media screen and (max-width: 360px) {
+    .precio-layout {
+        --pl-table-min-width: 460px;
+        --pl-cell-padding-x: 5px;
+    }
+
+    .precio-layout table th:first-child,
+    .precio-layout table td:first-child {
+        max-width: 38vw;
+    }
+}
+
+/* ---------------------------------------------------------------- Accesibilidad */
+
+@media (prefers-reduced-motion: reduce) {
+    .precio-layout .table-responsive,
+    .precio-layout .pl-table-scroll {
+        scroll-behavior: auto;
+    }
+}
+
+@media (forced-colors: active) {
+    .precio-layout table th:first-child,
+    .precio-layout table td:first-child {
+        background-color: Canvas;
+    }
+}
+
+/* ---------------------------------------------------------------- Impresión / PDF */
+
+@media print {
+    .precio-layout {
+        --pl-padding: 0;
+        --pl-table-min-width: 0;
+        max-width: none;
+        overflow: visible;
+        font-size: 10px;
+    }
+
+    .precio-layout .table-responsive,
+    .precio-layout .pl-table-scroll,
+    .table-responsive {
+        overflow: visible !important;
+        background: none !important;
+    }
+
+    /* Las columnas fijas no aplican en papel y rompen la paginación. */
+    .precio-layout table th:first-child,
+    .precio-layout table td:first-child {
+        position: static;
+        max-width: none;
+    }
+
+    .precio-layout table {
+        width: 100% !important;
+        page-break-inside: auto;
+    }
+
+    .precio-layout tr {
+        page-break-inside: avoid;
+    }
+
+    .precio-layout .wm span {
+        color: #e2e8f0;
+    }
+}

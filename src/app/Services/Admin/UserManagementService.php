@@ -4,6 +4,7 @@ namespace App\Services\Admin;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -76,8 +77,10 @@ class UserManagementService
         $user->user_type = 'admin';
         $user->is_approved = $request->boolean('is_approved') ? 1 : 0;
         $this->applyPriceTableSettings($user, $request);
+        $this->applyPemexPermission($user, $request);
         $user->save();
 
+        $this->syncAssignedStations($user, $data);
         $user->syncRoles($data['role']);
         $this->flushPermissionCache();
 
@@ -101,8 +104,10 @@ class UserManagementService
         }
 
         $this->applyPriceTableSettings($user, $request);
+        $this->applyPemexPermission($user, $request);
         $user->save();
 
+        $this->syncAssignedStations($user, $data);
         $user->syncRoles($data['role']);
         $this->flushPermissionCache();
 
@@ -142,6 +147,8 @@ class UserManagementService
             'is_approved' => (int) $user->is_approved,
             'can_view_price_table' => (bool) $user->can_view_price_table,
             'id_estacion' => $user->id_estacion,
+            'permiso_precios_pemex' => (bool) $user->permiso_precios_pemex,
+            'estaciones_asignadas' => $user->estacionesAsignadasIds(),
             'isSuperAdmin' => $user->hasRole('Super Admin'),
         ];
     }
@@ -222,6 +229,8 @@ class UserManagementService
             'address' => $user->address,
             'isApproved' => (bool) $user->is_approved,
             'canViewPriceTable' => (bool) $user->can_view_price_table,
+            'permisoPreciosPemex' => (bool) $user->permiso_precios_pemex,
+            'assignedStationIds' => $user->estacionesAsignadasIds(),
             'stationId' => $user->id_estacion,
             'partnerId' => $user->id_socio,
             'createdAt' => $user->created_at?->format('d/m/Y H:i'),
@@ -233,6 +242,56 @@ class UserManagementService
                 ->map(fn ($permissions) => $permissions->pluck('name')->values())
                 ->toArray(),
         ];
+    }
+
+    /**
+     * Apply the "PRECIOS PEMEX" permission toggle (REQ-02).
+     */
+    private function applyPemexPermission(User $user, Request $request): void
+    {
+        $user->permiso_precios_pemex = $request->boolean('permiso_precios_pemex');
+    }
+
+    /**
+     * Sync the stations assigned to the user in the `usuario_estacion` pivot
+     * (REQ-02). Without the permission the assignment is cleared, so a user
+     * can never keep stations they are no longer allowed to consult.
+     *
+     * The pivot is written directly (instead of through the relation) because
+     * the related catalog lives in the `origen` schema as a foreign table:
+     * only the two key columns are touched.
+     *
+     * @param array<string, mixed> $data Validated payload.
+     */
+    private function syncAssignedStations(User $user, array $data): void
+    {
+        $stationIds = $user->permiso_precios_pemex
+            ? collect($data['estaciones_asignadas'] ?? [])
+                ->map(fn ($id) => (int) $id)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all()
+            : [];
+
+        DB::transaction(function () use ($user, $stationIds) {
+            DB::table(User::PIVOT_USUARIO_ESTACION)
+                ->where(User::PIVOT_USUARIO_KEY, $user->id)
+                ->delete();
+
+            if ($stationIds === []) {
+                return;
+            }
+
+            DB::table(User::PIVOT_USUARIO_ESTACION)->insert(
+                array_map(fn (int $stationId) => [
+                    User::PIVOT_USUARIO_KEY => $user->id,
+                    User::PIVOT_ESTACION_KEY => $stationId,
+                ], $stationIds)
+            );
+        });
+
+        $user->unsetRelation('estacionesAsignadas');
     }
 
     /**

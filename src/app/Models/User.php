@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,7 +24,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'email', 'password', 'can_view_price_table', 'is_approved', 'user_type',
-        'id_socio', 'id_estacion',
+        'id_socio', 'id_estacion', 'permiso_precios_pemex',
     ];
 
     /**
@@ -44,9 +45,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'can_view_price_table' => 'boolean',
+        'permiso_precios_pemex' => 'boolean',
         'id_socio' => 'integer',
         'id_estacion' => 'integer',
     ];
+
+    /**
+     * Tabla pivote usuario <-> estación del catálogo nacional (REQ-01).
+     * Creada fuera de las migraciones de la aplicación.
+     */
+    public const PIVOT_USUARIO_ESTACION = 'usuario_estacion';
+
+    /** Columna de la pivote que apunta al usuario. */
+    public const PIVOT_USUARIO_KEY = 'user_id';
+
+    /** Columna de la pivote que apunta a la estación del catálogo. */
+    public const PIVOT_ESTACION_KEY = 'id_estacion';
 
     /**
      * Get the sessions for the user.
@@ -78,6 +92,55 @@ class User extends Authenticatable
     public function navigationFlows(): HasMany
     {
         return $this->hasMany(UserNavigationFlow::class);
+    }
+
+    /**
+     * Estaciones del catálogo nacional asignadas al usuario (REQ-02),
+     * a través de la tabla pivote `usuario_estacion`.
+     */
+    public function estacionesAsignadas(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            EstacionNacional::class,
+            self::PIVOT_USUARIO_ESTACION,
+            self::PIVOT_USUARIO_KEY,
+            self::PIVOT_ESTACION_KEY,
+            'id',
+            'id_estacion',
+        );
+    }
+
+    /**
+     * Ids de las estaciones asignadas leídos directamente de la pivote, sin
+     * tocar la foreign table del catálogo (que puede no estar disponible).
+     *
+     * @return array<int, int>
+     */
+    public function estacionesAsignadasIds(): array
+    {
+        return DB::table(self::PIVOT_USUARIO_ESTACION)
+            ->where(self::PIVOT_USUARIO_KEY, $this->id)
+            ->pluck(self::PIVOT_ESTACION_KEY)
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Permiso de acceso al submódulo "Precios PEMEX" (REQ-02 / REQ-04).
+     */
+    public function tienePermisoPreciosPemex(): bool
+    {
+        return (bool) $this->permiso_precios_pemex;
+    }
+
+    /**
+     * ¿La estación pertenece a las asignadas al usuario?
+     */
+    public function tieneEstacionAsignada(int $idEstacion): bool
+    {
+        return in_array($idEstacion, $this->estacionesAsignadasIds(), true);
     }
 
     /**

@@ -17,6 +17,7 @@ import {
     AppstoreOutlined,
     DashboardOutlined,
     DollarOutlined,
+    FundProjectionScreenOutlined,
     HomeOutlined,
     LogoutOutlined,
     MenuFoldOutlined,
@@ -88,6 +89,15 @@ export default function UserLayout({ children }) {
                 icon: <DollarOutlined />,
                 title: 'Tabla de precios',
                 label: <Link href={appUrls.priceTable}>Tabla de precios</Link>,
+            });
+        }
+        // REQ-04: el submódulo sólo aparece si el usuario tiene el permiso.
+        if (user?.permiso_precios_pemex) {
+            items.push({
+                key: appUrls.preciosPemex,
+                icon: <FundProjectionScreenOutlined />,
+                title: 'Precios PEMEX',
+                label: <Link href={appUrls.preciosPemex}>Precios PEMEX</Link>,
             });
         }
         items.push({

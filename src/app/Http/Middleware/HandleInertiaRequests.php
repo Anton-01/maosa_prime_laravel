@@ -45,6 +45,8 @@ class HandleInertiaRequests extends Middleware
                     'banner' => $user->banner ?? null,
                     'user_type' => $user->user_type,
                     'can_view_price_table' => $user->canViewPriceTable(),
+                    // REQ-04: el menú del submódulo "Precios PEMEX" depende de este flag.
+                    'permiso_precios_pemex' => $user->tienePermisoPreciosPemex(),
                     'is_admin' => $user->user_type === 'admin',
                 ] : null,
             ],
@@ -63,6 +65,7 @@ class HandleInertiaRequests extends Middleware
                 'userDashboard' => route('user.dashboard'),
                 'userProfile' => route('user.profile.index'),
                 'priceTable' => route('user.price-table.index'),
+                'preciosPemex' => route('user.precio-pemex.index'),
                 'listings' => route('listings'),
             ],
             'flash' => [

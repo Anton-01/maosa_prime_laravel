@@ -33,6 +33,9 @@ return [
 
     'maosa_api' => [
         'base_url' => env('MAOSA_API_BASE_URL', 'https://maosa-layout-precios-api-659469608146.us-central1.run.app'),
+        // Los endpoints de Precios PEMEX viven en el mismo host salvo que se
+        // publique una URL propia para ese servicio.
+        'pemex_base_url' => env('MAOSA_PEMEX_API_BASE_URL'),
         'token' => env('MAOSA_API_TOKEN', ''),
     ],
 ];

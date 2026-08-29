@@ -4,13 +4,15 @@ import { Alert, Button, Card, Col, Form, Input, Row, Select, Switch } from 'antd
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 
-export default function UserForm({ user, roles, stations, urls }) {
+export default function UserForm({ user, roles, stations, nationalStations = [], urls }) {
     const { errors } = usePage().props;
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
 
     const isEditing = Boolean(user);
     const canViewPriceTable = Form.useWatch('can_view_price_table', form);
+    // REQ-03: el multiselect de estaciones sólo se habilita con el permiso activo.
+    const hasPemexPermission = Form.useWatch('permiso_precios_pemex', form);
 
     const initialValues = isEditing
         ? {
@@ -20,10 +22,14 @@ export default function UserForm({ user, roles, stations, urls }) {
               is_approved: user.is_approved === 1,
               can_view_price_table: user.can_view_price_table,
               id_estacion: user.id_estacion,
+              permiso_precios_pemex: user.permiso_precios_pemex,
+              estaciones_asignadas: user.estaciones_asignadas ?? [],
           }
         : {
               is_approved: false,
               can_view_price_table: false,
+              permiso_precios_pemex: false,
+              estaciones_asignadas: [],
           };
 
     const handleSubmit = (values) => {
@@ -36,6 +42,9 @@ export default function UserForm({ user, roles, stations, urls }) {
             is_approved: values.is_approved ? 1 : 0,
             can_view_price_table: values.can_view_price_table ? 1 : 0,
             id_estacion: values.can_view_price_table ? values.id_estacion ?? '' : '',
+            permiso_precios_pemex: values.permiso_precios_pemex ? 1 : 0,
+            // Sin permiso no se envía asignación: el backend limpia la pivote.
+            estaciones_asignadas: values.permiso_precios_pemex ? values.estaciones_asignadas ?? [] : [],
         };
 
         const visitOptions = {
@@ -168,6 +177,51 @@ export default function UserForm({ user, roles, stations, urls }) {
                                 <Switch checkedChildren="Sí" unCheckedChildren="No" />
                             </Form.Item>
                         </Col>
+                        <Col xs={12} md={6}>
+                            <Form.Item
+                                label="PRECIOS PEMEX"
+                                name="permiso_precios_pemex"
+                                valuePropName="checked"
+                                tooltip="Habilita el submódulo de Precios PEMEX y la asignación de estaciones."
+                                validateStatus={errors.permiso_precios_pemex ? 'error' : undefined}
+                                help={errors.permiso_precios_pemex}
+                            >
+                                <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                            </Form.Item>
+                        </Col>
+                        {hasPemexPermission && (
+                            <Col xs={24}>
+                                <Form.Item
+                                    label="Estaciones asignadas"
+                                    name="estaciones_asignadas"
+                                    rules={[
+                                        {
+                                            required: true,
+                                            type: 'array',
+                                            min: 1,
+                                            message: 'Asigna al menos una estación.',
+                                        },
+                                    ]}
+                                    validateStatus={
+                                        errors.estaciones_asignadas || errors['estaciones_asignadas.0']
+                                            ? 'error'
+                                            : undefined
+                                    }
+                                    help={errors.estaciones_asignadas || errors['estaciones_asignadas.0']}
+                                >
+                                    <Select
+                                        mode="multiple"
+                                        allowClear
+                                        showSearch
+                                        optionFilterProp="label"
+                                        maxTagCount="responsive"
+                                        options={nationalStations}
+                                        notFoundContent="Sin estaciones activas en el catálogo."
+                                        placeholder="Busca y selecciona una o más estaciones"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        )}
                         {canViewPriceTable && (
                             <Col xs={24} md={12}>
                                 <Form.Item
