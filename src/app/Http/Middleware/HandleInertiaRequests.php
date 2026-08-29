@@ -35,6 +35,11 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'appName' => config('settings.site_name', config('app.name', 'Maosa Prime')),
+            // Idioma activo y diccionario completo de la interfaz: el front
+            // traduce con el hook useTranslation() a partir de estas props.
+            'locale' => app()->getLocale(),
+            'locales' => SetLocale::SUPPORTED,
+            'translations' => trans('ui'),
             'settings' => $this->buildPublicSettings(),
             'auth' => [
                 'user' => $user ? [
@@ -67,6 +72,7 @@ class HandleInertiaRequests extends Middleware
                 'priceTable' => route('user.price-table.index'),
                 'preciosPemex' => route('user.precio-pemex.index'),
                 'listings' => route('listings'),
+                'localeBase' => url('locale'),
             ],
             'flash' => [
                 'success' => $request->session()->get('success'),
@@ -168,7 +174,7 @@ class HandleInertiaRequests extends Middleware
         $items = [
             [
                 'key' => 'dashboard',
-                'label' => 'Dashboard',
+                'label' => __('ui.nav.dashboard'),
                 'icon' => 'dashboard',
                 'url' => route('admin.dashboard.index'),
                 'inertia' => true,
@@ -176,7 +182,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'sections',
-                'label' => 'Secciones',
+                'label' => __('ui.nav.sections'),
                 'icon' => 'sections',
                 'permission' => 'access management sections content',
                 'url' => route('admin.sections.index'),
@@ -191,34 +197,34 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'suppliers',
-                'label' => 'Proveedores',
+                'label' => __('ui.nav.suppliers'),
                 'icon' => 'suppliers',
                 'permission' => 'access management suppliers',
                 'children' => [
                     [
                         'key' => 'categories',
-                        'label' => 'Categorías',
+                        'label' => __('ui.nav.categories'),
                         'url' => route('admin.category.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.category.*'),
                     ],
                     [
                         'key' => 'locations',
-                        'label' => 'Ubicaciones',
+                        'label' => __('ui.nav.locations'),
                         'url' => route('admin.location.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.location.*'),
                     ],
                     [
                         'key' => 'amenities',
-                        'label' => 'Servicios',
+                        'label' => __('ui.nav.amenities'),
                         'url' => route('admin.amenity.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.amenity.*'),
                     ],
                     [
                         'key' => 'listings',
-                        'label' => 'Todos los Proveedores',
+                        'label' => __('ui.nav.all_suppliers'),
                         'url' => route('admin.listing.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.listing.*'),
@@ -227,7 +233,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'blog',
-                'label' => 'Seminarios',
+                'label' => __('ui.nav.blog'),
                 'icon' => 'blog',
                 'permission' => 'blog index',
                 'url' => route('admin.blog.index'),
@@ -236,7 +242,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'pages',
-                'label' => 'Páginas',
+                'label' => __('ui.nav.pages'),
                 'icon' => 'pages',
                 'permission' => 'access management pages',
                 'url' => route('admin.pages.index'),
@@ -251,7 +257,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'footer',
-                'label' => 'Gestionar Footer',
+                'label' => __('ui.nav.footer'),
                 'icon' => 'footer',
                 'permission' => 'access management footer',
                 'url' => route('admin.footer-info.index'),
@@ -260,27 +266,27 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'access-management',
-                'label' => 'Gestión de accesos',
+                'label' => __('ui.nav.access_management'),
                 'icon' => 'access',
                 'permission' => 'access management users',
                 'children' => [
                     [
                         'key' => 'users',
-                        'label' => 'Usuarios',
+                        'label' => __('ui.nav.users'),
                         'url' => route('admin.role-user.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.role-user.*', 'admin.user-permissions.*'),
                     ],
                     [
                         'key' => 'inactive-users',
-                        'label' => 'Usuarios inactivos',
+                        'label' => __('ui.nav.inactive_users'),
                         'url' => route('admin.inactive-users.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.inactive-users.*'),
                     ],
                     [
                         'key' => 'roles',
-                        'label' => 'Roles y permisos',
+                        'label' => __('ui.nav.roles'),
                         'url' => route('admin.role.index'),
                         'inertia' => true,
                         'active' => $request->routeIs('admin.role.*'),
@@ -289,7 +295,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'statistics',
-                'label' => 'Estadísticas',
+                'label' => __('ui.nav.statistics'),
                 'icon' => 'statistics',
                 'permission' => 'access management statics users',
                 'url' => route('admin.statistics.index'),
@@ -298,7 +304,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'menu-builder',
-                'label' => 'Menús',
+                'label' => __('ui.nav.menus'),
                 'icon' => 'menus',
                 'permission' => 'access management menu builder',
                 'url' => route('admin.menu-builder.index'),
@@ -307,7 +313,7 @@ class HandleInertiaRequests extends Middleware
             ],
             [
                 'key' => 'settings',
-                'label' => 'Ajustes',
+                'label' => __('ui.nav.settings'),
                 'icon' => 'settings',
                 'permission' => 'access management settings maosa',
                 'url' => route('admin.settings.index'),

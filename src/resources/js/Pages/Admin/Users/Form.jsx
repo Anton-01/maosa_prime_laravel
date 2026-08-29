@@ -5,18 +5,21 @@ import { ArrowLeftOutlined, KeyOutlined, SaveOutlined } from '@ant-design/icons'
 import PageContainer from '../../../Components/PageContainer';
 import PasswordGeneratorModal from '../../../Components/PasswordGeneratorModal';
 import copyToClipboard from '../../../Utils/copyToClipboard';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 /** Los tres flags del formulario comparten el mismo par de opciones. */
-const OPCIONES_SI_NO = [
-    { value: true, label: 'Sí' },
-    { value: false, label: 'No' },
+const opcionesSiNo = (t) => [
+    { value: true, label: t('common.yes') },
+    { value: false, label: t('common.no') },
 ];
 
 export default function UserForm({ user, roles, stations, nationalStations = [], urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
+    const yesNoOptions = opcionesSiNo(t);
     const [submitting, setSubmitting] = useState(false);
     const [generatorOpen, setGeneratorOpen] = useState(false);
     // Una contraseña generada se fija en ambos campos y los bloquea, para que
@@ -55,8 +58,8 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
         const copied = await copyToClipboard(password);
         setClipboardNotice(
             copied
-                ? 'Contraseña copiada al portapapeles. Resguárdala antes de salir.'
-                : 'No se pudo copiar automáticamente: cópiala desde el campo antes de guardar.',
+                ? t('password_generator.copied')
+                : t('password_generator.copy_failed'),
         );
 
         // Limpia los errores previos de "contraseñas no coinciden".
@@ -99,15 +102,19 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
 
     return (
         <PageContainer
-            title={isEditing ? `Editar usuario: ${user.name}` : 'Nuevo usuario'}
+            title={
+                isEditing
+                    ? t('users.edit_title', { name: user.name })
+                    : t('users.create_title')
+            }
             breadcrumbItems={[
-                { title: 'Gestión de accesos' },
-                { title: 'Usuarios', href: urls.base },
-                { title: isEditing ? 'Editar' : 'Crear' },
+                { title: t('users.breadcrumb_access') },
+                { title: t('users.breadcrumb_users'), href: urls.base },
+                { title: isEditing ? t('users.breadcrumb_edit') : t('users.breadcrumb_create') },
             ]}
             extra={
                 <Link href={urls.base}>
-                    <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                    <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                 </Link>
             }
             wrapInCard={false}
@@ -118,7 +125,7 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                         type="warning"
                         showIcon
                         style={{ marginBottom: 16 }}
-                        message="Estás editando un usuario Super Admin."
+                        message={t('users.super_admin_warning')}
                     />
                 )}
 
@@ -132,42 +139,42 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                     <Row gutter={24}>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Nombre"
+                                label={t('users.name')}
                                 name="name"
-                                rules={[{ required: true, message: 'El nombre es obligatorio.' }]}
+                                rules={[{ required: true, message: t('users.name_required') }]}
                                 validateStatus={errors.name ? 'error' : undefined}
                                 help={errors.name}
                             >
-                                <Input maxLength={255} placeholder="Nombre completo" />
+                                <Input maxLength={255} placeholder={t('users.name_placeholder')} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Correo"
+                                label={t('users.email')}
                                 name="email"
                                 rules={[
-                                    { required: true, message: 'El correo es obligatorio.' },
-                                    { type: 'email', message: 'Debe ser un correo válido.' },
+                                    { required: true, message: t('users.email_required') },
+                                    { type: 'email', message: t('users.email_invalid') },
                                 ]}
                                 validateStatus={errors.email ? 'error' : undefined}
                                 help={errors.email}
                             >
-                                <Input maxLength={255} placeholder="correo@ejemplo.com" />
+                                <Input maxLength={255} placeholder={t('users.email_placeholder')} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label={isEditing ? 'Nueva contraseña (opcional)' : 'Contraseña'}
+                                label={isEditing ? t('users.password_optional') : t('users.password')}
                                 name="password"
                                 rules={[
-                                    { required: !isEditing, message: 'La contraseña es obligatoria.' },
-                                    { min: 8, message: 'Mínimo 8 caracteres.' },
+                                    { required: !isEditing, message: t('users.password_required') },
+                                    { min: 8, message: t('users.password_min') },
                                 ]}
                                 validateStatus={errors.password ? 'error' : undefined}
                                 help={errors.password}
                             >
                                 <Input.Password
-                                    placeholder="Mínimo 8 caracteres"
+                                    placeholder={t('users.password_placeholder')}
                                     autoComplete="new-password"
                                     readOnly={passwordLocked}
                                 />
@@ -175,7 +182,7 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Confirmar contraseña"
+                                label={t('users.password_confirm')}
                                 name="password_confirmation"
                                 dependencies={['password']}
                                 rules={[
@@ -185,7 +192,7 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                                 return Promise.resolve();
                                             }
 
-                                            return Promise.reject(new Error('Las contraseñas no coinciden.'));
+                                            return Promise.reject(new Error(t('users.password_mismatch')));
                                         },
                                     }),
                                 ]}
@@ -201,23 +208,23 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                                 style={{ padding: 0, height: 'auto', fontSize: 12 }}
                                                 onClick={handleUnlockPassword}
                                             >
-                                                Escribir otra
+                                                {t('password_generator.write_another')}
                                             </Button>
                                         </Space>
                                     ) : undefined
                                 }
                             >
                                 <Input.Password
-                                    placeholder="Repita la contraseña"
+                                    placeholder={t('users.password_confirm_placeholder')}
                                     autoComplete="new-password"
                                     readOnly={passwordLocked}
                                     addonAfter={
-                                        <Tooltip title="Generar contraseña segura">
+                                        <Tooltip title={t('password_generator.button')}>
                                             <Button
                                                 type="text"
                                                 size="small"
                                                 icon={<KeyOutlined />}
-                                                aria-label="Generar contraseña segura"
+                                                aria-label={t('password_generator.button')}
                                                 onClick={() => setGeneratorOpen(true)}
                                             />
                                         </Tooltip>
@@ -227,53 +234,58 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Rol"
+                                label={t('users.role')}
                                 name="role"
-                                rules={[{ required: true, message: 'El rol es obligatorio.' }]}
+                                rules={[{ required: true, message: t('users.role_required') }]}
                                 validateStatus={errors.role ? 'error' : undefined}
                                 help={errors.role}
                             >
-                                <Select options={roles} placeholder="Selecciona un rol" showSearch optionFilterProp="label" />
+                                <Select
+                                    options={roles}
+                                    placeholder={t('users.role_placeholder')}
+                                    showSearch
+                                    optionFilterProp="label"
+                                />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Aprobado"
+                                label={t('users.approved')}
                                 name="is_approved"
-                                tooltip="Permite al usuario iniciar sesión en la plataforma."
+                                tooltip={t('users.approved_tooltip')}
                                 validateStatus={errors.is_approved ? 'error' : undefined}
                                 help={errors.is_approved}
                             >
-                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
+                                <Select options={yesNoOptions} placeholder={t('common.select_option')} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="Precios Internacionales"
+                                label={t('users.international_prices')}
                                 name="can_view_price_table"
-                                tooltip="Habilita la consulta de precios internacionales y la selección de su estación."
+                                tooltip={t('users.international_prices_tooltip')}
                                 validateStatus={errors.can_view_price_table ? 'error' : undefined}
                                 help={errors.can_view_price_table}
                             >
-                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
+                                <Select options={yesNoOptions} placeholder={t('common.select_option')} />
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={12}>
                             <Form.Item
-                                label="PRECIOS PEMEX"
+                                label={t('users.pemex_prices')}
                                 name="permiso_precios_pemex"
-                                tooltip="Habilita el submódulo de Precios PEMEX y la asignación de estaciones."
+                                tooltip={t('users.pemex_prices_tooltip')}
                                 validateStatus={errors.permiso_precios_pemex ? 'error' : undefined}
                                 help={errors.permiso_precios_pemex}
                             >
-                                <Select options={OPCIONES_SI_NO} placeholder="Selecciona una opción" />
+                                <Select options={yesNoOptions} placeholder={t('common.select_option')} />
                             </Form.Item>
                         </Col>
                         {/* Cada selector de estaciones queda bajo su propio permiso. */}
                         {canViewPriceTable && (
                             <Col xs={24} md={12}>
                                 <Form.Item
-                                    label="Estación"
+                                    label={t('users.station')}
                                     name="id_estacion"
                                     validateStatus={errors.id_estacion ? 'error' : undefined}
                                     help={errors.id_estacion}
@@ -283,7 +295,7 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                         showSearch
                                         optionFilterProp="label"
                                         options={stations}
-                                        placeholder="Selecciona una estación"
+                                        placeholder={t('users.station_placeholder')}
                                     />
                                 </Form.Item>
                             </Col>
@@ -291,14 +303,14 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                         {hasPemexPermission && (
                             <Col xs={24} md={12}>
                                 <Form.Item
-                                    label="Estaciones asignadas"
+                                    label={t('users.assigned_stations')}
                                     name="estaciones_asignadas"
                                     rules={[
                                         {
                                             required: true,
                                             type: 'array',
                                             min: 1,
-                                            message: 'Asigna al menos una estación.',
+                                            message: t('users.assigned_stations_required'),
                                         },
                                     ]}
                                     validateStatus={
@@ -315,8 +327,8 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
                                         optionFilterProp="label"
                                         maxTagCount="responsive"
                                         options={nationalStations}
-                                        notFoundContent="Sin estaciones activas en el catálogo."
-                                        placeholder="Busca y selecciona una o más estaciones"
+                                        notFoundContent={t('users.assigned_stations_empty')}
+                                        placeholder={t('users.assigned_stations_placeholder')}
                                     />
                                 </Form.Item>
                             </Col>
@@ -325,7 +337,7 @@ export default function UserForm({ user, roles, stations, nationalStations = [],
 
                     <Form.Item style={{ marginBottom: 0 }}>
                         <Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={submitting}>
-                            {isEditing ? 'Actualizar usuario' : 'Crear usuario'}
+                            {isEditing ? t('users.submit_update') : t('users.submit_create')}
                         </Button>
                     </Form.Item>
                 </Form>

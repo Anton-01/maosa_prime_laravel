@@ -27,6 +27,7 @@ import {
 import dayjs from 'dayjs';
 
 import asset from '../../Utils/asset';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text } = Typography;
 
@@ -34,6 +35,7 @@ const DATE_FORMAT = 'YYYY-MM-DD';
 
 export default function PriceTable({ endpoints, dates }) {
     const { message } = App.useApp();
+    const { t } = useTranslation();
     const { auth } = usePage().props;
     const user = auth?.user;
 
@@ -62,7 +64,7 @@ export default function PriceTable({ endpoints, dates }) {
                 setStations(data || []);
                 if (data && data.length) setStationId(data[0].id_estacion);
             } catch (e) {
-                if (active) message.error('Error al obtener la configuración de precios.');
+                if (active) message.error(t('prices.config_error'));
             } finally {
                 if (active) setLoadingStations(false);
             }
@@ -88,7 +90,11 @@ export default function PriceTable({ endpoints, dates }) {
                 const text = await res.text();
                 if (active) setPriceHtml(text);
             } catch (e) {
-                if (active) setPriceHtml('<p style="text-align:center;padding:24px">Error de conexión.</p>');
+                if (active) {
+                    setPriceHtml(
+                        `<p style="text-align:center;padding:24px">${t('prices.connection_error')}</p>`,
+                    );
+                }
             } finally {
                 if (active) setLoadingPrices(false);
             }
@@ -145,7 +151,7 @@ export default function PriceTable({ endpoints, dates }) {
             link.remove();
             URL.revokeObjectURL(url);
         } catch (e) {
-            message.error('No fue posible descargar el PDF. Intente más tarde.');
+            message.error(t('prices.pdf_error'));
         } finally {
             setDownloading(false);
         }
@@ -157,7 +163,7 @@ export default function PriceTable({ endpoints, dates }) {
 
     return (
         <>
-            <Head title="Precios Internacionales">
+            <Head title={t('prices.international_title')}>
                 <link rel="stylesheet" href="/frontend/css/maosa/table-prices.css" />
             </Head>
 
@@ -181,7 +187,7 @@ export default function PriceTable({ endpoints, dates }) {
                     />
                     <div style={{ paddingTop: 12 }}>
                         <Title level={4} style={{ margin: 0 }}>
-                            Precios Internacionales de {user?.name}
+                            {t('prices.international_of', { name: user?.name ?? '' })}
                         </Title>
                         <Text type="secondary">
                             <MailOutlined /> {user?.email}
@@ -189,7 +195,7 @@ export default function PriceTable({ endpoints, dates }) {
                         <div style={{ marginTop: 8 }}>
                             <Space wrap>
                                 <Tag color="orange" icon={<DollarOutlined />}>
-                                    Precios personalizados
+                                    {t('prices.custom_prices')}
                                 </Tag>
                                 {currentStationName && (
                                     <Tag color="blue" icon={<EnvironmentOutlined />}>
@@ -197,7 +203,7 @@ export default function PriceTable({ endpoints, dates }) {
                                     </Tag>
                                 )}
                                 <Tag icon={<CalendarOutlined />}>
-                                    Vigencia {date.format('DD/MM/YYYY')}
+                                    {t('prices.validity', { date: date.format('DD/MM/YYYY') })}
                                 </Tag>
                             </Space>
                         </div>
@@ -209,7 +215,7 @@ export default function PriceTable({ endpoints, dates }) {
                 <Row gutter={[16, 16]} align="bottom">
                     {stations.length > 1 && (
                         <Col xs={24} md={10}>
-                            <div style={{ marginBottom: 6, fontWeight: 600 }}>Estación</div>
+                            <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('prices.station')}</div>
                             <Select
                                 style={{ width: '100%' }}
                                 size="large"
@@ -218,13 +224,16 @@ export default function PriceTable({ endpoints, dates }) {
                                 onChange={setStationId}
                                 options={stations.map((s) => ({
                                     value: s.id_estacion,
-                                    label: s.estacion || s.id_socio || `Estación ${s.id_estacion}`,
+                                    label:
+                                        s.estacion ||
+                                        s.id_socio ||
+                                        `${t('prices.station')} ${s.id_estacion}`,
                                 }))}
                             />
                         </Col>
                     )}
                     <Col xs={24} md={8}>
-                        <div style={{ marginBottom: 6, fontWeight: 600 }}>Fecha de vigencia</div>
+                        <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('prices.effective_date')}</div>
                         <DatePicker
                             style={{ width: '100%' }}
                             size="large"
@@ -249,7 +258,7 @@ export default function PriceTable({ endpoints, dates }) {
                             disabled={!stationId}
                             onClick={downloadPdf}
                         >
-                            Descargar PDF
+                            {t('prices.download_pdf')}
                         </Button>
                     </Col>
                 </Row>
@@ -260,10 +269,10 @@ export default function PriceTable({ endpoints, dates }) {
             <Card styles={{ body: { padding: 0 } }} style={{ overflow: 'hidden' }}>
                 {loadingStations ? (
                     <div style={{ textAlign: 'center', padding: 48 }}>
-                        <Spin tip="Cargando configuración de precios..." />
+                        <Spin tip={t('prices.loading_config')} />
                     </div>
                 ) : !stations.length ? (
-                    <Empty description="No tiene estaciones asignadas." style={{ padding: 40 }} />
+                    <Empty description={t('prices.no_stations')} style={{ padding: 40 }} />
                 ) : (
                     <Spin spinning={loadingPrices}>
                         {needsScroll && (
@@ -271,7 +280,7 @@ export default function PriceTable({ endpoints, dates }) {
                                 banner
                                 type="info"
                                 showIcon
-                                message="Debido a la configuración visual de sus precios internacionales, es necesario desplazarse horizontalmente para ver el resto del contenido."
+                                message={t('prices.scroll_hint')}
                                 style={{ fontSize: 13 }}
                             />
                         )}

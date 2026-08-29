@@ -28,7 +28,9 @@ import {
 
 import asset from '../Utils/asset';
 import classicFormPost from '../Utils/classicFormPost';
+import LocaleSwitcher from '../Components/LocaleSwitcher';
 import useFlash from '../Hooks/useFlash';
+import useTranslation from '../Hooks/useTranslation';
 
 const { Sider, Content, Header } = Layout;
 const { Text, Title } = Typography;
@@ -41,6 +43,7 @@ const COLLAPSED_STORAGE_KEY = 'maosa:user-sidebar-collapsed';
 export default function UserLayout({ children }) {
     useFlash();
     const { auth, appUrls, settings } = usePage().props;
+    const { t } = useTranslation();
     const screens = useBreakpoint();
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [collapsed, setCollapsed] = useState(() => {
@@ -73,22 +76,22 @@ export default function UserLayout({ children }) {
                 key: '/admin/dashboard',
                 icon: <DashboardOutlined />,
                 // `title` is what the Menu shows as a tooltip while collapsed.
-                title: 'Panel de administración',
-                label: <a href={appUrls.dashboard}>Panel de administración</a>,
+                title: t('nav.admin_panel'),
+                label: <a href={appUrls.dashboard}>{t('nav.admin_panel')}</a>,
             });
         }
         items.push({
             key: appUrls.userProfile,
             icon: <UserOutlined />,
-            title: 'Mi perfil',
-            label: <Link href={appUrls.userProfile}>Mi perfil</Link>,
+            title: t('nav.my_profile'),
+            label: <Link href={appUrls.userProfile}>{t('nav.my_profile')}</Link>,
         });
         if (user?.can_view_price_table) {
             items.push({
                 key: appUrls.priceTable,
                 icon: <DollarOutlined />,
-                title: 'Precios Internacionales',
-                label: <Link href={appUrls.priceTable}>Precios Internacionales</Link>,
+                title: t('nav.international_prices'),
+                label: <Link href={appUrls.priceTable}>{t('nav.international_prices')}</Link>,
             });
         }
         // REQ-04: el submódulo sólo aparece si el usuario tiene el permiso.
@@ -96,24 +99,24 @@ export default function UserLayout({ children }) {
             items.push({
                 key: appUrls.preciosPemex,
                 icon: <FundProjectionScreenOutlined />,
-                title: 'Precios PEMEX',
-                label: <Link href={appUrls.preciosPemex}>Precios PEMEX</Link>,
+                title: t('nav.pemex_prices'),
+                label: <Link href={appUrls.preciosPemex}>{t('nav.pemex_prices')}</Link>,
             });
         }
         items.push({
             key: appUrls.listings,
             icon: <AppstoreOutlined />,
-            title: 'Ver proveedores',
-            label: <Link href={appUrls.listings}>Ver proveedores</Link>,
+            title: t('nav.view_suppliers'),
+            label: <Link href={appUrls.listings}>{t('nav.view_suppliers')}</Link>,
         });
         items.push({
             key: 'home',
             icon: <HomeOutlined />,
-            title: 'Ir al sitio',
-            label: <Link href={appUrls.home}>Ir al sitio</Link>,
+            title: t('nav.go_to_site'),
+            label: <Link href={appUrls.home}>{t('nav.go_to_site')}</Link>,
         });
         return items;
-    }, [user, appUrls]);
+    }, [user, appUrls, t]);
 
     const selectedKeys = menuItems
         .map((item) => item.key)
@@ -150,15 +153,20 @@ export default function UserLayout({ children }) {
                 style={{ background: 'transparent', borderInlineEnd: 'none' }}
             />
             <div style={{ padding: compact ? '16px 12px' : 16, marginTop: 8 }}>
-                <Tooltip title={compact ? 'Cerrar sesión' : ''} placement="right">
+                {!compact && (
+                    <div style={{ marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+                        <LocaleSwitcher />
+                    </div>
+                )}
+                <Tooltip title={compact ? t('header.logout') : ''} placement="right">
                     <Button
                         danger
                         block
                         icon={<LogoutOutlined />}
-                        aria-label="Cerrar sesión"
+                        aria-label={t('header.logout')}
                         onClick={() => classicFormPost(appUrls.logout)}
                     >
-                        {compact ? null : 'Cerrar sesión'}
+                        {compact ? null : t('header.logout')}
                     </Button>
                 </Tooltip>
             </div>
@@ -191,12 +199,12 @@ export default function UserLayout({ children }) {
                             }}
                         >
                             <Tooltip
-                                title={collapsed ? 'Expandir menú' : 'Contraer menú'}
+                                title={collapsed ? t('header.expand_menu') : t('header.collapse_menu')}
                                 placement="right"
                             >
                                 <Button
                                     type="text"
-                                    aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}
+                                    aria-label={collapsed ? t('header.expand_menu') : t('header.collapse_menu')}
                                     onClick={toggleCollapsed}
                                     icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                                     style={{ color: 'rgba(255,255,255,0.75)' }}
@@ -224,15 +232,18 @@ export default function UserLayout({ children }) {
                                     type="text"
                                     icon={<MenuOutlined />}
                                     onClick={() => setDrawerOpen(true)}
-                                    aria-label="Abrir menú"
+                                    aria-label={t('header.open_menu')}
                                 />
                                 <Text strong>{settings?.siteName}</Text>
                             </Space>
-                            <Avatar
-                                size="small"
-                                src={user?.avatar ? asset(user.avatar) : undefined}
-                                icon={<UserOutlined />}
-                            />
+                            <Space size={12} align="center">
+                                <LocaleSwitcher />
+                                <Avatar
+                                    size="small"
+                                    src={user?.avatar ? asset(user.avatar) : undefined}
+                                    icon={<UserOutlined />}
+                                />
+                            </Space>
                         </Header>
                     )}
 

@@ -13,7 +13,8 @@ import AdminLayout from './Layouts/AdminLayout';
 import FrontendLayout from './Layouts/FrontendLayout';
 import UserLayout from './Layouts/UserLayout';
 
-dayjs.locale('es');
+// Mismo idioma que el resto de la interfaz (Blade lo deja en <html lang>).
+dayjs.locale(document.documentElement.lang?.startsWith('en') ? 'en' : 'es');
 
 const appName = document.querySelector('title')?.innerText || 'Maosa Prime';
 

@@ -3,6 +3,8 @@ import { Head } from '@inertiajs/react';
 import { App, Alert, Button, Card, Col, Empty, Row, Select, Space, Spin, Typography } from 'antd';
 import { FileExcelOutlined, FilePdfOutlined, ReloadOutlined } from '@ant-design/icons';
 
+import useTranslation from '../../Hooks/useTranslation';
+
 const { Title, Text } = Typography;
 
 /**
@@ -46,6 +48,7 @@ function LayoutFragment({ html }) {
  */
 export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
     const { message } = App.useApp();
+    const { t } = useTranslation();
 
     const [selectedIds, setSelectedIds] = useState(() =>
         stations.length ? [stations[0].id_estacion] : [],
@@ -146,22 +149,19 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                 URL.revokeObjectURL(url);
             }
         } catch (error) {
-            message.error(
-                format === 'Excel'
-                    ? 'No fue posible descargar el archivo Excel. Intente más tarde.'
-                    : 'No fue posible descargar el PDF. Intente más tarde.',
-            );
+            message.error(format === 'Excel' ? t('prices.excel_error') : t('prices.pdf_error'));
         } finally {
             setDownloading(null);
         }
     };
 
     const stationName = (id) =>
-        stations.find((station) => station.id_estacion === id)?.estacion ?? `Estación ${id}`;
+        stations.find((station) => station.id_estacion === id)?.estacion ??
+        `${t('prices.station')} ${id}`;
 
     return (
         <>
-            <Head title="Precios PEMEX">
+            <Head title={t('prices.pemex_title')}>
                 {/* Hoja de estilos del layout que devuelve la API (REQ-05). */}
                 <link rel="stylesheet" href={stylesheet} />
             </Head>
@@ -170,16 +170,16 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                 <Row gutter={[16, 16]} align="bottom">
                     <Col xs={24} md={12} lg={14}>
                         <Title level={4} style={{ marginBottom: 4 }}>
-                            Precios PEMEX
+                            {t('prices.pemex_title')}
                         </Title>
                         <Text type="secondary">
-                            Consulta el layout de precios vigente de tus estaciones asignadas.
+                            {t('prices.pemex_subtitle')}
                         </Text>
 
                         {/* REQ-06: el selector sólo se muestra con más de una estación. */}
                         {stations.length > 1 && (
                             <div style={{ marginTop: 16 }}>
-                                <div style={{ marginBottom: 6, fontWeight: 600 }}>Estaciones</div>
+                                <div style={{ marginBottom: 6, fontWeight: 600 }}>{t('prices.stations')}</div>
                                 <Select
                                     mode="multiple"
                                     style={{ width: '100%' }}
@@ -191,7 +191,7 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                                     value={selectedIds}
                                     onChange={setSelectedIds}
                                     options={stationOptions}
-                                    placeholder="Selecciona una o más estaciones"
+                                    placeholder={t('prices.stations_placeholder')}
                                 />
                             </div>
                         )}
@@ -204,7 +204,7 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                                 onClick={() => loadLayouts(selectedIds)}
                                 disabled={!selectedIds.length || loading}
                             >
-                                Actualizar
+                                {t('common.refresh')}
                             </Button>
                             <Button
                                 icon={<FileExcelOutlined />}
@@ -212,7 +212,7 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                                 disabled={!selectedIds.length || downloading !== null}
                                 onClick={() => download('Excel')}
                             >
-                                Descargar Excel
+                                {t('prices.download_excel')}
                             </Button>
                             <Button
                                 danger
@@ -221,7 +221,7 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                                 disabled={!selectedIds.length || downloading !== null}
                                 onClick={() => download('pdf')}
                             >
-                                Descargar PDF
+                                {t('prices.download_pdf')}
                             </Button>
                         </Space>
                     </Col>
@@ -233,24 +233,21 @@ export default function PreciosPemex({ stations = [], endpoints, stylesheet }) {
                     type="error"
                     showIcon
                     style={{ marginBottom: 24 }}
-                    message="No fue posible obtener los precios."
-                    description="Vuelve a intentarlo con el botón Actualizar; si el problema continúa, contacta a soporte."
+                    message={t('prices.load_error_title')}
+                    description={t('prices.load_error_description')}
                 />
             )}
 
             {!stations.length ? (
                 <Card>
-                    <Empty description="No tienes estaciones asignadas." style={{ padding: 40 }} />
+                    <Empty description={t('prices.no_stations')} style={{ padding: 40 }} />
                 </Card>
             ) : (
                 <Spin spinning={loading}>
                     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                         {selectedIds.length === 0 && (
                             <Card>
-                                <Empty
-                                    description="Selecciona al menos una estación para ver sus precios."
-                                    style={{ padding: 40 }}
-                                />
+                                <Empty description={t('prices.select_station')} style={{ padding: 40 }} />
                             </Card>
                         )}
 

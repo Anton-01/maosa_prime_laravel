@@ -3,11 +3,13 @@ import { Link, usePage } from '@inertiajs/react';
 import {
     App,
     Avatar,
+    Button,
+    Divider,
     Dropdown,
     Grid,
     Layout,
     Menu,
-    Space,
+    Tooltip,
     Typography,
     theme,
 } from 'antd';
@@ -30,6 +32,8 @@ import {
 
 import classicFormPost from '../Utils/classicFormPost';
 import asset from '../Utils/asset';
+import LocaleSwitcher from '../Components/LocaleSwitcher';
+import useTranslation from '../Hooks/useTranslation';
 import { useThemeMode } from '../Providers/ThemeProvider';
 
 const { Header, Sider, Content, Footer } = Layout;
@@ -48,43 +52,50 @@ function getInitials(name) {
         .toUpperCase();
 }
 
-/** Sun / moon theme toggle matching the reference top bar. */
+/**
+ * Alternancia de tema. Va dentro de un Button circular para que tenga la
+ * misma área de click, el mismo hover y el mismo foco que el resto de los
+ * controles de la barra superior.
+ */
 function ThemeToggle() {
     const { mode, toggle } = useThemeMode();
+    const { t } = useTranslation();
     const isDark = mode === 'dark';
+    const label = isDark ? t('header.light_theme') : t('header.dark_theme');
+
+    const icon = isDark ? (
+        // Moon
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor" />
+        </svg>
+    ) : (
+        // Sun
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            aria-hidden="true"
+        >
+            <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
+            <line x1="12" y1="2" x2="12" y2="4" />
+            <line x1="12" y1="20" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="4" y2="12" />
+            <line x1="20" y1="12" x2="22" y2="12" />
+            <line x1="4.9" y1="4.9" x2="6.3" y2="6.3" />
+            <line x1="17.7" y1="17.7" x2="19.1" y2="19.1" />
+            <line x1="4.9" y1="19.1" x2="6.3" y2="17.7" />
+            <line x1="17.7" y1="6.3" x2="19.1" y2="4.9" />
+        </svg>
+    );
 
     return (
-        <span
-            role="button"
-            tabIndex={0}
-            aria-label={isDark ? 'Activar tema claro' : 'Activar tema oscuro'}
-            onClick={toggle}
-            onKeyDown={(event) => event.key === 'Enter' && toggle()}
-            style={{ cursor: 'pointer', display: 'inline-flex', fontSize: 18, lineHeight: 1 }}
-        >
-            {isDark ? (
-                // Moon
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path
-                        d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
-                        fill="currentColor"
-                    />
-                </svg>
-            ) : (
-                // Sun
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="4" fill="currentColor" stroke="none" />
-                    <line x1="12" y1="2" x2="12" y2="4" />
-                    <line x1="12" y1="20" x2="12" y2="22" />
-                    <line x1="2" y1="12" x2="4" y2="12" />
-                    <line x1="20" y1="12" x2="22" y2="12" />
-                    <line x1="4.9" y1="4.9" x2="6.3" y2="6.3" />
-                    <line x1="17.7" y1="17.7" x2="19.1" y2="19.1" />
-                    <line x1="4.9" y1="19.1" x2="6.3" y2="17.7" />
-                    <line x1="17.7" y1="6.3" x2="19.1" y2="4.9" />
-                </svg>
-            )}
-        </span>
+        <Tooltip title={label}>
+            <Button type="text" shape="circle" aria-label={label} onClick={toggle} icon={icon} />
+        </Tooltip>
     );
 }
 
@@ -157,6 +168,7 @@ function findSelectedKeys(navigation) {
 
 export default function AdminLayout({ children }) {
     const { appName, auth, navigation, appUrls, flash } = usePage().props;
+    const { t } = useTranslation();
     const { message } = App.useApp();
     const { token } = theme.useToken();
     const screens = useBreakpoint();
@@ -190,18 +202,18 @@ export default function AdminLayout({ children }) {
         {
             key: 'profile',
             icon: <UserOutlined />,
-            label: <Link href={appUrls.profile}>Perfil</Link>,
+            label: <Link href={appUrls.profile}>{t('header.profile')}</Link>,
         },
         {
             key: 'settings',
             icon: <SettingOutlined />,
-            label: <Link href={appUrls.settings}>Configuración</Link>,
+            label: <Link href={appUrls.settings}>{t('header.settings')}</Link>,
         },
         { type: 'divider' },
         {
             key: 'logout',
             icon: <LogoutOutlined />,
-            label: 'Cerrar sesión',
+            label: t('header.logout'),
             danger: true,
             onClick: () => submitLogout(appUrls.logout),
         },
@@ -270,19 +282,23 @@ export default function AdminLayout({ children }) {
                         boxShadow: token.boxShadowTertiary,
                     }}
                 >
-                    <span
-                        role="button"
-                        tabIndex={0}
-                        aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}
+                    <Button
+                        type="text"
+                        shape="circle"
+                        aria-label={collapsed ? t('header.expand_menu') : t('header.collapse_menu')}
                         onClick={() => setCollapsed(!collapsed)}
-                        onKeyDown={(event) => event.key === 'Enter' && setCollapsed(!collapsed)}
-                        style={{ cursor: 'pointer', fontSize: 18 }}
-                    >
-                        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-                    </span>
+                        icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                    />
 
-                    <Space size="large" align="center">
+                    {/* Cada control ocupa su propia caja de 32px y el avatar
+                        queda separado por un divisor, para que se lea dónde
+                        termina uno y empieza el otro. */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: '100%' }}>
+                        <LocaleSwitcher />
+
                         <ThemeToggle />
+
+                        <Divider type="vertical" style={{ height: 24, margin: '0 4px' }} />
 
                         <Dropdown
                             menu={{ items: userMenuItems }}
@@ -321,18 +337,24 @@ export default function AdminLayout({ children }) {
                         >
                             <Avatar
                                 src={auth.user?.avatar ? asset(auth.user.avatar) : undefined}
-                                style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }}
+                                style={{
+                                    backgroundColor: token.colorPrimary,
+                                    cursor: 'pointer',
+                                    // Anillo sutil: separa el avatar del fondo
+                                    // blanco de la barra en modo claro.
+                                    boxShadow: `0 0 0 2px ${token.colorBgContainer}, 0 0 0 3px ${token.colorBorderSecondary}`,
+                                }}
                             >
                                 {getInitials(auth.user?.name)}
                             </Avatar>
                         </Dropdown>
-                    </Space>
+                    </div>
                 </Header>
 
                 <Content style={{ padding: 24 }}>{children}</Content>
 
                 <Footer style={{ textAlign: 'center', color: token.colorTextSecondary }}>
-                    Copyright © {new Date().getFullYear()} · Design By{' '}
+                    Copyright © {new Date().getFullYear()} · {t('header.designed_by')}{' '}
                     <a href="https://bullup.com.mx/" target="_blank" rel="noreferrer">
                         BullUp
                     </a>

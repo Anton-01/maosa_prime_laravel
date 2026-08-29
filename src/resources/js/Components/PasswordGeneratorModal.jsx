@@ -2,14 +2,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, Checkbox, Col, Input, Modal, Row, Slider, Space, Tooltip, Typography } from 'antd';
 import { CopyOutlined, ReloadOutlined } from '@ant-design/icons';
 
+import useTranslation from '../Hooks/useTranslation';
+
 const { Text } = Typography;
 
 /** Conjuntos de caracteres disponibles, en el orden en que se muestran. */
 const CHARACTER_SETS = [
-    { key: 'uppercase', label: 'Mayúsculas (A-Z)', chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' },
-    { key: 'lowercase', label: 'Minúsculas (a-z)', chars: 'abcdefghijklmnopqrstuvwxyz' },
-    { key: 'numbers', label: 'Números (0-9)', chars: '0123456789' },
-    { key: 'symbols', label: 'Símbolos (!@#$…)', chars: '!@#$%^&*()-_=+[]{};:,.?' },
+    { key: 'uppercase', chars: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' },
+    { key: 'lowercase', chars: 'abcdefghijklmnopqrstuvwxyz' },
+    { key: 'numbers', chars: '0123456789' },
+    { key: 'symbols', chars: '!@#$%^&*()-_=+[]{};:,.?' },
 ];
 
 /** Caracteres que se confunden al dictar o transcribir una contraseña. */
@@ -74,6 +76,7 @@ function generatePassword(length, selectedKeys, avoidAmbiguous) {
  * decide qué hacer con ella.
  */
 export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
+    const { t } = useTranslation();
     const [length, setLength] = useState(DEFAULT_LENGTH);
     const [selectedKeys, setSelectedKeys] = useState(['uppercase', 'lowercase', 'numbers', 'symbols']);
     const [avoidAmbiguous, setAvoidAmbiguous] = useState(true);
@@ -95,11 +98,11 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
         <Modal
             open={open}
             onCancel={onCancel}
-            title="Generar contraseña"
+            title={t('password_generator.title')}
             width={520}
             footer={[
                 <Button key="cancel" onClick={onCancel}>
-                    Cancelar
+                    {t('common.cancel')}
                 </Button>,
                 <Button
                     key="use"
@@ -107,13 +110,13 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
                     disabled={!password}
                     onClick={() => onUse(password)}
                 >
-                    Usar contraseña
+                    {t('password_generator.use')}
                 </Button>,
             ]}
         >
             <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                 <div>
-                    <Text strong>Longitud: {length} caracteres</Text>
+                    <Text strong>{t('password_generator.length', { length })}</Text>
                     <Slider
                         min={MIN_LENGTH}
                         max={MAX_LENGTH}
@@ -124,7 +127,7 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
                 </div>
 
                 <div>
-                    <Text strong>Incluir</Text>
+                    <Text strong>{t('password_generator.include')}</Text>
                     <Checkbox.Group
                         value={selectedKeys}
                         onChange={setSelectedKeys}
@@ -133,7 +136,9 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
                         <Row gutter={[8, 8]}>
                             {CHARACTER_SETS.map((set) => (
                                 <Col xs={24} sm={12} key={set.key}>
-                                    <Checkbox value={set.key}>{set.label}</Checkbox>
+                                    <Checkbox value={set.key}>
+                                        {t(`password_generator.${set.key}`)}
+                                    </Checkbox>
                                 </Col>
                             ))}
                         </Row>
@@ -144,14 +149,14 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
                     checked={avoidAmbiguous}
                     onChange={(event) => setAvoidAmbiguous(event.target.checked)}
                 >
-                    Evitar caracteres ambiguos (I, l, 1, O, 0)
+                    {t('password_generator.avoid_ambiguous')}
                 </Checkbox>
 
                 {!hasSelection && (
                     <Alert
                         type="warning"
                         showIcon
-                        message="Selecciona al menos un tipo de carácter."
+                        message={t('password_generator.select_one')}
                     />
                 )}
 
@@ -159,16 +164,16 @@ export default function PasswordGeneratorModal({ open, onCancel, onUse }) {
                     <Input
                         readOnly
                         value={password}
-                        placeholder="Sin contraseña generada"
+                        placeholder={t('password_generator.empty')}
                         style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}
                     />
-                    <Tooltip title="Generar otra">
+                    <Tooltip title={t('password_generator.regenerate')}>
                         <Button icon={<ReloadOutlined />} onClick={regenerate} disabled={!hasSelection} />
                     </Tooltip>
                 </Space.Compact>
 
                 <Text type="secondary" style={{ fontSize: 12 }}>
-                    <CopyOutlined /> Al usarla se copiará al portapapeles para que puedas resguardarla.
+                    <CopyOutlined /> {t('password_generator.clipboard_hint')}
                 </Text>
             </Space>
         </Modal>

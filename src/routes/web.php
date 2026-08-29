@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Frontend\DashboardController;
 use App\Http\Controllers\Frontend\FrontendController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\Frontend\PrecioPemexController;
 use App\Http\Controllers\Frontend\ProfileController;
 use App\Http\Controllers\Frontend\UserPriceTableController;
@@ -19,6 +20,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', [FrontendController::class, 'index'])->name('start');
+
+// Selector de idioma: disponible con o sin sesión iniciada.
+Route::post('locale/{locale}', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::middleware(['auth', 'track.user.activity'])->group(function () {
     Route::get('home', [FrontendController::class, 'index'])->name('home');

@@ -1,8 +1,20 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { ConfigProvider, theme as antdTheme } from 'antd';
+import enUS from 'antd/locale/en_US';
 import esES from 'antd/locale/es_ES';
 
 const STORAGE_KEY = 'maosa-theme-mode';
+
+/**
+ * Idioma con el que arrancó la página (lo escribe Blade en <html lang>).
+ * El selector de idioma recarga la aplicación, así que leerlo una vez al
+ * montar es suficiente y evita pasar la prop por todo el árbol.
+ */
+function documentLocale() {
+    if (typeof document === 'undefined') return 'es';
+
+    return document.documentElement.lang?.startsWith('en') ? 'en' : 'es';
+}
 
 const ThemeModeContext = createContext({ mode: 'light', toggle: () => {}, setMode: () => {} });
 
@@ -54,7 +66,7 @@ export default function AppThemeProvider({ children }) {
 
     return (
         <ThemeModeContext.Provider value={value}>
-            <ConfigProvider locale={esES} theme={themeConfig}>
+            <ConfigProvider locale={documentLocale() === 'en' ? enUS : esES} theme={themeConfig}>
                 {children}
             </ConfigProvider>
         </ThemeModeContext.Provider>

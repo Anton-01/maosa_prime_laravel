@@ -3,6 +3,8 @@ import { Head, Link, usePage } from '@inertiajs/react';
 import { Breadcrumb, Card, Flex, Space, Typography } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 
+import useTranslation from '../Hooks/useTranslation';
+
 const { Title } = Typography;
 
 /**
@@ -26,6 +28,7 @@ export default function PageContainer({
     children,
 }) {
     const { appUrls } = usePage().props;
+    const { t } = useTranslation();
 
     const withIcon = (icon, node) =>
         icon ? (
@@ -40,7 +43,7 @@ export default function PageContainer({
     const items = [
         {
             title: (
-                <Link href={appUrls?.dashboard || '/admin/dashboard'} aria-label="Inicio">
+                <Link href={appUrls?.dashboard || '/admin/dashboard'} aria-label={t('header.home')}>
                     <HomeOutlined />
                 </Link>
             ),
