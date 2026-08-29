@@ -16,11 +16,13 @@ import {
 import dayjs from 'dayjs';
 import PageContainer from '../../../Components/PageContainer';
 import useDataTable from '../../../Hooks/useDataTable';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { RangePicker } = DatePicker;
 
 /** Generic two-column breakdown table (label + total) with export. */
 function BreakdownTable({ dataUrl, exportUrl, labelTitle, dateRange }) {
+    const { t } = useTranslation();
     const [searchValue, setSearchValue] = useState('');
     const searchTimeoutRef = useRef(null);
 
@@ -43,13 +45,13 @@ function BreakdownTable({ dataUrl, exportUrl, labelTitle, dateRange }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder={`Buscar por ${labelTitle.toLowerCase()}`}
+                    placeholder={t('statistics.search_by', { label: labelTitle.toLowerCase() })}
                     style={{ maxWidth: 300 }}
                     value={searchValue}
                     onChange={(event) => handleSearchChange(event.target.value)}
                 />
                 <Button icon={<DownloadOutlined />} href={exportHref}>
-                    Exportar Excel
+                    {t('common.export_excel')}
                 </Button>
             </Flex>
 
@@ -68,9 +70,9 @@ function BreakdownTable({ dataUrl, exportUrl, labelTitle, dateRange }) {
                     pageSize: tableParams.perPage,
                     total,
                     showSizeChanger: true,
-                    showTotal: (totalRows) => `${totalRows} registros`,
+                    showTotal: (totalRows) => t('statistics.total_records', { count: totalRows }),
                 }}
-                locale={{ emptyText: 'Sin datos en el periodo seleccionado' }}
+                locale={{ emptyText: t('statistics.empty_period') }}
             />
         </>
     );
@@ -78,6 +80,7 @@ function BreakdownTable({ dataUrl, exportUrl, labelTitle, dateRange }) {
 
 /** Server-side table of the most active users in the range. */
 function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
+    const { t } = useTranslation();
     const [searchValue, setSearchValue] = useState('');
     const searchTimeoutRef = useRef(null);
 
@@ -96,18 +99,30 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
 
     const columns = [
         {
-            title: 'Nombre',
+            title: t('users.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: true,
             ellipsis: true,
             render: (name, record) => <Link href={`${userBaseUrl}/${record.id}`}>{name}</Link>,
         },
-        { title: 'Correo', dataIndex: 'email', key: 'email', sorter: true, ellipsis: true },
-        { title: 'Visitas', dataIndex: 'pageVisits', key: 'pageVisits', sorter: true, width: 110 },
-        { title: 'Sesiones', dataIndex: 'sessions', key: 'sessions', sorter: true, width: 110 },
+        { title: t('users.email'), dataIndex: 'email', key: 'email', sorter: true, ellipsis: true },
         {
-            title: 'Última sesión',
+            title: t('statistics.visits'),
+            dataIndex: 'pageVisits',
+            key: 'pageVisits',
+            sorter: true,
+            width: 110,
+        },
+        {
+            title: t('statistics.sessions'),
+            dataIndex: 'sessions',
+            key: 'sessions',
+            sorter: true,
+            width: 110,
+        },
+        {
+            title: t('statistics.last_session'),
             dataIndex: 'lastSessionAt',
             key: 'lastSessionAt',
             sorter: true,
@@ -115,7 +130,7 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
             render: (value) => value ?? '—',
         },
         {
-            title: 'Ubicación',
+            title: t('statistics.location'),
             dataIndex: 'lastSessionLocation',
             key: 'lastSessionLocation',
             ellipsis: true,
@@ -124,7 +139,7 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
         {
             // SR-016: columna de monitoreo de seguridad. El backend entrega las
             // IPs ya ordenadas por frecuencia; aquí solo se renderizan.
-            title: 'Top IPs de sesión',
+            title: t('statistics.top_ips'),
             dataIndex: 'topSessionIps',
             key: 'topSessionIps',
             width: 240,
@@ -144,13 +159,13 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por nombre o correo"
+                    placeholder={t('users.search_placeholder')}
                     style={{ maxWidth: 300 }}
                     value={searchValue}
                     onChange={(event) => handleSearchChange(event.target.value)}
                 />
                 <Button icon={<DownloadOutlined />} href={exportHref}>
-                    Exportar Excel
+                    {t('common.export_excel')}
                 </Button>
             </Flex>
 
@@ -167,15 +182,16 @@ function ActiveUsersTable({ dataUrl, exportUrl, userBaseUrl, dateRange }) {
                     pageSize: tableParams.perPage,
                     total,
                     showSizeChanger: true,
-                    showTotal: (totalRows) => `${totalRows} usuarios`,
+                    showTotal: (totalRows) => t('users.total', { count: totalRows }),
                 }}
-                locale={{ emptyText: 'Sin actividad en el periodo seleccionado' }}
+                locale={{ emptyText: t('statistics.no_activity_period') }}
             />
         </>
     );
 }
 
 export default function Index({ dateFrom, dateTo, metrics, urls }) {
+    const { t } = useTranslation();
     const [range, setRange] = useState([dayjs(dateFrom), dayjs(dateTo)]);
 
     const dateRange = {
@@ -200,16 +216,16 @@ export default function Index({ dateFrom, dateTo, metrics, urls }) {
     };
 
     const kpis = [
-        { title: 'Sesiones', value: metrics.totalSessions, icon: <InteractionOutlined /> },
-        { title: 'Visitas de página', value: metrics.totalPageViews, icon: <EyeOutlined /> },
-        { title: 'Actividades', value: metrics.totalActivities, icon: <FileTextOutlined /> },
-        { title: 'Usuarios únicos', value: metrics.uniqueUsers, icon: <TeamOutlined /> },
+        { title: t('statistics.sessions'), value: metrics.totalSessions, icon: <InteractionOutlined /> },
+        { title: t('statistics.page_views'), value: metrics.totalPageViews, icon: <EyeOutlined /> },
+        { title: t('statistics.activities'), value: metrics.totalActivities, icon: <FileTextOutlined /> },
+        { title: t('statistics.unique_users'), value: metrics.uniqueUsers, icon: <TeamOutlined /> },
     ];
 
     const tabItems = [
         {
             key: 'active-users',
-            label: 'Usuarios más activos',
+            label: t('statistics.active_users'),
             icon: <UserOutlined />,
             children: (
                 <ActiveUsersTable
@@ -222,52 +238,52 @@ export default function Index({ dateFrom, dateTo, metrics, urls }) {
         },
         {
             key: 'devices',
-            label: 'Dispositivos',
+            label: t('statistics.devices'),
             icon: <DesktopOutlined />,
             children: (
                 <BreakdownTable
                     dataUrl={`${urls.dataBase}/devices`}
                     exportUrl={`${urls.exportBase}/devices`}
-                    labelTitle="Dispositivo"
+                    labelTitle={t('statistics.device')}
                     dateRange={dateRange}
                 />
             ),
         },
         {
             key: 'browsers',
-            label: 'Navegadores',
+            label: t('statistics.browsers'),
             icon: <CompassOutlined />,
             children: (
                 <BreakdownTable
                     dataUrl={`${urls.dataBase}/browsers`}
                     exportUrl={`${urls.exportBase}/browsers`}
-                    labelTitle="Navegador"
+                    labelTitle={t('statistics.browser')}
                     dateRange={dateRange}
                 />
             ),
         },
         {
             key: 'countries',
-            label: 'Países',
+            label: t('statistics.countries'),
             icon: <GlobalOutlined />,
             children: (
                 <BreakdownTable
                     dataUrl={`${urls.dataBase}/countries`}
                     exportUrl={`${urls.exportBase}/countries`}
-                    labelTitle="País"
+                    labelTitle={t('statistics.country')}
                     dateRange={dateRange}
                 />
             ),
         },
         {
             key: 'pages',
-            label: 'Páginas',
+            label: t('statistics.pages'),
             icon: <FileTextOutlined />,
             children: (
                 <BreakdownTable
                     dataUrl={`${urls.dataBase}/pages`}
                     exportUrl={`${urls.exportBase}/pages`}
-                    labelTitle="Página"
+                    labelTitle={t('statistics.page')}
                     dateRange={dateRange}
                 />
             ),
@@ -276,8 +292,11 @@ export default function Index({ dateFrom, dateTo, metrics, urls }) {
 
     return (
         <PageContainer
-            title="Estadísticas — Panel General"
-            breadcrumbItems={[{ title: 'Estadísticas' }, { title: 'Panel General' }]}
+            title={t('statistics.title')}
+            breadcrumbItems={[
+                { title: t('statistics.breadcrumb') },
+                { title: t('statistics.overview') },
+            ]}
             extra={
                 <Space>
                     <RangePicker

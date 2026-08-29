@@ -4,20 +4,23 @@ import { Button, Card, Descriptions, Flex, Space, Table, Tabs, Tag, Typography }
 import { ArrowLeftOutlined, EyeOutlined, InteractionOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import ActivityMetadata from '../../../Components/ActivityMetadata';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function SessionDetail({ session, pageVisits, activities, urls }) {
+    const { t } = useTranslation();
+
     const visitColumns = [
-        { title: 'Hora', dataIndex: 'visitedAt', key: 'visitedAt', width: 170 },
+        { title: t('statistics.time'), dataIndex: 'visitedAt', key: 'visitedAt', width: 170 },
         {
-            title: 'Página',
+            title: t('statistics.page'),
             dataIndex: 'pageTitle',
             key: 'pageTitle',
             ellipsis: true,
             render: (title, record) => (
                 <Space direction="vertical" size={0}>
-                    <Text>{title || 'Sin título'}</Text>
+                    <Text>{title || t('statistics.untitled')}</Text>
                     <Text type="secondary" style={{ fontSize: 12 }}>
                         {record.url}
                     </Text>
@@ -25,7 +28,7 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
             ),
         },
         {
-            title: 'Tiempo en página',
+            title: t('statistics.time_on_page'),
             dataIndex: 'timeOnPage',
             key: 'timeOnPage',
             width: 150,
@@ -34,23 +37,23 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
     ];
 
     const activityColumns = [
-        { title: 'Hora', dataIndex: 'createdAt', key: 'createdAt', width: 170 },
+        { title: t('statistics.time'), dataIndex: 'createdAt', key: 'createdAt', width: 170 },
         {
-            title: 'Tipo',
+            title: t('statistics.type'),
             dataIndex: 'type',
             key: 'type',
             width: 150,
             render: (value) => <Tag color="blue">{value}</Tag>,
         },
         {
-            title: 'Descripción',
+            title: t('statistics.description'),
             dataIndex: 'description',
             key: 'description',
             ellipsis: true,
             render: (value) => value ?? '—',
         },
         {
-            title: 'Detalle',
+            title: t('statistics.detail'),
             dataIndex: 'metadata',
             key: 'metadata',
             width: 320,
@@ -68,7 +71,7 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
     const tabItems = [
         {
             key: 'visits',
-            label: `Visitas (${pageVisits.length})`,
+            label: t('statistics.visits_tab', { count: pageVisits.length }),
             icon: <EyeOutlined />,
             children: (
                 <Table
@@ -81,13 +84,13 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
                         pageSize: 20,
                         hideOnSinglePage: true,
                     }}
-                    locale={{ emptyText: 'Sin visitas en esta sesión' }}
+                    locale={{ emptyText: t('statistics.no_visits_session') }}
                 />
             ),
         },
         {
             key: 'activities',
-            label: `Actividades (${activities.length})`,
+            label: t('statistics.activities_tab', { count: activities.length }),
             icon: <InteractionOutlined />,
             children: (
                 <Table
@@ -100,7 +103,7 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
                         pageSize: 20,
                         hideOnSinglePage: true,
                     }}
-                    locale={{ emptyText: 'Sin actividades en esta sesión' }}
+                    locale={{ emptyText: t('statistics.no_activities_session') }}
                 />
             ),
         },
@@ -108,52 +111,76 @@ export default function SessionDetail({ session, pageVisits, activities, urls })
 
     return (
         <PageContainer
-            title={`Sesión #${session.id} — ${session.userName}`}
+            title={t('statistics.session_title', { id: session.id, name: session.userName })}
             breadcrumbItems={[
-                { title: 'Estadísticas' },
+                { title: t('statistics.breadcrumb') },
                 { title: session.userName, href: urls.userDetail },
-                { title: 'Sesiones', href: urls.userSessions },
-                { title: `Sesión #${session.id}` },
+                { title: t('statistics.sessions'), href: urls.userSessions },
+                { title: t('statistics.session_breadcrumb', { id: session.id }) },
             ]}
             extra={
                 <Link href={urls.userSessions}>
-                    <Button icon={<ArrowLeftOutlined />}>Volver a sesiones</Button>
+                    <Button icon={<ArrowLeftOutlined />}>{t('statistics.back_to_sessions')}</Button>
                 </Link>
             }
             wrapInCard={false}
         >
             <Flex vertical gap={16}>
-                <Card title="Información de la sesión">
+                <Card title={t('statistics.session_info')}>
                     <Descriptions
                         bordered
                         size="small"
                         column={{ xs: 1, md: 2, lg: 3 }}
                         items={[
-                            { key: 'user', label: 'Usuario', children: session.userName },
-                            { key: 'email', label: 'Correo', children: session.userEmail ?? '—' },
+                            { key: 'user', label: t('statistics.user'), children: session.userName },
+                            { key: 'email', label: t('users.email'), children: session.userEmail ?? '—' },
                             {
                                 key: 'status',
-                                label: 'Estado',
+                                label: t('statistics.status'),
                                 children: session.isActive ? (
-                                    <Tag color="success">Activa</Tag>
+                                    <Tag color="success">{t('statistics.active')}</Tag>
                                 ) : (
-                                    <Tag>Finalizada</Tag>
+                                    <Tag>{t('statistics.finished')}</Tag>
                                 ),
                             },
-                            { key: 'startedAt', label: 'Inicio', children: session.startedAt ?? '—' },
-                            { key: 'endedAt', label: 'Fin', children: session.endedAt ?? '—' },
+                            {
+                                key: 'startedAt',
+                                label: t('statistics.started_at'),
+                                children: session.startedAt ?? '—',
+                            },
+                            {
+                                key: 'endedAt',
+                                label: t('statistics.ended_at'),
+                                children: session.endedAt ?? '—',
+                            },
                             {
                                 key: 'duration',
-                                label: 'Duración',
+                                label: t('statistics.duration'),
                                 children:
                                     session.durationMinutes != null
                                         ? `${session.durationMinutes} min`
                                         : '—',
                             },
-                            { key: 'device', label: 'Dispositivo', children: session.deviceType ?? '—' },
-                            { key: 'browser', label: 'Navegador', children: session.browser ?? '—' },
-                            { key: 'platform', label: 'Plataforma', children: session.platform ?? '—' },
-                            { key: 'location', label: 'Ubicación', children: session.location ?? '—' },
+                            {
+                                key: 'device',
+                                label: t('statistics.device'),
+                                children: session.deviceType ?? '—',
+                            },
+                            {
+                                key: 'browser',
+                                label: t('statistics.browser'),
+                                children: session.browser ?? '—',
+                            },
+                            {
+                                key: 'platform',
+                                label: t('statistics.platform'),
+                                children: session.platform ?? '—',
+                            },
+                            {
+                                key: 'location',
+                                label: t('statistics.location'),
+                                children: session.location ?? '—',
+                            },
                             { key: 'ip', label: 'IP', children: session.ipAddress ?? '—' },
                         ]}
                     />

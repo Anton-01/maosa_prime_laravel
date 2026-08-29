@@ -4,10 +4,12 @@ import { Button, DatePicker, Space, Table, Tag } from 'antd';
 import { ArrowLeftOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { RangePicker } = DatePicker;
 
 export default function Sessions({ user, dateFrom, dateTo, sessions, urls }) {
+    const { t } = useTranslation();
     const [range, setRange] = useState([dayjs(dateFrom), dayjs(dateTo)]);
     const [loading, setLoading] = useState(false);
 
@@ -36,52 +38,62 @@ export default function Sessions({ user, dateFrom, dateTo, sessions, urls }) {
 
     const columns = [
         {
-            title: 'Inicio',
+            title: t('statistics.started_at'),
             dataIndex: 'startedAt',
             key: 'startedAt',
             width: 150,
             render: (value) => value ?? '—',
         },
         {
-            title: 'Fin',
+            title: t('statistics.ended_at'),
             dataIndex: 'endedAt',
             key: 'endedAt',
             width: 150,
             render: (value, record) =>
-                record.isActive ? <Tag color="success">Activa</Tag> : (value ?? '—'),
+                record.isActive ? <Tag color="success">{t('statistics.active')}</Tag> : (value ?? '—'),
         },
         {
-            title: 'Duración',
+            title: t('statistics.duration'),
             dataIndex: 'durationMinutes',
             key: 'durationMinutes',
             width: 110,
             render: (value) => (value != null ? `${value} min` : '—'),
         },
         {
-            title: 'Dispositivo',
+            title: t('statistics.device'),
             dataIndex: 'deviceType',
             key: 'deviceType',
             width: 120,
             render: (value) => value ?? '—',
         },
         {
-            title: 'Navegador',
+            title: t('statistics.browser'),
             dataIndex: 'browser',
             key: 'browser',
             width: 130,
             render: (value) => value ?? '—',
         },
         {
-            title: 'Ubicación',
+            title: t('statistics.location'),
             dataIndex: 'location',
             key: 'location',
             ellipsis: true,
             render: (value) => value ?? '—',
         },
-        { title: 'Visitas', dataIndex: 'pageVisitsCount', key: 'pageVisitsCount', width: 100 },
-        { title: 'Actividades', dataIndex: 'activitiesCount', key: 'activitiesCount', width: 110 },
         {
-            title: 'Detalle',
+            title: t('statistics.visits'),
+            dataIndex: 'pageVisitsCount',
+            key: 'pageVisitsCount',
+            width: 100,
+        },
+        {
+            title: t('statistics.activities'),
+            dataIndex: 'activitiesCount',
+            key: 'activitiesCount',
+            width: 110,
+        },
+        {
+            title: t('statistics.detail'),
             key: 'actions',
             width: 90,
             render: (_, record) => (
@@ -94,11 +106,11 @@ export default function Sessions({ user, dateFrom, dateTo, sessions, urls }) {
 
     return (
         <PageContainer
-            title={`Sesiones de ${user.name}`}
+            title={t('statistics.sessions_title', { name: user.name })}
             breadcrumbItems={[
-                { title: 'Estadísticas' },
+                { title: t('statistics.breadcrumb') },
                 { title: user.name, href: urls.userDetail },
-                { title: 'Sesiones' },
+                { title: t('statistics.sessions') },
             ]}
             extra={
                 <Space wrap>
@@ -109,7 +121,7 @@ export default function Sessions({ user, dateFrom, dateTo, sessions, urls }) {
                         format="DD/MM/YYYY"
                     />
                     <Link href={urls.userDetail}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver al detalle</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_detail')}</Button>
                     </Link>
                 </Space>
             }
@@ -127,9 +139,9 @@ export default function Sessions({ user, dateFrom, dateTo, sessions, urls }) {
                     pageSize: sessions.perPage,
                     total: sessions.total,
                     showSizeChanger: false,
-                    showTotal: (total) => `${total} sesiones`,
+                    showTotal: (total) => t('statistics.total_sessions', { count: total }),
                 }}
-                locale={{ emptyText: 'Sin sesiones en el periodo seleccionado' }}
+                locale={{ emptyText: t('statistics.no_sessions_period') }}
             />
         </PageContainer>
     );

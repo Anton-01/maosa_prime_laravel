@@ -24,6 +24,7 @@ import {
 import { Line, Pie } from '@ant-design/plots';
 import dayjs from 'dayjs';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { RangePicker } = DatePicker;
 const { Text } = Typography;
@@ -40,6 +41,7 @@ export default function UserDetail({
     navigationFlows,
     urls,
 }) {
+    const { t } = useTranslation();
     const [range, setRange] = useState([dayjs(dateFrom), dayjs(dateTo)]);
 
     const handleRangeChange = (value) => {
@@ -56,11 +58,11 @@ export default function UserDetail({
     const dateQuery = `date_from=${range[0].format('YYYY-MM-DD')}&date_to=${range[1].format('YYYY-MM-DD')}`;
 
     const kpis = [
-        { title: 'Sesiones', value: metrics.totalSessions, icon: <InteractionOutlined /> },
-        { title: 'Visitas de página', value: metrics.totalPageViews, icon: <EyeOutlined /> },
-        { title: 'Actividades', value: metrics.totalActivities, icon: <FileTextOutlined /> },
+        { title: t('statistics.sessions'), value: metrics.totalSessions, icon: <InteractionOutlined /> },
+        { title: t('statistics.page_views'), value: metrics.totalPageViews, icon: <EyeOutlined /> },
+        { title: t('statistics.activities'), value: metrics.totalActivities, icon: <FileTextOutlined /> },
         {
-            title: 'Duración media de sesión',
+            title: t('statistics.avg_session'),
             value: metrics.avgSessionDurationMinutes ?? '—',
             suffix: metrics.avgSessionDurationMinutes ? 'min' : undefined,
             icon: <ClockCircleOutlined />,
@@ -69,9 +71,9 @@ export default function UserDetail({
 
     return (
         <PageContainer
-            title={`Estadísticas de ${user.name}`}
+            title={t('statistics.user_title', { name: user.name })}
             breadcrumbItems={[
-                { title: 'Estadísticas', href: urls.base },
+                { title: t('statistics.breadcrumb'), href: urls.base },
                 { title: user.name },
             ]}
             extra={
@@ -83,13 +85,13 @@ export default function UserDetail({
                         format="DD/MM/YYYY"
                     />
                     <Link href={`${urls.sessions}?${dateQuery}`}>
-                        <Button icon={<HistoryOutlined />}>Sesiones</Button>
+                        <Button icon={<HistoryOutlined />}>{t('statistics.sessions')}</Button>
                     </Link>
                     <Link href={`${urls.activities}?${dateQuery}`}>
-                        <Button icon={<FileTextOutlined />}>Actividades</Button>
+                        <Button icon={<FileTextOutlined />}>{t('statistics.activities')}</Button>
                     </Link>
                     <Link href={urls.base}>
-                        <Button icon={<ArrowLeftOutlined />}>Panel General</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('statistics.overview')}</Button>
                     </Link>
                 </Space>
             }
@@ -110,7 +112,7 @@ export default function UserDetail({
                 ))}
 
                 <Col xs={24} lg={14}>
-                    <Card title="Visitas por día" style={{ height: '100%' }}>
+                    <Card title={t('statistics.visits_by_day')} style={{ height: '100%' }}>
                         {activityByDay.length > 0 ? (
                             <Line
                                 data={activityByDay}
@@ -120,12 +122,12 @@ export default function UserDetail({
                                 smooth
                             />
                         ) : (
-                            <Empty description="Sin visitas en el periodo" />
+                            <Empty description={t('statistics.no_visits_period')} />
                         )}
                     </Card>
                 </Col>
                 <Col xs={24} lg={10}>
-                    <Card title="Tipos de actividad" style={{ height: '100%' }}>
+                    <Card title={t('statistics.activity_types')} style={{ height: '100%' }}>
                         {activityTypes.length > 0 ? (
                             <Pie
                                 data={activityTypes}
@@ -136,13 +138,13 @@ export default function UserDetail({
                                 legend={{ color: { position: 'bottom' } }}
                             />
                         ) : (
-                            <Empty description="Sin actividades en el periodo" />
+                            <Empty description={t('statistics.no_activities_period')} />
                         )}
                     </Card>
                 </Col>
 
                 <Col xs={24} lg={12}>
-                    <Card title="Páginas más visitadas">
+                    <Card title={t('statistics.top_pages')}>
                         <Table
                             rowKey={(record) => record.url}
                             size="small"
@@ -150,28 +152,33 @@ export default function UserDetail({
                             pagination={false}
                             columns={[
                                 {
-                                    title: 'Página',
+                                    title: t('statistics.page'),
                                     dataIndex: 'pageTitle',
                                     key: 'pageTitle',
                                     ellipsis: true,
                                     render: (title, record) => (
                                         <Space direction="vertical" size={0}>
-                                            <Text>{title || 'Sin título'}</Text>
+                                            <Text>{title || t('statistics.untitled')}</Text>
                                             <Text type="secondary" style={{ fontSize: 12 }}>
                                                 {record.url}
                                             </Text>
                                         </Space>
                                     ),
                                 },
-                                { title: 'Visitas', dataIndex: 'visits', key: 'visits', width: 100 },
+                                {
+                                    title: t('statistics.visits'),
+                                    dataIndex: 'visits',
+                                    key: 'visits',
+                                    width: 100,
+                                },
                             ]}
-                            locale={{ emptyText: 'Sin visitas registradas' }}
+                            locale={{ emptyText: t('statistics.no_visits') }}
                         />
                     </Card>
                 </Col>
 
                 <Col xs={24} lg={12}>
-                    <Card title="Sesiones recientes">
+                    <Card title={t('statistics.recent_sessions')}>
                         <Table
                             rowKey="id"
                             size="small"
@@ -179,7 +186,7 @@ export default function UserDetail({
                             pagination={false}
                             columns={[
                                 {
-                                    title: 'Inicio',
+                                    title: t('statistics.started_at'),
                                     dataIndex: 'startedAt',
                                     key: 'startedAt',
                                     width: 140,
@@ -190,50 +197,60 @@ export default function UserDetail({
                                     ),
                                 },
                                 {
-                                    title: 'Duración',
+                                    title: t('statistics.duration'),
                                     dataIndex: 'durationMinutes',
                                     key: 'durationMinutes',
                                     width: 100,
                                     render: (value, record) =>
                                         record.isActive ? (
-                                            <Tag color="success">Activa</Tag>
+                                            <Tag color="success">{t('statistics.active')}</Tag>
                                         ) : (
                                             (value != null ? `${value} min` : '—')
                                         ),
                                 },
                                 {
-                                    title: 'Dispositivo',
+                                    title: t('statistics.device'),
                                     dataIndex: 'deviceType',
                                     key: 'deviceType',
                                     width: 110,
                                     render: (value) => value ?? '—',
                                 },
                                 {
-                                    title: 'Ubicación',
+                                    title: t('statistics.location'),
                                     dataIndex: 'location',
                                     key: 'location',
                                     ellipsis: true,
                                     render: (value) => value ?? '—',
                                 },
                             ]}
-                            locale={{ emptyText: 'Sin sesiones registradas' }}
+                            locale={{ emptyText: t('statistics.no_sessions') }}
                         />
                     </Card>
                 </Col>
 
                 <Col xs={24}>
-                    <Card title="Flujos de navegación más frecuentes">
+                    <Card title={t('statistics.nav_flows')}>
                         <Table
                             rowKey={(record) => `${record.fromUrl}-${record.toUrl}`}
                             size="small"
                             dataSource={navigationFlows}
                             pagination={false}
                             columns={[
-                                { title: 'Desde', dataIndex: 'fromUrl', key: 'fromUrl', ellipsis: true },
-                                { title: 'Hacia', dataIndex: 'toUrl', key: 'toUrl', ellipsis: true },
-                                { title: 'Veces', dataIndex: 'count', key: 'count', width: 100 },
+                                {
+                                    title: t('statistics.from'),
+                                    dataIndex: 'fromUrl',
+                                    key: 'fromUrl',
+                                    ellipsis: true,
+                                },
+                                {
+                                    title: t('statistics.to'),
+                                    dataIndex: 'toUrl',
+                                    key: 'toUrl',
+                                    ellipsis: true,
+                                },
+                                { title: t('statistics.times'), dataIndex: 'count', key: 'count', width: 100 },
                             ]}
-                            locale={{ emptyText: 'Sin flujos registrados' }}
+                            locale={{ emptyText: t('statistics.no_flows') }}
                         />
                     </Card>
                 </Col>
