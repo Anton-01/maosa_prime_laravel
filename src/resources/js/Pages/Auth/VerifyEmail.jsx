@@ -4,32 +4,31 @@ import { Alert, Button, Space, Typography } from 'antd';
 import { MailOutlined, LogoutOutlined } from '@ant-design/icons';
 import AuthLayout from '../../Layouts/AuthLayout';
 import classicFormPost from '../../Utils/classicFormPost';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Paragraph } = Typography;
 
 export default function VerifyEmail({ status }) {
     const { appUrls } = usePage().props;
+    const { t } = useTranslation();
     const { post, processing } = useForm({});
 
     const resend = () => post('/email/verification-notification');
 
     return (
-        <AuthLayout title="Verifica tu correo" subtitle="Confirma tu dirección de correo electrónico">
-            <Head title="Verificar correo" />
+        <AuthLayout title={t('auth.verify_title')} subtitle={t('auth.verify_subtitle')}>
+            <Head title={t('auth.verify_title')} />
 
             {status === 'verification-link-sent' && (
                 <Alert
                     type="success"
                     showIcon
-                    message="Se ha enviado un nuevo enlace de verificación a tu correo."
+                    message={t('auth.verify_sent')}
                     style={{ marginBottom: 16 }}
                 />
             )}
 
-            <Paragraph type="secondary">
-                Antes de continuar, revisa tu correo para encontrar el enlace de verificación. Si no
-                lo recibiste, podemos enviarte otro.
-            </Paragraph>
+            <Paragraph type="secondary">{t('auth.verify_description')}</Paragraph>
 
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Button
@@ -39,14 +38,14 @@ export default function VerifyEmail({ status }) {
                     onClick={resend}
                     block
                 >
-                    Reenviar correo de verificación
+                    {t('auth.resend_email')}
                 </Button>
                 <Button
                     icon={<LogoutOutlined />}
                     onClick={() => classicFormPost(appUrls.logout)}
                     block
                 >
-                    Cerrar sesión
+                    {t('header.logout')}
                 </Button>
             </Space>
         </AuthLayout>

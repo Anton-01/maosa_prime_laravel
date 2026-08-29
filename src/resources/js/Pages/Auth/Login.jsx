@@ -3,9 +3,11 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { Alert, Button, Checkbox, Flex, Form, Input } from 'antd';
 import { LockOutlined, LoginOutlined, MailOutlined } from '@ant-design/icons';
 import AuthLayout from '../../Layouts/AuthLayout';
+import useTranslation from '../../Hooks/useTranslation';
 
 export default function Login() {
     const { appUrls, errors } = usePage().props;
+    const { t } = useTranslation();
     const { data, setData, post, processing } = useForm({
         email: '',
         password: '',
@@ -18,8 +20,8 @@ export default function Login() {
     };
 
     return (
-        <AuthLayout title="Iniciar sesión" subtitle="Accede con tus credenciales para continuar">
-            <Head title="Iniciar sesión" />
+        <AuthLayout title={t('auth.login_title')} subtitle={t('auth.user_login_subtitle')}>
+            <Head title={t('auth.login_title')} />
 
             {errors.email && (
                 <Alert type="error" showIcon message={errors.email} style={{ marginBottom: 16 }} />
@@ -39,13 +41,13 @@ export default function Login() {
                 />
 
                 <Form.Item
-                    label="Correo electrónico"
+                    label={t('auth.email_electronic')}
                     validateStatus={errors.email ? 'error' : undefined}
                     required
                 >
                     <Input
                         prefix={<MailOutlined />}
-                        placeholder="correo@empresa.com"
+                        placeholder={t('auth.email_placeholder_company')}
                         autoComplete="email"
                         autoFocus
                         value={data.email}
@@ -54,7 +56,7 @@ export default function Login() {
                 </Form.Item>
 
                 <Form.Item
-                    label="Contraseña"
+                    label={t('auth.password')}
                     validateStatus={errors.password ? 'error' : undefined}
                     help={errors.password}
                     required
@@ -73,9 +75,9 @@ export default function Login() {
                         checked={data.remember}
                         onChange={(e) => setData('remember', e.target.checked)}
                     >
-                        Recordarme
+                        {t('auth.remember_me_user')}
                     </Checkbox>
-                    <a href={appUrls.forgotPassword}>¿Olvidó su contraseña?</a>
+                    <a href={appUrls.forgotPassword}>{t('auth.forgot_password_user')}</a>
                 </Flex>
 
                 <Button
@@ -85,7 +87,7 @@ export default function Login() {
                     loading={processing}
                     block
                 >
-                    Iniciar sesión
+                    {t('auth.login_button')}
                 </Button>
             </Form>
         </AuthLayout>

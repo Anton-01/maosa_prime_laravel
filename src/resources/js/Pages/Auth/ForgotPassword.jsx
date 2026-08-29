@@ -3,21 +3,20 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { Alert, Button, Form, Input, Typography } from 'antd';
 import { MailOutlined, SendOutlined } from '@ant-design/icons';
 import AuthLayout from '../../Layouts/AuthLayout';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function ForgotPassword() {
     const { appUrls, errors } = usePage().props;
+    const { t } = useTranslation();
     const { data, setData, post, processing } = useForm({ email: '', honeypot: '' });
 
     const handleSubmit = () => post(appUrls.forgotPassword);
 
     return (
-        <AuthLayout
-            title="Recuperar contraseña"
-            subtitle="Te enviaremos un enlace para restablecer tu contraseña"
-        >
-            <Head title="Recuperar contraseña" />
+        <AuthLayout title={t('auth.forgot_title')} subtitle={t('auth.forgot_subtitle')}>
+            <Head title={t('auth.forgot_title')} />
 
             {errors.email && (
                 <Alert type="error" showIcon message={errors.email} style={{ marginBottom: 16 }} />
@@ -34,10 +33,10 @@ export default function ForgotPassword() {
                     aria-hidden="true"
                 />
 
-                <Form.Item label="Correo electrónico" required>
+                <Form.Item label={t('auth.email_electronic')} required>
                     <Input
                         prefix={<MailOutlined />}
-                        placeholder="correo@empresa.com"
+                        placeholder={t('auth.email_placeholder_company')}
                         autoComplete="email"
                         autoFocus
                         value={data.email}
@@ -52,12 +51,12 @@ export default function ForgotPassword() {
                     loading={processing}
                     block
                 >
-                    Enviar enlace
+                    {t('auth.send_link')}
                 </Button>
 
                 <div style={{ textAlign: 'center', marginTop: 16 }}>
                     <Text type="secondary">
-                        <a href={appUrls.login}>Volver a iniciar sesión</a>
+                        <a href={appUrls.login}>{t('auth.back_to_login')}</a>
                     </Text>
                 </div>
             </Form>

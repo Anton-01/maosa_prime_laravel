@@ -3,9 +3,11 @@ import { Head, useForm, usePage } from '@inertiajs/react';
 import { Button, Form, Input } from 'antd';
 import { LockOutlined, MailOutlined, SafetyOutlined } from '@ant-design/icons';
 import AuthLayout from '../../Layouts/AuthLayout';
+import useTranslation from '../../Hooks/useTranslation';
 
 export default function ResetPassword({ token, email }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const { data, setData, post, processing } = useForm({
         token: token || '',
         email: email || '',
@@ -16,12 +18,12 @@ export default function ResetPassword({ token, email }) {
     const handleSubmit = () => post('/reset-password');
 
     return (
-        <AuthLayout title="Restablecer contraseña" subtitle="Define una nueva contraseña para tu cuenta">
-            <Head title="Restablecer contraseña" />
+        <AuthLayout title={t('auth.reset_title')} subtitle={t('auth.reset_subtitle')}>
+            <Head title={t('auth.reset_title')} />
 
             <Form layout="vertical" onFinish={handleSubmit} disabled={processing}>
                 <Form.Item
-                    label="Correo electrónico"
+                    label={t('auth.email_electronic')}
                     validateStatus={errors.email ? 'error' : undefined}
                     help={errors.email}
                     required
@@ -35,7 +37,7 @@ export default function ResetPassword({ token, email }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Nueva contraseña"
+                    label={t('auth.new_password')}
                     validateStatus={errors.password ? 'error' : undefined}
                     help={errors.password}
                     required
@@ -49,7 +51,7 @@ export default function ResetPassword({ token, email }) {
                     />
                 </Form.Item>
 
-                <Form.Item label="Confirmar contraseña" required>
+                <Form.Item label={t('auth.confirm_password')} required>
                     <Input.Password
                         prefix={<SafetyOutlined />}
                         placeholder="••••••••"
@@ -60,7 +62,7 @@ export default function ResetPassword({ token, email }) {
                 </Form.Item>
 
                 <Button type="primary" htmlType="submit" loading={processing} block>
-                    Restablecer contraseña
+                    {t('auth.reset_button')}
                 </Button>
             </Form>
         </AuthLayout>
