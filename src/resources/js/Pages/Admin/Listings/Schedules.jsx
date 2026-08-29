@@ -14,19 +14,21 @@ import {
 } from 'antd';
 import { ArrowLeftOutlined, DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
-
-const STATUS_OPTIONS = [
-    { value: 1, label: 'Activo' },
-    { value: 0, label: 'Inactivo' },
-];
+import useTranslation from '../../../Hooks/useTranslation';
 
 export default function Schedules({ listing, schedules, days, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingSchedule, setEditingSchedule] = useState(null);
     const [submitting, setSubmitting] = useState(false);
     const [working, setWorking] = useState(false);
+
+    const statusOptions = [
+        { value: 1, label: t('common.active') },
+        { value: 0, label: t('common.inactive') },
+    ];
 
     const openCreateModal = () => {
         setEditingSchedule(null);
@@ -73,29 +75,33 @@ export default function Schedules({ listing, schedules, days, urls }) {
     };
 
     const columns = [
-        { title: 'Día', dataIndex: 'day', key: 'day' },
-        { title: 'Hora de inicio', dataIndex: 'startTime', key: 'startTime', width: 160 },
-        { title: 'Hora de fin', dataIndex: 'endTime', key: 'endTime', width: 160 },
+        { title: t('listings.day'), dataIndex: 'day', key: 'day' },
+        { title: t('listings.start_time'), dataIndex: 'startTime', key: 'startTime', width: 160 },
+        { title: t('listings.end_time'), dataIndex: 'endTime', key: 'endTime', width: 160 },
         {
-            title: 'Estatus',
+            title: t('common.status'),
             dataIndex: 'status',
             key: 'status',
             width: 120,
             filters: [
-                { text: 'Activo', value: 1 },
-                { text: 'Inactivo', value: 0 },
+                { text: t('common.active'), value: 1 },
+                { text: t('common.inactive'), value: 0 },
             ],
             onFilter: (value, record) => record.status === value,
             render: (status) =>
-                status === 1 ? <Tag color="success">Activo</Tag> : <Tag color="error">Inactivo</Tag>,
+                status === 1 ? (
+                    <Tag color="success">{t('common.active')}</Tag>
+                ) : (
+                    <Tag color="error">{t('common.inactive')}</Tag>
+                ),
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 120,
             render: (_, record) => (
                 <Flex gap="small">
-                    <Tooltip title="Editar">
+                    <Tooltip title={t('common.edit')}>
                         <Button
                             type="primary"
                             size="small"
@@ -104,10 +110,10 @@ export default function Schedules({ listing, schedules, days, urls }) {
                         />
                     </Tooltip>
                     <Popconfirm
-                        title="Eliminar horario"
-                        description="¿Seguro que deseas eliminar este horario?"
-                        okText="Eliminar"
-                        cancelText="Cancelar"
+                        title={t('listings.delete_schedule_title')}
+                        description={t('listings.delete_schedule_confirm')}
+                        okText={t('common.delete')}
+                        cancelText={t('common.cancel')}
                         okButtonProps={{ danger: true }}
                         onConfirm={() => handleDelete(record)}
                     >
@@ -120,19 +126,19 @@ export default function Schedules({ listing, schedules, days, urls }) {
 
     return (
         <PageContainer
-            title={`Horarios de ${listing.title}`}
+            title={t('listings.schedules_title', { title: listing.title })}
             breadcrumbItems={[
-                { title: 'Proveedores' },
-                { title: 'Todos los Proveedores', href: urls.listings },
-                { title: 'Horarios' },
+                { title: t('nav.suppliers') },
+                { title: t('listings.title'), href: urls.listings },
+                { title: t('listings.schedules') },
             ]}
             extra={
                 <Flex gap="small" wrap>
                     <Link href={urls.listings}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                     </Link>
                     <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
-                        Nuevo horario
+                        {t('listings.new_schedule')}
                     </Button>
                 </Flex>
             }
@@ -147,37 +153,37 @@ export default function Schedules({ listing, schedules, days, urls }) {
                     pageSize: 10,
                     hideOnSinglePage: true,
                 }}
-                locale={{ emptyText: 'Este proveedor no tiene horarios registrados' }}
+                locale={{ emptyText: t('listings.no_schedules') }}
             />
 
             <Modal
-                title={editingSchedule ? 'Editar horario' : 'Nuevo horario'}
+                title={editingSchedule ? t('listings.edit_schedule') : t('listings.new_schedule')}
                 open={modalOpen}
                 onCancel={() => setModalOpen(false)}
                 onOk={() => form.submit()}
-                okText={editingSchedule ? 'Actualizar' : 'Crear'}
-                cancelText="Cancelar"
+                okText={editingSchedule ? t('common.update') : t('common.create')}
+                cancelText={t('common.cancel')}
                 confirmLoading={submitting}
                 destroyOnHidden
             >
                 <Form form={form} layout="vertical" onFinish={handleSubmit} disabled={submitting}>
                     <Form.Item
-                        label="Día"
+                        label={t('listings.day')}
                         name="day"
-                        rules={[{ required: true, message: 'El día es obligatorio.' }]}
+                        rules={[{ required: true, message: t('listings.day_required') }]}
                         validateStatus={errors.day ? 'error' : undefined}
                         help={errors.day}
                     >
                         <Select
-                            placeholder="Selecciona un día"
+                            placeholder={t('listings.day_placeholder')}
                             options={days.map((day) => ({ value: day, label: day }))}
                         />
                     </Form.Item>
 
                     <Form.Item
-                        label="Hora de inicio"
+                        label={t('listings.start_time')}
                         name="start_time"
-                        rules={[{ required: true, message: 'La hora de inicio es obligatoria.' }]}
+                        rules={[{ required: true, message: t('listings.start_time_required') }]}
                         validateStatus={errors.start_time ? 'error' : undefined}
                         help={errors.start_time}
                     >
@@ -185,9 +191,9 @@ export default function Schedules({ listing, schedules, days, urls }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Hora de fin"
+                        label={t('listings.end_time')}
                         name="end_time"
-                        rules={[{ required: true, message: 'La hora de fin es obligatoria.' }]}
+                        rules={[{ required: true, message: t('listings.end_time_required') }]}
                         validateStatus={errors.end_time ? 'error' : undefined}
                         help={errors.end_time}
                     >
@@ -195,13 +201,13 @@ export default function Schedules({ listing, schedules, days, urls }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Estatus"
+                        label={t('common.status')}
                         name="status"
-                        rules={[{ required: true, message: 'El estatus es obligatorio.' }]}
+                        rules={[{ required: true, message: t('catalog.status_required') }]}
                         validateStatus={errors.status ? 'error' : undefined}
                         help={errors.status}
                     >
-                        <Select options={STATUS_OPTIONS} />
+                        <Select options={statusOptions} />
                     </Form.Item>
                 </Form>
             </Modal>

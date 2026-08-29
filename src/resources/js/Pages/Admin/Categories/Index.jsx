@@ -25,21 +25,13 @@ import {
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
 import ImageDropUpload from '../../../Components/ImageDropUpload';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
-const STATUS_OPTIONS = [
-    { value: 1, label: 'Activo' },
-    { value: 0, label: 'Inactivo' },
-];
-
-const YES_NO_OPTIONS = [
-    { value: 1, label: 'Sí' },
-    { value: 0, label: 'No' },
-];
-
 export default function Index({ categories, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [modalOpen, setModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState(null);
@@ -48,6 +40,15 @@ export default function Index({ categories, urls }) {
     const [search, setSearch] = useState('');
     const [iconFile, setIconFile] = useState(null);
     const [backgroundFile, setBackgroundFile] = useState(null);
+
+    const statusOptions = [
+        { value: 1, label: t('common.active') },
+        { value: 0, label: t('common.inactive') },
+    ];
+    const yesNoOptions = [
+        { value: 1, label: t('common.yes') },
+        { value: 0, label: t('common.no') },
+    ];
 
     const filteredCategories = useMemo(() => {
         if (!search) return categories;
@@ -119,51 +120,64 @@ export default function Index({ categories, urls }) {
 
     const columns = [
         {
-            title: 'Icono',
+            title: t('categories.icon'),
             dataIndex: 'imageIconUrl',
             key: 'icon',
             width: 90,
             render: (url) =>
-                url ? <Image src={url} alt="Icono" width={48} style={{ borderRadius: 6 }} /> : '—',
+                url ? (
+                    <Image src={url} alt={t('categories.icon')} width={48} style={{ borderRadius: 6 }} />
+                ) : (
+                    '—'
+                ),
         },
         {
-            title: 'Nombre',
+            title: t('users.name'),
             dataIndex: 'name',
             key: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
-            title: 'Mostrar en inicio',
+            title: t('catalog.show_at_home'),
             dataIndex: 'showAtHome',
             key: 'showAtHome',
             width: 150,
             filters: [
-                { text: 'Sí', value: 1 },
-                { text: 'No', value: 0 },
+                { text: t('common.yes'), value: 1 },
+                { text: t('common.no'), value: 0 },
             ],
             onFilter: (value, record) => record.showAtHome === value,
-            render: (value) => (value === 1 ? <Tag color="blue">Sí</Tag> : <Tag>No</Tag>),
+            render: (value) =>
+                value === 1 ? (
+                    <Tag color="blue">{t('common.yes')}</Tag>
+                ) : (
+                    <Tag>{t('common.no')}</Tag>
+                ),
         },
         {
-            title: 'Estatus',
+            title: t('common.status'),
             dataIndex: 'status',
             key: 'status',
             width: 120,
             filters: [
-                { text: 'Activo', value: 1 },
-                { text: 'Inactivo', value: 0 },
+                { text: t('common.active'), value: 1 },
+                { text: t('common.inactive'), value: 0 },
             ],
             onFilter: (value, record) => record.status === value,
             render: (status) =>
-                status === 1 ? <Tag color="success">Activo</Tag> : <Tag color="error">Inactivo</Tag>,
+                status === 1 ? (
+                    <Tag color="success">{t('common.active')}</Tag>
+                ) : (
+                    <Tag color="error">{t('common.inactive')}</Tag>
+                ),
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 120,
             render: (_, record) => (
                 <Flex gap="small">
-                    <Tooltip title="Editar">
+                    <Tooltip title={t('common.edit')}>
                         <Button
                             type="primary"
                             size="small"
@@ -172,10 +186,10 @@ export default function Index({ categories, urls }) {
                         />
                     </Tooltip>
                     <Popconfirm
-                        title="Eliminar categoría"
-                        description="¿Seguro que deseas eliminar esta categoría?"
-                        okText="Eliminar"
-                        cancelText="Cancelar"
+                        title={t('categories.delete_title')}
+                        description={t('categories.delete_confirm')}
+                        okText={t('common.delete')}
+                        cancelText={t('common.cancel')}
                         okButtonProps={{ danger: true }}
                         onConfirm={() => handleDelete(record)}
                     >
@@ -188,11 +202,11 @@ export default function Index({ categories, urls }) {
 
     return (
         <PageContainer
-            title="Categorías"
-            breadcrumbItems={[{ title: 'Proveedores' }, { title: 'Categorías' }]}
+            title={t('categories.title')}
+            breadcrumbItems={[{ title: t('nav.suppliers') }, { title: t('categories.title') }]}
             extra={
                 <Button type="primary" icon={<PlusOutlined />} onClick={openCreateModal}>
-                    Nueva categoría
+                    {t('categories.new')}
                 </Button>
             }
         >
@@ -200,7 +214,7 @@ export default function Index({ categories, urls }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por nombre"
+                    placeholder={t('common.search_by_name')}
                     style={{ maxWidth: 320 }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -216,24 +230,24 @@ export default function Index({ categories, urls }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} categorías`,
+                    showTotal: (total) => t('categories.total', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay categorías registradas' }}
+                locale={{ emptyText: t('categories.empty') }}
             />
 
             <Modal
-                title={editingCategory ? 'Editar categoría' : 'Nueva categoría'}
+                title={editingCategory ? t('categories.edit') : t('categories.new')}
                 open={modalOpen}
                 onCancel={() => setModalOpen(false)}
                 onOk={() => form.submit()}
-                okText={editingCategory ? 'Actualizar' : 'Crear'}
-                cancelText="Cancelar"
+                okText={editingCategory ? t('common.update') : t('common.create')}
+                cancelText={t('common.cancel')}
                 confirmLoading={submitting}
                 destroyOnHidden
             >
                 <Form form={form} layout="vertical" onFinish={handleSubmit} disabled={submitting}>
                     <Form.Item
-                        label="Icono"
+                        label={t('categories.icon')}
                         required={!editingCategory}
                         validateStatus={errors.image_icon ? 'error' : undefined}
                         help={errors.image_icon}
@@ -247,7 +261,7 @@ export default function Index({ categories, urls }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Imagen de fondo"
+                        label={t('categories.background_image')}
                         required={!editingCategory}
                         validateStatus={errors.background_image ? 'error' : undefined}
                         help={errors.background_image}
@@ -261,9 +275,9 @@ export default function Index({ categories, urls }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Nombre"
+                        label={t('users.name')}
                         name="name"
-                        rules={[{ required: true, message: 'El nombre es obligatorio.' }]}
+                        rules={[{ required: true, message: t('common.name_required') }]}
                         validateStatus={errors.name ? 'error' : undefined}
                         help={errors.name}
                     >
@@ -271,23 +285,23 @@ export default function Index({ categories, urls }) {
                     </Form.Item>
 
                     <Form.Item
-                        label="Mostrar en inicio"
+                        label={t('catalog.show_at_home')}
                         name="show_at_home"
-                        rules={[{ required: true, message: 'Este campo es obligatorio.' }]}
+                        rules={[{ required: true, message: t('catalog.field_required') }]}
                         validateStatus={errors.show_at_home ? 'error' : undefined}
                         help={errors.show_at_home}
                     >
-                        <Select options={YES_NO_OPTIONS} />
+                        <Select options={yesNoOptions} />
                     </Form.Item>
 
                     <Form.Item
-                        label="Estatus"
+                        label={t('common.status')}
                         name="status"
-                        rules={[{ required: true, message: 'El estatus es obligatorio.' }]}
+                        rules={[{ required: true, message: t('catalog.status_required') }]}
                         validateStatus={errors.status ? 'error' : undefined}
                         help={errors.status}
                     >
-                        <Select options={STATUS_OPTIONS} />
+                        <Select options={statusOptions} />
                     </Form.Item>
                 </Form>
             </Modal>

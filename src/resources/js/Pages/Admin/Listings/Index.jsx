@@ -14,14 +14,16 @@ import {
     SearchOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
-function YesNoTag({ value }) {
-    return value === 1 ? <Tag color="blue">Sí</Tag> : <Tag>No</Tag>;
+function YesNoTag({ value, t }) {
+    return value === 1 ? <Tag color="blue">{t('common.yes')}</Tag> : <Tag>{t('common.no')}</Tag>;
 }
 
 export default function Index({ listings, urls }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState('');
     const [deleting, setDeleting] = useState(false);
     const [modal, contextHolder] = Modal.useModal();
@@ -54,11 +56,11 @@ export default function Index({ listings, urls }) {
 
     const handleDelete = (listing) => {
         modal.confirm({
-            title: 'Eliminar proveedor',
+            title: t('listings.delete_title'),
             icon: <ExclamationCircleOutlined />,
-            content: `¿Seguro que deseas eliminar "${listing.title}"?`,
-            okText: 'Eliminar',
-            cancelText: 'Cancelar',
+            content: t('listings.delete_confirm', { title: listing.title }),
+            okText: t('common.delete'),
+            cancelText: t('common.cancel'),
             okButtonProps: { danger: true },
             onOk: () =>
                 router.delete(`${urls.base}/${listing.id}`, {
@@ -71,7 +73,7 @@ export default function Index({ listings, urls }) {
 
     const columns = [
         {
-            title: 'Imagen',
+            title: t('listings.image'),
             dataIndex: 'imageUrl',
             key: 'image',
             width: 84,
@@ -79,18 +81,18 @@ export default function Index({ listings, urls }) {
                 url ? (
                     <Image
                         src={url}
-                        alt="Imagen"
+                        alt={t('listings.image')}
                         width={56}
                         height={56}
                         style={{ objectFit: 'cover', borderRadius: 8 }}
-                        preview={{ mask: 'Ver' }}
+                        preview={{ mask: t('listings.view') }}
                     />
                 ) : (
                     '—'
                 ),
         },
         {
-            title: 'Nombre',
+            title: t('users.name'),
             dataIndex: 'title',
             key: 'title',
             sorter: (a, b) => a.title.localeCompare(b.title),
@@ -101,12 +103,12 @@ export default function Index({ listings, urls }) {
                         {record.status === 1 ? (
                             <>
                                 <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 4 }} />
-                                Activo
+                                {t('common.active')}
                             </>
                         ) : (
                             <>
                                 <MinusCircleOutlined style={{ color: '#bfbfbf', marginRight: 4 }} />
-                                Inactivo
+                                {t('common.inactive')}
                             </>
                         )}
                     </Text>
@@ -114,7 +116,7 @@ export default function Index({ listings, urls }) {
             ),
         },
         {
-            title: 'Categoría',
+            title: t('listings.category'),
             dataIndex: 'category',
             key: 'category',
             width: 150,
@@ -123,7 +125,7 @@ export default function Index({ listings, urls }) {
             render: (value) => <Tag color="blue">{value}</Tag>,
         },
         {
-            title: 'Ubicación',
+            title: t('listings.location'),
             dataIndex: 'location',
             key: 'location',
             width: 150,
@@ -131,31 +133,31 @@ export default function Index({ listings, urls }) {
             onFilter: (value, record) => record.location === value,
         },
         {
-            title: 'Destacado',
+            title: t('listings.featured'),
             dataIndex: 'isFeatured',
             key: 'isFeatured',
             width: 110,
             filters: [
-                { text: 'Sí', value: 1 },
-                { text: 'No', value: 0 },
+                { text: t('common.yes'), value: 1 },
+                { text: t('common.no'), value: 0 },
             ],
             onFilter: (value, record) => record.isFeatured === value,
-            render: (value) => <YesNoTag value={value} />,
+            render: (value) => <YesNoTag value={value} t={t} />,
         },
         {
-            title: 'Verificado',
+            title: t('listings.verified'),
             dataIndex: 'isVerified',
             key: 'isVerified',
             width: 110,
             filters: [
-                { text: 'Sí', value: 1 },
-                { text: 'No', value: 0 },
+                { text: t('common.yes'), value: 1 },
+                { text: t('common.no'), value: 0 },
             ],
             onFilter: (value, record) => record.isVerified === value,
-            render: (value) => <YesNoTag value={value} />,
+            render: (value) => <YesNoTag value={value} t={t} />,
         },
         {
-            title: 'Acciones',
+            title: t('common.actions'),
             key: 'actions',
             width: 100,
             render: (_, record) => (
@@ -165,14 +167,18 @@ export default function Index({ listings, urls }) {
                             {
                                 key: 'edit',
                                 icon: <EditOutlined />,
-                                label: <Link href={`${urls.base}/${record.id}/edit`}>Editar</Link>,
+                                label: (
+                                    <Link href={`${urls.base}/${record.id}/edit`}>
+                                        {t('common.edit')}
+                                    </Link>
+                                ),
                             },
                             {
                                 key: 'schedules',
                                 icon: <ClockCircleOutlined />,
                                 label: (
                                     <Link href={`${urls.schedulesBase}/${record.id}`}>
-                                        Gestión de Horarios
+                                        {t('listings.schedules')}
                                     </Link>
                                 ),
                             },
@@ -181,7 +187,7 @@ export default function Index({ listings, urls }) {
                                 icon: <CoffeeOutlined />,
                                 label: (
                                     <Link href={`${urls.base}/${record.id}/amenities`}>
-                                        Gestión de Servicios
+                                        {t('listings.amenities')}
                                     </Link>
                                 ),
                             },
@@ -189,7 +195,7 @@ export default function Index({ listings, urls }) {
                             {
                                 key: 'delete',
                                 icon: <DeleteOutlined />,
-                                label: 'Eliminar',
+                                label: t('common.delete'),
                                 danger: true,
                                 onClick: () => handleDelete(record),
                             },
@@ -197,7 +203,7 @@ export default function Index({ listings, urls }) {
                     }}
                 >
                     <Button size="small" icon={<MoreOutlined />}>
-                        Acciones
+                        {t('common.actions')}
                     </Button>
                 </Dropdown>
             ),
@@ -206,12 +212,12 @@ export default function Index({ listings, urls }) {
 
     return (
         <PageContainer
-            title="Todos los Proveedores"
-            breadcrumbItems={[{ title: 'Proveedores' }, { title: 'Todos los Proveedores' }]}
+            title={t('listings.title')}
+            breadcrumbItems={[{ title: t('nav.suppliers') }, { title: t('listings.title') }]}
             extra={
                 <Link href={urls.create}>
                     <Button type="primary" icon={<PlusOutlined />}>
-                        Nuevo proveedor
+                        {t('listings.new')}
                     </Button>
                 </Link>
             }
@@ -222,7 +228,7 @@ export default function Index({ listings, urls }) {
                 <Input
                     allowClear
                     prefix={<SearchOutlined />}
-                    placeholder="Buscar por nombre"
+                    placeholder={t('common.search_by_name')}
                     style={{ maxWidth: 320 }}
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
@@ -239,9 +245,9 @@ export default function Index({ listings, urls }) {
                     position: ['bottomRight'],
                     pageSize: 10,
                     showSizeChanger: true,
-                    showTotal: (total) => `${total} proveedores`,
+                    showTotal: (total) => t('listings.total', { count: total }),
                 }}
-                locale={{ emptyText: 'No hay proveedores registrados' }}
+                locale={{ emptyText: t('listings.empty') }}
             />
         </PageContainer>
     );

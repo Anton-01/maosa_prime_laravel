@@ -15,11 +15,13 @@ import {
     SaveOutlined,
 } from '@ant-design/icons';
 import PageContainer from '../../../Components/PageContainer';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
 export default function Amenities({ listing, amenities, assignedAmenityIds, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [targetKeys, setTargetKeys] = useState(assignedAmenityIds.map(String));
     const [saving, setSaving] = useState(false);
@@ -59,29 +61,28 @@ export default function Amenities({ listing, amenities, assignedAmenityIds, urls
 
     return (
         <PageContainer
-            title={`Servicios de ${listing.title}`}
+            title={t('listings.amenities_title', { title: listing.title })}
             breadcrumbItems={[
-                { title: 'Proveedores' },
-                { title: 'Todos los Proveedores', href: urls.listings },
-                { title: 'Servicios' },
+                { title: t('nav.suppliers') },
+                { title: t('listings.title'), href: urls.listings },
+                { title: t('listings.amenities') },
             ]}
             extra={
                 <Flex gap="small" wrap>
                     <Link href={urls.listings}>
-                        <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                        <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                     </Link>
                     <Button icon={<PlusOutlined />} onClick={() => setCreateModalOpen(true)}>
-                        Nuevo servicio
+                        {t('listings.new_amenity')}
                     </Button>
                     <Button type="primary" icon={<SaveOutlined />} loading={saving} onClick={handleSave}>
-                        Guardar cambios
+                        {t('listings.save_changes')}
                     </Button>
                 </Flex>
             }
         >
             <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-                Mueve a la derecha los servicios que ofrece este proveedor y presiona
-                &quot;Guardar cambios&quot;.
+                {t('listings.amenities_hint')}
             </Text>
 
             <Transfer
@@ -91,31 +92,31 @@ export default function Amenities({ listing, amenities, assignedAmenityIds, urls
                 render={(item) => item.title}
                 showSearch
                 filterOption={(input, item) => item.title.toLowerCase().includes(input.toLowerCase())}
-                titles={['Disponibles', 'Asignados']}
+                titles={[t('listings.available'), t('listings.assigned')]}
                 listStyle={{ width: '100%', minWidth: 260, height: 420 }}
                 locale={{
-                    itemUnit: 'servicio',
-                    itemsUnit: 'servicios',
-                    notFoundContent: 'Sin servicios',
-                    searchPlaceholder: 'Buscar servicio',
+                    itemUnit: t('listings.amenity_unit'),
+                    itemsUnit: t('listings.amenity_units'),
+                    notFoundContent: t('listings.no_amenities'),
+                    searchPlaceholder: t('listings.search_amenity'),
                 }}
             />
 
             <Modal
-                title="Nuevo servicio"
+                title={t('listings.new_amenity')}
                 open={createModalOpen}
                 onCancel={() => setCreateModalOpen(false)}
                 onOk={() => form.submit()}
-                okText="Crear y asignar"
-                cancelText="Cancelar"
+                okText={t('listings.create_and_assign')}
+                cancelText={t('common.cancel')}
                 confirmLoading={creating}
                 destroyOnHidden
             >
                 <Form form={form} layout="vertical" onFinish={handleCreate} disabled={creating}>
                     <Form.Item
-                        label="Nombre"
+                        label={t('users.name')}
                         name="name"
-                        rules={[{ required: true, message: 'El nombre es obligatorio.' }]}
+                        rules={[{ required: true, message: t('common.name_required') }]}
                         validateStatus={errors.name ? 'error' : undefined}
                         help={errors.name}
                     >

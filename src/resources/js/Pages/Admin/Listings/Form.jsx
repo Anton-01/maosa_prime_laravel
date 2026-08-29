@@ -30,6 +30,7 @@ import {
 import PageContainer from '../../../Components/PageContainer';
 import HtmlEditor from '../../../Components/HtmlEditor';
 import ImageDropUpload from '../../../Components/ImageDropUpload';
+import useTranslation from '../../../Hooks/useTranslation';
 
 const { Text } = Typography;
 
@@ -43,6 +44,7 @@ function ImageField({ label, currentUrl, file, onSelect, error, required }) {
 
 export default function ListingForm({ listing, options, urls }) {
     const { errors } = usePage().props;
+    const { t } = useTranslation();
     const [form] = Form.useForm();
     const [submitting, setSubmitting] = useState(false);
     const [imageFile, setImageFile] = useState(null);
@@ -110,9 +112,9 @@ export default function ListingForm({ listing, options, urls }) {
         <Row gutter={24}>
             <Col xs={24} lg={12}>
                 <Form.Item
-                    label="Nombre"
+                    label={t('users.name')}
                     name="title"
-                    rules={[{ required: true, message: 'El nombre es obligatorio.' }]}
+                    rules={[{ required: true, message: t('common.name_required') }]}
                     validateStatus={errors.title ? 'error' : undefined}
                     help={errors.title}
                 >
@@ -120,28 +122,38 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Categoría"
+                    label={t('listings.category')}
                     name="category"
-                    rules={[{ required: true, message: 'La categoría es obligatoria.' }]}
+                    rules={[{ required: true, message: t('listings.category_required') }]}
                     validateStatus={errors.category ? 'error' : undefined}
                     help={errors.category}
                 >
-                    <Select options={options.categories} showSearch optionFilterProp="label" placeholder="Selecciona una categoría" />
+                    <Select
+                        options={options.categories}
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder={t('listings.category_placeholder')}
+                    />
                 </Form.Item>
 
                 <Form.Item
-                    label="Ubicación"
+                    label={t('listings.location')}
                     name="location"
-                    rules={[{ required: true, message: 'La ubicación es obligatoria.' }]}
+                    rules={[{ required: true, message: t('listings.location_required') }]}
                     validateStatus={errors.location ? 'error' : undefined}
                     help={errors.location}
                 >
-                    <Select options={options.locations} showSearch optionFilterProp="label" placeholder="Selecciona una ubicación" />
+                    <Select
+                        options={options.locations}
+                        showSearch
+                        optionFilterProp="label"
+                        placeholder={t('listings.location_placeholder')}
+                    />
                 </Form.Item>
             </Col>
             <Col xs={24} lg={12}>
                 <ImageField
-                    label="Imagen principal"
+                    label={t('listings.main_image')}
                     currentUrl={listing?.imageUrl}
                     file={imageFile}
                     onSelect={setImageFile}
@@ -149,7 +161,7 @@ export default function ListingForm({ listing, options, urls }) {
                     required={!isEditing}
                 />
                 <ImageField
-                    label="Imagen miniatura"
+                    label={t('listings.thumbnail_image')}
                     currentUrl={listing?.thumbnailImageUrl}
                     file={thumbnailFile}
                     onSelect={setThumbnailFile}
@@ -159,13 +171,13 @@ export default function ListingForm({ listing, options, urls }) {
             </Col>
             <Col xs={24}>
                 <Form.Item
-                    label="Descripción"
+                    label={t('listings.description')}
                     name="description"
-                    rules={[{ required: true, message: 'La descripción es obligatoria.' }]}
+                    rules={[{ required: true, message: t('listings.description_required') }]}
                     validateStatus={errors.description ? 'error' : undefined}
                     help={errors.description}
                 >
-                    <HtmlEditor rows={10} placeholder="Descripción del proveedor" />
+                    <HtmlEditor rows={10} placeholder={t('listings.description_placeholder')} />
                 </Form.Item>
             </Col>
         </Row>
@@ -175,9 +187,9 @@ export default function ListingForm({ listing, options, urls }) {
         <Row gutter={24}>
             <Col xs={24} lg={12}>
                 <Form.Item
-                    label="Dirección"
+                    label={t('listings.address')}
                     name="address"
-                    rules={[{ required: true, message: 'La dirección es obligatoria.' }]}
+                    rules={[{ required: true, message: t('listings.address_required') }]}
                     validateStatus={errors.address ? 'error' : undefined}
                     help={errors.address}
                 >
@@ -185,9 +197,9 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Teléfono"
+                    label={t('listings.phone')}
                     name="phone"
-                    rules={[{ required: true, message: 'El teléfono es obligatorio.' }]}
+                    rules={[{ required: true, message: t('listings.phone_required') }]}
                     validateStatus={errors.phone ? 'error' : undefined}
                     help={errors.phone}
                 >
@@ -195,11 +207,11 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Email"
+                    label={t('listings.email')}
                     name="email"
                     rules={[
-                        { required: true, message: 'El email es obligatorio.' },
-                        { type: 'email', message: 'Debe ser un email válido.' },
+                        { required: true, message: t('listings.email_required') },
+                        { type: 'email', message: t('listings.email_invalid') },
                     ]}
                     validateStatus={errors.email ? 'error' : undefined}
                     help={errors.email}
@@ -208,7 +220,7 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Sitio web"
+                    label={t('listings.website')}
                     name="website"
                     validateStatus={errors.website ? 'error' : undefined}
                     help={errors.website}
@@ -217,7 +229,7 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
             </Col>
             <Col xs={24} lg={12}>
-                <Form.Item label="Redes sociales">
+                <Form.Item label={t('listings.social_links')}>
                     <Form.List name="social_links">
                         {(fields, { add, remove }) => (
                             <Space direction="vertical" size="small" style={{ display: 'flex' }}>
@@ -230,7 +242,7 @@ export default function ListingForm({ listing, options, urls }) {
                                         >
                                             <Select
                                                 options={options.socialNetworks}
-                                                placeholder="Red social"
+                                                placeholder={t('listings.social_network')}
                                                 style={{ width: 160 }}
                                             />
                                         </Form.Item>
@@ -246,7 +258,7 @@ export default function ListingForm({ listing, options, urls }) {
                                     </Space>
                                 ))}
                                 <Button type="dashed" icon={<PlusOutlined />} onClick={() => add()}>
-                                    Agregar red social
+                                    {t('listings.add_social_link')}
                                 </Button>
                             </Space>
                         )}
@@ -254,7 +266,7 @@ export default function ListingForm({ listing, options, urls }) {
                 </Form.Item>
 
                 <Form.Item
-                    label="Código embed de Google Maps"
+                    label={t('listings.maps_embed')}
                     name="google_map_embed_code"
                     validateStatus={errors.google_map_embed_code ? 'error' : undefined}
                     help={errors.google_map_embed_code}
@@ -269,7 +281,7 @@ export default function ListingForm({ listing, options, urls }) {
         <Row gutter={24}>
             <Col xs={24} lg={12}>
                 <Form.Item
-                    label="Título SEO"
+                    label={t('listings.seo_title')}
                     name="seo_title"
                     validateStatus={errors.seo_title ? 'error' : undefined}
                     help={errors.seo_title}
@@ -279,7 +291,7 @@ export default function ListingForm({ listing, options, urls }) {
             </Col>
             <Col xs={24} lg={12}>
                 <Form.Item
-                    label="Descripción SEO"
+                    label={t('listings.seo_description')}
                     name="seo_description"
                     validateStatus={errors.seo_description ? 'error' : undefined}
                     help={errors.seo_description}
@@ -293,23 +305,23 @@ export default function ListingForm({ listing, options, urls }) {
     const settingsTab = (
         <Row gutter={[24, 8]}>
             <Col xs={12} md={6}>
-                <Form.Item label="Activo" name="status" valuePropName="checked">
-                    <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                <Form.Item label={t('listings.active')} name="status" valuePropName="checked">
+                    <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                 </Form.Item>
             </Col>
             <Col xs={12} md={6}>
-                <Form.Item label="Destacado" name="is_featured" valuePropName="checked">
-                    <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                <Form.Item label={t('listings.featured')} name="is_featured" valuePropName="checked">
+                    <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                 </Form.Item>
             </Col>
             <Col xs={12} md={6}>
-                <Form.Item label="Verificado" name="is_verified" valuePropName="checked">
-                    <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                <Form.Item label={t('listings.verified')} name="is_verified" valuePropName="checked">
+                    <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                 </Form.Item>
             </Col>
             <Col xs={12} md={6}>
-                <Form.Item label="Privilegiado" name="is_previliged" valuePropName="checked">
-                    <Switch checkedChildren="Sí" unCheckedChildren="No" />
+                <Form.Item label={t('listings.previliged')} name="is_previliged" valuePropName="checked">
+                    <Switch checkedChildren={t('common.yes')} unCheckedChildren={t('common.no')} />
                 </Form.Item>
             </Col>
         </Row>
@@ -318,28 +330,28 @@ export default function ListingForm({ listing, options, urls }) {
     const tabItems = [
         {
             key: 'general',
-            label: 'Información general',
+            label: t('listings.tab_general'),
             icon: <InfoCircleOutlined />,
             forceRender: true,
             children: generalTab,
         },
         {
             key: 'contact',
-            label: 'Contacto y redes',
+            label: t('listings.tab_contact'),
             icon: <GlobalOutlined />,
             forceRender: true,
             children: contactTab,
         },
         {
             key: 'seo',
-            label: 'SEO',
+            label: t('listings.tab_seo'),
             icon: <SearchOutlined />,
             forceRender: true,
             children: seoTab,
         },
         {
             key: 'settings',
-            label: 'Configuración',
+            label: t('listings.tab_settings'),
             icon: <SettingOutlined />,
             forceRender: true,
             children: settingsTab,
@@ -348,15 +360,19 @@ export default function ListingForm({ listing, options, urls }) {
 
     return (
         <PageContainer
-            title={isEditing ? `Editar proveedor: ${listing.title}` : 'Nuevo proveedor'}
+            title={
+                isEditing
+                    ? t('listings.edit_title', { title: listing.title })
+                    : t('listings.create_title')
+            }
             breadcrumbItems={[
-                { title: 'Proveedores' },
-                { title: 'Todos los Proveedores', href: urls.base },
-                { title: isEditing ? 'Editar' : 'Crear' },
+                { title: t('nav.suppliers') },
+                { title: t('listings.title'), href: urls.base },
+                { title: isEditing ? t('users.breadcrumb_edit') : t('users.breadcrumb_create') },
             ]}
             extra={
                 <Link href={urls.base}>
-                    <Button icon={<ArrowLeftOutlined />}>Volver al listado</Button>
+                    <Button icon={<ArrowLeftOutlined />}>{t('common.back_to_list')}</Button>
                 </Link>
             }
             wrapInCard={false}
@@ -366,8 +382,8 @@ export default function ListingForm({ listing, options, urls }) {
                     type="error"
                     showIcon
                     style={{ marginBottom: 16 }}
-                    message="Revisa el formulario"
-                    description="Hay campos con errores de validación en una o más pestañas."
+                    message={t('listings.form_error_title')}
+                    description={t('listings.form_error_description')}
                 />
             )}
 
@@ -388,7 +404,7 @@ export default function ListingForm({ listing, options, urls }) {
                             icon={<SaveOutlined />}
                             loading={submitting}
                         >
-                            {isEditing ? 'Actualizar proveedor' : 'Crear proveedor'}
+                            {isEditing ? t('listings.submit_update') : t('listings.submit_create')}
                         </Button>
                     </Form.Item>
                 </Form>
