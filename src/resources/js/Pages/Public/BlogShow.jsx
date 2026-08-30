@@ -7,14 +7,17 @@ import dayjs from 'dayjs';
 import asset from '../../Utils/asset';
 import HtmlContent from '../../Components/HtmlContent';
 import PageHeader from '../../Components/Frontend/PageHeader';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text } = Typography;
 
 export default function BlogShow({ blog, popularBlogs }) {
+    const { t } = useTranslation();
+
     return (
         <>
             <Head title={blog.title} />
-            <PageHeader title="Seminario" breadcrumb={[{ label: 'Detalle del seminario' }]} />
+            <PageHeader title={t('public.blog_title')} breadcrumb={[{ label: t('public.blog_breadcrumb') }]} />
 
             <div style={{ padding: '32px 24px' }}>
                 <Row gutter={[24, 24]}>
@@ -36,7 +39,7 @@ export default function BlogShow({ blog, popularBlogs }) {
                     </Col>
 
                     <Col xs={24} lg={8}>
-                        <Card title="Seminarios similares">
+                        <Card title={t('public.similar_blogs')}>
                             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                                 {popularBlogs?.map((item) => (
                                     <Link

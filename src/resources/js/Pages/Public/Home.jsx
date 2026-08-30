@@ -23,10 +23,12 @@ import asset from '../../Utils/asset';
 import HtmlContent from '../../Components/HtmlContent';
 import SectionHeading from '../../Components/Frontend/SectionHeading';
 import ListingCard from '../../Components/Frontend/ListingCard';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text, Paragraph } = Typography;
 
 function SearchBanner({ hero, categories, locations }) {
+    const { t } = useTranslation();
     const { settings } = usePage().props;
     const brand = settings?.color || '#6777ef';
     const [search, setSearch] = useState('');
@@ -63,7 +65,7 @@ function SearchBanner({ hero, categories, locations }) {
                         />
                     ) : (
                         <Title style={{ color: '#fff', fontSize: 40 }}>
-                            Encuentra los mejores proveedores
+                            {t('public.hero_default_title')}
                         </Title>
                     )}
                     {hero?.sub_title && (
@@ -77,11 +79,11 @@ function SearchBanner({ hero, categories, locations }) {
                 <Col xs={24} lg={10}>
                     <Card styles={{ body: { padding: 24 } }}>
                         <Title level={4} style={{ marginTop: 0 }}>
-                            Encuentra los mejores proveedores
+                            {t('public.hero_default_title')}
                         </Title>
                         <Input
                             size="large"
-                            placeholder="¿Qué estás buscando?"
+                            placeholder={t('public.search_placeholder')}
                             prefix={<SearchOutlined />}
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
@@ -90,7 +92,7 @@ function SearchBanner({ hero, categories, locations }) {
                         />
                         <Select
                             size="large"
-                            placeholder="Categorías"
+                            placeholder={t('dashboard.categories')}
                             allowClear
                             value={category}
                             onChange={setCategory}
@@ -99,7 +101,7 @@ function SearchBanner({ hero, categories, locations }) {
                         />
                         <Select
                             size="large"
-                            placeholder="Ubicaciones"
+                            placeholder={t('dashboard.locations')}
                             allowClear
                             value={location}
                             onChange={setLocation}
@@ -107,7 +109,7 @@ function SearchBanner({ hero, categories, locations }) {
                             options={locations?.map((l) => ({ value: l.slug, label: l.name }))}
                         />
                         <Button type="primary" size="large" block icon={<SearchOutlined />} onClick={submit}>
-                            Buscar
+                            {t('public.search_button')}
                         </Button>
                     </Card>
                 </Col>
@@ -183,6 +185,7 @@ function Features({ sectionTitle, ourFeatures }) {
 }
 
 function FeaturedCategories({ sectionTitle, featuredCategories }) {
+    const { t } = useTranslation();
     if (!featuredCategories?.length) return null;
     return (
         <div style={{ padding: '56px 24px', background: '#fff' }}>
@@ -222,7 +225,9 @@ function FeaturedCategories({ sectionTitle, featuredCategories }) {
                                             </Text>
                                             <Text style={{ color: 'rgba(255,255,255,0.85)' }}>
                                                 {category.listings_count}{' '}
-                                                {category.listings_count === 1 ? 'proveedor' : 'proveedores'}
+                                                {category.listings_count === 1
+                                                    ? t('frontend.supplier')
+                                                    : t('frontend.suppliers')}
                                             </Text>
                                         </div>
                                     </div>
@@ -237,11 +242,12 @@ function FeaturedCategories({ sectionTitle, featuredCategories }) {
 }
 
 function Counter({ userCount, suppliersCount, categories, locations }) {
+    const { t } = useTranslation();
     const items = [
-        { title: 'Usuarios', value: userCount, icon: <TeamOutlined /> },
-        { title: 'Proveedores', value: suppliersCount, icon: <ShopOutlined /> },
-        { title: 'Categorías', value: categories?.length ?? 0, icon: <AppstoreOutlined /> },
-        { title: 'Ubicaciones', value: locations?.length ?? 0, icon: <EnvironmentOutlined /> },
+        { title: t('dashboard.users'), value: userCount, icon: <TeamOutlined /> },
+        { title: t('dashboard.suppliers'), value: suppliersCount, icon: <ShopOutlined /> },
+        { title: t('dashboard.categories'), value: categories?.length ?? 0, icon: <AppstoreOutlined /> },
+        { title: t('dashboard.locations'), value: locations?.length ?? 0, icon: <EnvironmentOutlined /> },
     ];
     return (
         <div style={{ padding: '48px 24px', background: '#0f1729' }}>
@@ -310,6 +316,7 @@ function FeaturedListings({ sectionTitle, featuredListings }) {
 }
 
 export default function Home(props) {
+    const { t } = useTranslation();
     const {
         hero,
         sectionTitle,
@@ -325,7 +332,7 @@ export default function Home(props) {
 
     return (
         <>
-            <Head title="Inicio" />
+            <Head title={t('public.home_title')} />
             <SearchBanner hero={hero} categories={categories} locations={locations} />
             <CategorySlider categories={categories} />
             <Features sectionTitle={sectionTitle} ourFeatures={ourFeatures} />

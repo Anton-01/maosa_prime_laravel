@@ -10,6 +10,7 @@ import {
 
 import HtmlContent from '../../Components/HtmlContent';
 import PageHeader from '../../Components/Frontend/PageHeader';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text } = Typography;
 
@@ -25,6 +26,7 @@ function ContactBox({ icon, children }) {
 }
 
 export default function Contact({ contact }) {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -42,8 +44,8 @@ export default function Contact({ contact }) {
 
     return (
         <>
-            <Head title="Contacto" />
-            <PageHeader title="Contáctanos" breadcrumb={[{ label: 'Contacto' }]} />
+            <Head title={t('public.contact_breadcrumb')} />
+            <PageHeader title={t('public.contact_title')} breadcrumb={[{ label: t('public.contact_breadcrumb') }]} />
 
             <div style={{ padding: '32px 24px' }}>
                 <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
@@ -67,7 +69,7 @@ export default function Contact({ contact }) {
                 </Row>
 
                 <Card style={{ marginBottom: 24 }}>
-                    <Title level={3}>Envíanos un mensaje</Title>
+                    <Title level={3}>{t('public.send_message_title')}</Title>
                     <Form layout="vertical" onFinish={handleSubmit} disabled={processing}>
                         <input
                             type="text"
@@ -81,7 +83,7 @@ export default function Contact({ contact }) {
                         <Row gutter={16}>
                             <Col xs={24} md={12}>
                                 <Form.Item
-                                    label="Nombre"
+                                    label={t('users.name')}
                                     validateStatus={errors.name ? 'error' : undefined}
                                     help={errors.name}
                                 >
@@ -93,7 +95,7 @@ export default function Contact({ contact }) {
                             </Col>
                             <Col xs={24} md={12}>
                                 <Form.Item
-                                    label="Correo electrónico"
+                                    label={t('auth.email_electronic')}
                                     validateStatus={errors.email ? 'error' : undefined}
                                     help={errors.email}
                                 >
@@ -106,7 +108,7 @@ export default function Contact({ contact }) {
                             </Col>
                         </Row>
                         <Form.Item
-                            label="Asunto"
+                            label={t('public.subject')}
                             validateStatus={errors.subject ? 'error' : undefined}
                             help={errors.subject}
                         >
@@ -116,7 +118,7 @@ export default function Contact({ contact }) {
                             />
                         </Form.Item>
                         <Form.Item
-                            label="Mensaje"
+                            label={t('public.message')}
                             validateStatus={errors.message ? 'error' : undefined}
                             help={errors.message}
                         >
@@ -132,7 +134,7 @@ export default function Contact({ contact }) {
                             icon={<SendOutlined />}
                             loading={processing}
                         >
-                            Enviar mensaje
+                            {t('public.send_message_button')}
                         </Button>
                     </Form>
                 </Card>

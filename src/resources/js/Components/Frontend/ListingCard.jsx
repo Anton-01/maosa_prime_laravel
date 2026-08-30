@@ -4,6 +4,7 @@ import { Card, Tag, Typography } from 'antd';
 import { CheckCircleFilled, EnvironmentOutlined, TagOutlined } from '@ant-design/icons';
 
 import asset from '../../Utils/asset';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Text, Title } = Typography;
 
@@ -11,6 +12,8 @@ const { Text, Title } = Typography;
  * Provider (listing) card used across the home, listings and location grids.
  */
 export default function ListingCard({ listing }) {
+    const { t } = useTranslation();
+
     return (
         <Card
             hoverable
@@ -29,7 +32,7 @@ export default function ListingCard({ listing }) {
                                 icon={<CheckCircleFilled />}
                                 style={{ position: 'absolute', top: 10, left: 10, margin: 0 }}
                             >
-                                Destacado
+                                {t('listings.featured')}
                             </Tag>
                         )}
                         {!!listing.is_previliged && (

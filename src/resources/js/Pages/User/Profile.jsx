@@ -25,6 +25,7 @@ import {
 
 import asset from '../../Utils/asset';
 import ImageDropUpload from '../../Components/ImageDropUpload';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text } = Typography;
 
@@ -37,6 +38,7 @@ function ImageUpload({ label, preview, onPick }) {
 }
 
 export default function Profile({ profile }) {
+    const { t } = useTranslation();
     const { appUrls } = usePage().props;
 
     const infoForm = useForm({
@@ -89,7 +91,7 @@ export default function Profile({ profile }) {
 
     return (
         <>
-            <Head title="Mi perfil" />
+            <Head title={t('user_profile.title')} />
 
             {/* Welcome card */}
             <Card styles={{ body: { padding: 0 } }} style={{ marginBottom: 24, overflow: 'hidden' }}>
@@ -120,7 +122,7 @@ export default function Profile({ profile }) {
                                 <Tag color="blue">{profile.user_type}</Tag>
                                 {profile.can_view_price_table && (
                                     <Tag color="orange" icon={<DollarOutlined />}>
-                                        Precios Internacionales
+                                        {t('users.international_prices')}
                                     </Tag>
                                 )}
                             </Space>
@@ -135,7 +137,7 @@ export default function Profile({ profile }) {
                     <Link href={appUrls.userProfile}>
                         <Card hoverable style={{ textAlign: 'center' }}>
                             <UserOutlined style={{ fontSize: 24, color: 'var(--brand-color, #6777ef)' }} />
-                            <div style={{ marginTop: 8 }}>Mi Perfil</div>
+                            <div style={{ marginTop: 8 }}>{t('user_profile.my_profile')}</div>
                         </Card>
                     </Link>
                 </Col>
@@ -144,7 +146,7 @@ export default function Profile({ profile }) {
                         <Link href={appUrls.priceTable}>
                             <Card hoverable style={{ textAlign: 'center' }}>
                                 <DollarOutlined style={{ fontSize: 24, color: '#fa8c16' }} />
-                                <div style={{ marginTop: 8 }}>Precios Internacionales</div>
+                                <div style={{ marginTop: 8 }}>{t('users.international_prices')}</div>
                             </Card>
                         </Link>
                     </Col>
@@ -153,21 +155,21 @@ export default function Profile({ profile }) {
                     <Link href={appUrls.listings}>
                         <Card hoverable style={{ textAlign: 'center' }}>
                             <AppstoreOutlined style={{ fontSize: 24, color: '#13c2c2' }} />
-                            <div style={{ marginTop: 8 }}>Ver Proveedores</div>
+                            <div style={{ marginTop: 8 }}>{t('user_profile.view_suppliers')}</div>
                         </Card>
                     </Link>
                 </Col>
             </Row>
 
             {/* Info form */}
-            <Card title="Información básica" style={{ marginBottom: 24 }}>
+            <Card title={t('user_profile.basic_info')} style={{ marginBottom: 24 }}>
                 <Form layout="vertical" onFinish={submitInfo} disabled={infoForm.processing}>
                     <Row gutter={24}>
                         <Col xs={24} lg={16}>
                             <Row gutter={16}>
                                 <Col xs={24} md={12}>
                                     <Form.Item
-                                        label="Nombre"
+                                        label={t('users.name')}
                                         required
                                         validateStatus={infoForm.errors.name ? 'error' : undefined}
                                         help={infoForm.errors.name}
@@ -180,7 +182,7 @@ export default function Profile({ profile }) {
                                 </Col>
                                 <Col xs={24} md={12}>
                                     <Form.Item
-                                        label="Teléfono"
+                                        label={t('common.phone')}
                                         required
                                         validateStatus={infoForm.errors.phone ? 'error' : undefined}
                                         help={infoForm.errors.phone}
@@ -193,7 +195,7 @@ export default function Profile({ profile }) {
                                 </Col>
                                 <Col xs={24}>
                                     <Form.Item
-                                        label="Correo electrónico"
+                                        label={t('auth.email_electronic')}
                                         required
                                         validateStatus={infoForm.errors.email ? 'error' : undefined}
                                         help={infoForm.errors.email}
@@ -207,7 +209,7 @@ export default function Profile({ profile }) {
                                 </Col>
                                 <Col xs={24}>
                                     <Form.Item
-                                        label="Dirección"
+                                        label={t('common.address')}
                                         required
                                         validateStatus={infoForm.errors.address ? 'error' : undefined}
                                         help={infoForm.errors.address}
@@ -221,8 +223,16 @@ export default function Profile({ profile }) {
                             </Row>
                         </Col>
                         <Col xs={24} lg={8}>
-                            <ImageUpload label="Foto de perfil" preview={avatarPreview} onPick={pickAvatar} />
-                            <ImageUpload label="Imagen de fondo" preview={bannerPreview} onPick={pickBanner} />
+                            <ImageUpload
+                                label={t('user_profile.profile_photo')}
+                                preview={avatarPreview}
+                                onPick={pickAvatar}
+                            />
+                            <ImageUpload
+                                label={t('user_profile.background_image')}
+                                preview={bannerPreview}
+                                onPick={pickBanner}
+                            />
                         </Col>
                     </Row>
 
@@ -232,18 +242,18 @@ export default function Profile({ profile }) {
                         icon={<SaveOutlined />}
                         loading={infoForm.processing}
                     >
-                        Guardar cambios
+                        {t('user_profile.save_changes')}
                     </Button>
                 </Form>
             </Card>
 
             {/* Password form */}
-            <Card title="Cambiar contraseña">
+            <Card title={t('user_profile.change_password')}>
                 <Form layout="vertical" onFinish={submitPassword} disabled={passwordForm.processing}>
                     <Row gutter={16}>
                         <Col xs={24} md={8}>
                             <Form.Item
-                                label="Contraseña actual"
+                                label={t('user_profile.current_password')}
                                 validateStatus={passwordForm.errors.current_password ? 'error' : undefined}
                                 help={passwordForm.errors.current_password}
                             >
@@ -257,7 +267,7 @@ export default function Profile({ profile }) {
                         </Col>
                         <Col xs={24} md={8}>
                             <Form.Item
-                                label="Nueva contraseña"
+                                label={t('profile.new_password')}
                                 validateStatus={passwordForm.errors.password ? 'error' : undefined}
                                 help={passwordForm.errors.password}
                             >
@@ -268,7 +278,7 @@ export default function Profile({ profile }) {
                             </Form.Item>
                         </Col>
                         <Col xs={24} md={8}>
-                            <Form.Item label="Confirmar contraseña">
+                            <Form.Item label={t('profile.confirm_password')}>
                                 <Input.Password
                                     value={passwordForm.data.password_confirmation}
                                     onChange={(e) =>
@@ -283,7 +293,7 @@ export default function Profile({ profile }) {
                         icon={<KeyOutlined />}
                         loading={passwordForm.processing}
                     >
-                        Actualizar contraseña
+                        {t('profile.submit_password')}
                     </Button>
                 </Form>
             </Card>

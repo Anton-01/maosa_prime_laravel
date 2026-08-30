@@ -3,6 +3,8 @@ import { Link, usePage } from '@inertiajs/react';
 import { Breadcrumb, Typography } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 
+import useTranslation from '../../Hooks/useTranslation';
+
 const { Title } = Typography;
 
 /**
@@ -10,6 +12,7 @@ const { Title } = Typography;
  * Optionally uses a background image (e.g. the listing thumbnail).
  */
 export default function PageHeader({ title, breadcrumb = [], background }) {
+    const { t } = useTranslation();
     const { settings, appUrls } = usePage().props;
     const brand = settings?.color || '#6777ef';
 
@@ -40,7 +43,7 @@ export default function PageHeader({ title, breadcrumb = [], background }) {
                         {
                             title: (
                                 <Link href={appUrls.home} style={{ color: 'rgba(255,255,255,0.85)' }}>
-                                    <HomeOutlined /> Inicio
+                                    <HomeOutlined /> {t('header.home')}
                                 </Link>
                             ),
                         },

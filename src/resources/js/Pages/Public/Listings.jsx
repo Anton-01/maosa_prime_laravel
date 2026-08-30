@@ -5,8 +5,10 @@ import { SearchOutlined } from '@ant-design/icons';
 
 import PageHeader from '../../Components/Frontend/PageHeader';
 import ListingCard from '../../Components/Frontend/ListingCard';
+import useTranslation from '../../Hooks/useTranslation';
 
 export default function Listings({ listings, categories, locations, filters }) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState(filters?.search || '');
     const [category, setCategory] = useState(filters?.category || undefined);
     const [location, setLocation] = useState(filters?.location || undefined);
@@ -21,15 +23,15 @@ export default function Listings({ listings, categories, locations, filters }) {
 
     return (
         <>
-            <Head title="Proveedores" />
-            <PageHeader title="Proveedores" breadcrumb={[{ label: 'Proveedores' }]} />
+            <Head title={t('public.suppliers_title')} />
+            <PageHeader title={t('public.suppliers_title')} breadcrumb={[{ label: t('public.suppliers_title') }]} />
 
             <div style={{ padding: '32px 24px' }}>
                 <Card style={{ marginBottom: 24 }}>
                     <Row gutter={[12, 12]} align="middle">
                         <Col xs={24} md={8}>
                             <Input
-                                placeholder="Buscar"
+                                placeholder={t('common.search')}
                                 prefix={<SearchOutlined />}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
@@ -39,7 +41,7 @@ export default function Listings({ listings, categories, locations, filters }) {
                         </Col>
                         <Col xs={12} md={6}>
                             <Select
-                                placeholder="Categorías"
+                                placeholder={t('public.category_placeholder')}
                                 allowClear
                                 style={{ width: '100%' }}
                                 value={category}
@@ -49,7 +51,7 @@ export default function Listings({ listings, categories, locations, filters }) {
                         </Col>
                         <Col xs={12} md={6}>
                             <Select
-                                placeholder="Ubicación"
+                                placeholder={t('public.location_placeholder')}
                                 allowClear
                                 style={{ width: '100%' }}
                                 value={location}
@@ -64,7 +66,7 @@ export default function Listings({ listings, categories, locations, filters }) {
                                 icon={<SearchOutlined />}
                                 onClick={() => applyFilters()}
                             >
-                                Buscar
+                                {t('public.search_button')}
                             </Button>
                         </Col>
                     </Row>
@@ -91,7 +93,7 @@ export default function Listings({ listings, categories, locations, filters }) {
                         </div>
                     </>
                 ) : (
-                    <Empty description="No se encontraron proveedores" style={{ padding: 60 }} />
+                    <Empty description={t('public.no_suppliers_found')} style={{ padding: 60 }} />
                 )}
             </div>
         </>

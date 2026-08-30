@@ -23,6 +23,8 @@ import {
 
 import asset from '../Utils/asset';
 import useFlash from '../Hooks/useFlash';
+import useTranslation from '../Hooks/useTranslation';
+import LocaleSwitcher from '../Components/LocaleSwitcher';
 
 const { Header, Content, Footer } = Layout;
 const { Text, Title } = Typography;
@@ -64,6 +66,7 @@ function buildMenuItems(items = []) {
 
 export default function FrontendLayout({ children }) {
     useFlash();
+    const { t } = useTranslation();
     const { settings, siteMenu, footerInfo, auth, appUrls } = usePage().props;
     const screens = useBreakpoint();
     const [drawerOpen, setDrawerOpen] = useState(false);
@@ -76,13 +79,13 @@ export default function FrontendLayout({ children }) {
     const accountControl = auth?.user ? (
         <Link href={appUrls.userDashboard}>
             <Button type="primary" ghost icon={<UserOutlined />}>
-                Mi Panel
+                {t('frontend.my_panel')}
             </Button>
         </Link>
     ) : (
         <Link href={appUrls.login}>
             <Button type="primary" icon={<LoginOutlined />}>
-                Iniciar sesión
+                {t('auth.login_title')}
             </Button>
         </Link>
     );
@@ -104,7 +107,8 @@ export default function FrontendLayout({ children }) {
                             gap: 8,
                         }}
                     >
-                        <Space size="large" wrap>
+                        <Space size="large" wrap align="center">
+                            <LocaleSwitcher size="small" width={92} />
                             {settings?.email && (
                                 <a href={`mailto:${settings.email}`} style={{ color: '#fff' }}>
                                     <MailOutlined /> {settings.email}
@@ -178,7 +182,7 @@ export default function FrontendLayout({ children }) {
                                 type="text"
                                 icon={<MenuOutlined style={{ fontSize: 20 }} />}
                                 onClick={() => setDrawerOpen(true)}
-                                aria-label="Abrir menú"
+                                aria-label={t('header.open_menu')}
                             />
                         )}
                     </div>
@@ -216,7 +220,7 @@ export default function FrontendLayout({ children }) {
                         >
                             <div>
                                 <Title level={5} style={{ color: '#fff' }}>
-                                    Sobre Nosotros
+                                    {t('frontend.about_us')}
                                 </Title>
                                 <div
                                     className="rich-content"
@@ -225,12 +229,12 @@ export default function FrontendLayout({ children }) {
                                 />
                             </div>
 
-                            <FooterMenuColumn title="Mi cuenta" items={siteMenu?.footerOne} />
-                            <FooterMenuColumn title="Enlaces útiles" items={siteMenu?.footerTwo} />
+                            <FooterMenuColumn title={t('frontend.my_account')} items={siteMenu?.footerOne} />
+                            <FooterMenuColumn title={t('frontend.useful_links')} items={siteMenu?.footerTwo} />
 
                             <div>
                                 <Title level={5} style={{ color: '#fff' }}>
-                                    Información
+                                    {t('frontend.information')}
                                 </Title>
                                 <Space direction="vertical" size="small">
                                     {footerInfo?.address && (

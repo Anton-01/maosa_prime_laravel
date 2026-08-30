@@ -14,30 +14,35 @@ import {
 import asset from '../../Utils/asset';
 import HtmlContent from '../../Components/HtmlContent';
 import PageHeader from '../../Components/Frontend/PageHeader';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text, Paragraph } = Typography;
 
-const DAY_LABELS = {
-    monday: 'Lunes',
-    tuesday: 'Martes',
-    wednesday: 'Miércoles',
-    thursday: 'Jueves',
-    friday: 'Viernes',
-    saturday: 'Sábado',
-    sunday: 'Domingo',
-};
-
 export default function ListingView({ listing, relatedListings, openStatus }) {
+    const { t } = useTranslation();
     const amenities = listing.amenities ?? [];
     const schedules = listing.schedules ?? [];
     const socials = listing.social_networks ?? listing.socialNetworks ?? [];
+
+    const dayLabels = {
+        monday: t('public.day_monday'),
+        tuesday: t('public.day_tuesday'),
+        wednesday: t('public.day_wednesday'),
+        thursday: t('public.day_thursday'),
+        friday: t('public.day_friday'),
+        saturday: t('public.day_saturday'),
+        sunday: t('public.day_sunday'),
+    };
 
     return (
         <>
             <Head title={listing.title} />
             <PageHeader
                 title={listing.title}
-                breadcrumb={[{ label: 'Proveedores', href: '/suppliers' }, { label: 'Detalle' }]}
+                breadcrumb={[
+                    { label: t('public.suppliers_title'), href: '/suppliers' },
+                    { label: t('public.detail') },
+                ]}
                 background={listing.thumbnail_image ? asset(listing.thumbnail_image) : null}
             />
 
@@ -52,28 +57,28 @@ export default function ListingView({ listing, relatedListings, openStatus }) {
                                     </Title>
                                     {listing.user && (
                                         <Text type="secondary">
-                                            <UserOutlined /> Organizado por {listing.user.name}
+                                            <UserOutlined /> {t('public.organized_by', { name: listing.user.name })}
                                         </Text>
                                     )}
                                 </div>
                                 <Space>
-                                    {openStatus === 'open' && <Tag color="success">Abierto ahora</Tag>}
-                                    {openStatus === 'close' && <Tag color="error">Cerrado</Tag>}
+                                    {openStatus === 'open' && <Tag color="success">{t('public.open_now')}</Tag>}
+                                    {openStatus === 'close' && <Tag color="error">{t('public.closed')}</Tag>}
                                     {!!listing.is_verified && (
                                         <Tag color="green" icon={<CheckCircleFilled />}>
-                                            Verificado
+                                            {t('public.verified')}
                                         </Tag>
                                     )}
                                 </Space>
                             </Space>
                         </Card>
 
-                        <Card title="Acerca de la empresa" style={{ marginBottom: 24 }}>
+                        <Card title={t('public.about_company')} style={{ marginBottom: 24 }}>
                             <HtmlContent html={listing.description} />
                         </Card>
 
                         {amenities.length > 0 && (
-                            <Card title="Servicios y características" style={{ marginBottom: 24 }}>
+                            <Card title={t('public.services_features')} style={{ marginBottom: 24 }}>
                                 <Row gutter={[16, 16]}>
                                     {amenities.map((item) => (
                                         <Col xs={24} sm={12} key={item.id}>
@@ -95,14 +100,14 @@ export default function ListingView({ listing, relatedListings, openStatus }) {
                         )}
 
                         {listing.google_map_embed_code && (
-                            <Card title="Ubicación">
+                            <Card title={t('public.location_title')}>
                                 <HtmlContent html={listing.google_map_embed_code} />
                             </Card>
                         )}
                     </Col>
 
                     <Col xs={24} lg={8}>
-                        <Card title="Información de contacto" style={{ marginBottom: 24 }}>
+                        <Card title={t('public.contact_info')} style={{ marginBottom: 24 }}>
                             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                                 {listing.phone && (
                                     <a href={`tel:${listing.phone}`}>
@@ -148,7 +153,7 @@ export default function ListingView({ listing, relatedListings, openStatus }) {
                             <Card
                                 title={
                                     <span>
-                                        <ClockCircleOutlined /> Horario de atención
+                                        <ClockCircleOutlined /> {t('public.opening_hours')}
                                     </span>
                                 }
                                 style={{ marginBottom: 24 }}
@@ -159,7 +164,7 @@ export default function ListingView({ listing, relatedListings, openStatus }) {
                                     renderItem={(schedule) => (
                                         <List.Item style={{ paddingInline: 0 }}>
                                             <Text strong>
-                                                {DAY_LABELS[schedule.day] ?? schedule.day}
+                                                {dayLabels[schedule.day] ?? schedule.day}
                                             </Text>
                                             <Text type="secondary">
                                                 {schedule.start_time} - {schedule.end_time}
@@ -171,7 +176,7 @@ export default function ListingView({ listing, relatedListings, openStatus }) {
                         )}
 
                         {relatedListings?.length > 0 && (
-                            <Card title="Proveedores similares">
+                            <Card title={t('public.similar_suppliers')}>
                                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                                     {relatedListings.map((related) => (
                                         <Link

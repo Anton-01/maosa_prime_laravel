@@ -9,6 +9,8 @@ import {
 } from '@ant-design/icons';
 
 import HtmlContent from '../../Components/HtmlContent';
+import LocaleSwitcher from '../../Components/LocaleSwitcher';
+import useTranslation from '../../Hooks/useTranslation';
 
 function PlatformScene() {
     // Offshore oil & gas platform, night scene (decorative).
@@ -108,6 +110,7 @@ function PlatformScene() {
 }
 
 export default function GuestLanding({ hero }) {
+    const { t } = useTranslation();
     const { settings, appUrls } = usePage().props;
     const brand = settings?.color || '#6777ef';
 
@@ -137,7 +140,7 @@ export default function GuestLanding({ hero }) {
                             lineHeight: 1.7,
                         }}
                     >
-                        Plataforma integral para la gestión y monitoreo de precios y proveedores.
+                        {t('public.guest_description')}
                     </div>
                 </div>
 
@@ -155,6 +158,10 @@ export default function GuestLanding({ hero }) {
                     }}
                     className="guest-landing-panel"
                 >
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                        <LocaleSwitcher />
+                    </div>
+
                     <div
                         style={{
                             display: 'inline-flex',
@@ -170,7 +177,7 @@ export default function GuestLanding({ hero }) {
                             alignSelf: 'flex-start',
                         }}
                     >
-                        <StarFilled /> Bienvenido a {settings?.siteName}
+                        <StarFilled /> {t('public.welcome_to', { name: settings?.siteName })}
                     </div>
 
                     {hero?.title ? (
@@ -180,7 +187,8 @@ export default function GuestLanding({ hero }) {
                         />
                     ) : (
                         <h1 style={{ fontSize: 30, fontWeight: 800, color: '#1a1f5e', lineHeight: 1.2 }}>
-                            Gestión de <span style={{ color: brand }}>Hidrocarburos</span>
+                            {t('public.guest_title_prefix')}{' '}
+                            <span style={{ color: brand }}>{t('public.guest_title_highlight')}</span>
                         </h1>
                     )}
 
@@ -194,19 +202,17 @@ export default function GuestLanding({ hero }) {
                     <div style={{ marginBottom: 28 }}>
                         <Link href={appUrls.login}>
                             <Button type="primary" size="large" icon={<LoginOutlined />}>
-                                Iniciar sesión
+                                {t('auth.login_title')}
                             </Button>
                         </Link>
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#444' }}>
-                            <CheckCircleFilled style={{ color: '#22c55e' }} /> Acceso a proveedores
-                            exclusivos
+                            <CheckCircleFilled style={{ color: '#22c55e' }} /> {t('public.guest_feature_1')}
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#444' }}>
-                            <SafetyCertificateOutlined style={{ color: '#22c55e' }} /> Precios de
-                            combustibles actualizados día con día
+                            <SafetyCertificateOutlined style={{ color: '#22c55e' }} /> {t('public.guest_feature_2')}
                         </span>
                     </div>
                 </div>

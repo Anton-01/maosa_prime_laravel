@@ -8,6 +8,7 @@ import asset from '../../Utils/asset';
 import HtmlContent from '../../Components/HtmlContent';
 import PageHeader from '../../Components/Frontend/PageHeader';
 import SectionHeading from '../../Components/Frontend/SectionHeading';
+import useTranslation from '../../Hooks/useTranslation';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -17,16 +18,18 @@ function stripHtml(html) {
 }
 
 export default function About({ about, blogs, categories, aboutVideoThumbnail }) {
+    const { t } = useTranslation();
+
     return (
         <>
-            <Head title="Quiénes somos" />
-            <PageHeader title="Quiénes somos" breadcrumb={[{ label: 'Sobre nosotros' }]} />
+            <Head title={t('public.about_title')} />
+            <PageHeader title={t('public.about_title')} breadcrumb={[{ label: t('public.about_breadcrumb') }]} />
 
             <div style={{ padding: '56px 24px' }}>
                 <Row gutter={[40, 40]} align="middle">
                     <Col xs={24} lg={12}>
                         <Tag color="blue" style={{ marginBottom: 16 }}>
-                            Nuestra Historia
+                            {t('public.our_story')}
                         </Tag>
                         <HtmlContent html={about?.description} />
                     </Col>
@@ -35,7 +38,7 @@ export default function About({ about, blogs, categories, aboutVideoThumbnail })
                             {(aboutVideoThumbnail || about?.image) && (
                                 <img
                                     src={aboutVideoThumbnail || asset(about?.image)}
-                                    alt="Sobre nosotros"
+                                    alt={t('public.about_alt')}
                                     style={{
                                         width: '100%',
                                         height: 380,
@@ -63,8 +66,7 @@ export default function About({ about, blogs, categories, aboutVideoThumbnail })
                                         boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                                     }}
                                 >
-                                    <SafetyCertificateOutlined style={{ color: '#22c55e' }} /> Empresa
-                                    Verificada
+                                    <SafetyCertificateOutlined style={{ color: '#22c55e' }} /> {t('public.verified_company')}
                                 </a>
                             )}
                         </div>
@@ -75,8 +77,8 @@ export default function About({ about, blogs, categories, aboutVideoThumbnail })
             {blogs?.length > 0 && (
                 <div style={{ padding: '56px 24px', background: '#fff' }}>
                     <SectionHeading
-                        title="Nuestros Seminarios"
-                        subtitle="Mantente actualizado con nuestros eventos y capacitaciones."
+                        title={t('public.our_seminars')}
+                        subtitle={t('public.seminars_subtitle')}
                     />
                     <Row gutter={[24, 24]}>
                         {blogs.map((blog) => (
@@ -111,7 +113,7 @@ export default function About({ about, blogs, categories, aboutVideoThumbnail })
                                     <Paragraph type="secondary" ellipsis={{ rows: 3 }}>
                                         {stripHtml(blog.description)}
                                     </Paragraph>
-                                    <Link href={`/information/${blog.slug}`}>Leer más →</Link>
+                                    <Link href={`/information/${blog.slug}`}>{t('public.read_more')}</Link>
                                 </Card>
                             </Col>
                         ))}
@@ -121,7 +123,7 @@ export default function About({ about, blogs, categories, aboutVideoThumbnail })
 
             {categories?.length > 0 && (
                 <div style={{ padding: '56px 24px' }}>
-                    <SectionHeading title="Categorías destacadas" />
+                    <SectionHeading title={t('public.featured_categories')} />
                     <Row gutter={[24, 24]}>
                         {categories.map((category) => (
                             <Col xs={24} sm={12} lg={8} key={category.id}>
