@@ -15,32 +15,21 @@ use Illuminate\Http\Response;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
 use ZipArchive;
+use Illuminate\Support\Facades\Log;
 
-/**
- * Submódulo "Precios PEMEX" (REQ-04 a REQ-07).
- *
- * Los cuatro endpoints de layout (HTML, Excel, pdf e imagen) son un proxy de
- * la API de Layout de Precios PEMEX y trabajan por lote: el navegador manda
- * **una sola** petición con las estaciones seleccionadas y la fecha de
- * vigencia, y aquí dentro se resuelven todas en paralelo y se devuelve el
- * resultado ya armado.
- *
- * Así el token nunca llega al navegador y en cada llamada se valida —vía
- * PrecioPemexLayoutRequest— que las estaciones estén asignadas al usuario y
- * que la fecha sea ayer, hoy o mañana.
- */
 class PrecioPemexController extends Controller
 {
-    public function __construct(
-        private readonly PrecioPemexApiService $api,
-        private readonly UserTrackingService $tracking,
-    ) {}
+    public function __construct(private readonly PrecioPemexApiService $api, private readonly UserTrackingService $tracking) {}
 
-    /**
-     * Vista del submódulo con las estaciones asignadas al usuario (REQ-06).
-     */
+
     public function index(): InertiaResponse
     {
+
+        Log::info('Carga de Index PrecioPemex', [
+            'user_id' => auth()->id(),
+            'cantidad_estaciones_front'
+        ]);
+
         return Inertia::render('User/PreciosPemex', [
             'stations' => $this->stationsForUser(),
             'endpoints' => [
@@ -49,7 +38,6 @@ class PrecioPemexController extends Controller
                 'pdf' => route('user.precio-pemex.pdf'),
                 'imagen' => route('user.precio-pemex.imagen'),
             ],
-            // Las tres únicas fechas seleccionables; el backend valida lo mismo.
             'dates' => [
                 'min' => Carbon::yesterday()->toDateString(),
                 'today' => Carbon::today()->toDateString(),
@@ -60,203 +48,163 @@ class PrecioPemexController extends Controller
         ]);
     }
 
-    /**
-     * REQ-05: layouts HTML de todas las estaciones seleccionadas en una sola
-     * respuesta, cada fragmento con su estación para poder renderizarlos ya
-     * agrupados en el cliente.
-     */
     public function html(PrecioPemexLayoutRequest $request): JsonResponse
     {
-        $idEstaciones = $request->estaciones();
-        $fechaVigencia = $request->fechaVigencia();
+        $idBranches = $request->estaciones();
+        $effectiveDate = $request->fechaVigencia();
 
-        $respuestas = $this->api->layouts($idEstaciones, PrecioPemexApiService::FORMATO_HTML, $fechaVigencia);
-        $nombres = $this->stationNames($idEstaciones);
+        Log::info('Petición HTML recibida', [
+            'estaciones_solicitadas' => $idBranches,
+            'fecha_vigencia' => $effectiveDate
+        ]);
+
+        $responses = $this->api->layouts($idBranches, PrecioPemexApiService::FORMAT_HTML, $effectiveDate);
+        $names = $this->stationNames($idBranches);
 
         $layouts = [];
-        $fallidas = [];
+        $failed = [];
 
-        foreach ($idEstaciones as $idEstacion) {
-            $respuesta = $respuestas[$idEstacion] ?? null;
-            $exitosa = $respuesta instanceof ApiResponse && $respuesta->successful();
-            $estado = $respuesta instanceof ApiResponse ? $respuesta->status() : 503;
+        foreach ($idBranches as $idBranch) {
+            $response = $responses[$idBranch] ?? null;
+            $successful = $response instanceof ApiResponse && $response->successful();
+            $estado = $response instanceof ApiResponse ? $response->status() : 503;
 
-            if (! $exitosa) {
-                $fallidas[] = $idEstacion;
+            if (! $successful) {
+                Log::warning("Fallo al obtener HTML de la API para la estación {$idBranch}", [
+                    'estado_http' => $estado,
+                    'tiene_respuesta' => $response instanceof ApiResponse
+                ]);
+                $failed[] = $idBranch;
             }
 
             $layouts[] = [
-                'id_estacion' => $idEstacion,
-                'estacion' => $nombres[$idEstacion] ?? "Estación {$idEstacion}",
-                'ok' => $exitosa,
+                'id_estacion' => $idBranch,
+                'estacion' => $names[$idBranch] ?? "Estación {$idBranch}",
+                'ok' => $successful,
                 'estado_http' => $estado,
-                'html' => $exitosa ? $respuesta->body() : $this->htmlMessage($estado),
+                'html' => $successful ? $response->body() : $this->htmlMessage($estado),
             ];
         }
 
         $this->logActivity(
             UserTrackingService::ACTIVITY_PRECIOS_PEMEX_CONSULTA,
-            'Consultó los precios PEMEX de ' . count($idEstaciones) . ' estación(es)',
-            $idEstaciones,
-            PrecioPemexApiService::FORMATO_HTML,
-            $fechaVigencia,
-            ['estaciones_fallidas' => $fallidas],
+            'Consultó los precios PEMEX de ' . count($idBranches) . ' estación(es)',
+            $idBranches, PrecioPemexApiService::FORMAT_HTML, $effectiveDate, ['estaciones_fallidas' => $failed],
         );
 
-        return response()->json([
-            'fecha_vigencia' => $fechaVigencia,
-            'layouts' => $layouts,
-            'estaciones_fallidas' => $fallidas,
+        Log::info('Respuesta HTML a enviar', [
+            'total_layouts' => count($layouts),
+            'total_fallidas' => count($failed)
         ]);
+
+        return response()->json(['fecha_vigencia' => $effectiveDate, 'layouts' => $layouts, 'estaciones_fallidas' => $failed,]);
     }
 
-    /**
-     * REQ-07: descarga del layout en Excel (.xlsx). Con varias estaciones se
-     * devuelve un único .zip con un archivo por estación.
-     */
     public function excel(PrecioPemexLayoutRequest $request): Response
     {
-        return $this->descargaPorLote(
-            $request,
-            PrecioPemexApiService::FORMATO_EXCEL,
-            'xlsx',
+        return $this->downloadByChunk(
+            $request, PrecioPemexApiService::FORMAT_EXCEL, 'xlsx',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             UserTrackingService::ACTIVITY_PRECIOS_PEMEX_EXCEL,
             'Descargó el Excel de precios PEMEX',
         );
     }
 
-    /**
-     * REQ-07: descarga del layout en PDF (zip con varias estaciones).
-     */
     public function pdf(PrecioPemexLayoutRequest $request): Response
     {
-        return $this->descargaPorLote(
+        return $this->downloadByChunk(
             $request,
-            PrecioPemexApiService::FORMATO_PDF,
-            'pdf',
+            PrecioPemexApiService::FORMAT_PDF, 'pdf',
             'application/pdf',
             UserTrackingService::ACTIVITY_PRECIOS_PEMEX_PDF,
             'Descargó el PDF de precios PEMEX',
         );
     }
 
-    /**
-     * Descarga del layout como imagen. La API responde con una imagen o con un
-     * zip cuando el layout se compone de varias piezas, así que la extensión
-     * se toma de la propia respuesta.
-     */
     public function imagen(PrecioPemexLayoutRequest $request): Response
     {
-        return $this->descargaPorLote(
-            $request,
-            PrecioPemexApiService::FORMATO_IMAGEN,
-            'png',
-            'image/png',
+        return $this->downloadByChunk($request,
+            PrecioPemexApiService::FORMAT_IMAGE, 'png', 'image/png',
             UserTrackingService::ACTIVITY_PRECIOS_PEMEX_IMAGEN,
             'Descargó la imagen de precios PEMEX',
         );
     }
+    private function downloadByChunk(PrecioPemexLayoutRequest $request, string $format, string $defaultExtension, string $contentTypeDefault, string $activityType, string $activityDescription,): Response {
+        $idBranches = $request->estaciones();
+        $effectiveDate = $request->fechaVigencia();
 
-    /**
-     * Resuelve el lote completo contra la API y arma la descarga:
-     *   - una estación  -> el archivo tal cual lo devolvió la API;
-     *   - varias        -> un .zip con un archivo por estación.
-     *
-     * Las estaciones que fallan no tumban la descarga: se omiten y se anuncian
-     * en la cabecera `X-Estaciones-Fallidas` para que el cliente avise.
-     */
-    private function descargaPorLote(
-        PrecioPemexLayoutRequest $request,
-        string $formato,
-        string $extensionPorDefecto,
-        string $contentTypePorDefecto,
-        string $tipoActividad,
-        string $descripcionActividad,
-    ): Response {
-        $idEstaciones = $request->estaciones();
-        $fechaVigencia = $request->fechaVigencia();
+        Log::info("Iniciando descarga por chunk - Formato: {$format}", [
+            'estaciones' => $idBranches,
+            'fecha' => $effectiveDate
+        ]);
 
-        $respuestas = $this->api->layouts($idEstaciones, $formato, $fechaVigencia);
+        $responses = $this->api->layouts($idBranches, $format, $effectiveDate);
 
-        $archivos = [];
-        $fallidas = [];
+        $files = [];
+        $failed = [];
 
-        foreach ($idEstaciones as $idEstacion) {
-            $respuesta = $respuestas[$idEstacion] ?? null;
+        foreach ($idBranches as $idBranch) {
+            $response = $responses[$idBranch] ?? null;
 
-            if (! $respuesta instanceof ApiResponse || ! $respuesta->successful()) {
-                $fallidas[] = $idEstacion;
+            if (! $response instanceof ApiResponse || ! $response->successful()) {
+                Log::warning("Descarga fallida para estación {$idBranch}", ['estado_http' => $status]);
+                $failed[] = $idBranch;
                 continue;
             }
 
-            $extension = $this->extensionDe($respuesta, $extensionPorDefecto);
+            $extension = $this->extensionDe($response, $defaultExtension);
 
-            $archivos[] = [
-                'id_estacion' => $idEstacion,
-                'nombre' => "precios-pemex-estacion-{$idEstacion}-{$fechaVigencia}.{$extension}",
-                'contenido' => $respuesta->body(),
-                'content_type' => $respuesta->header('Content-Type') ?: $contentTypePorDefecto,
+            $files[] = [
+                'id_estacion' => $idBranch,
+                'nombre' => "precios-pemex-estacion-{$idBranch}-{$effectiveDate}.{$extension}",
+                'contenido' => $response->body(),
+                'content_type' => $response->header('Content-Type') ?: $contentTypeDefault,
             ];
         }
 
-        // Se registra después de resolver el lote para no contar los intentos fallidos.
-        $this->logActivity(
-            $tipoActividad,
-            $descripcionActividad . ' de ' . count($archivos) . ' estación(es)',
-            $idEstaciones,
-            $formato,
-            $fechaVigencia,
-            ['estaciones_fallidas' => $fallidas],
+        // It is recorded after the set is completed so that failed attempts are not counted.
+        $this->logActivity($activityType, $activityDescription . ' de ' . count($files) . ' estación(es)',
+            $idBranches, $format, $effectiveDate, ['estaciones_fallidas' => $failed],
         );
 
-        if ($archivos === []) {
+        if ($files === []) {
+            Log::error("Abortando 502: Ningún archivo se pudo procesar. Total fallidas: " . count($failed));
             abort(502, 'No fue posible obtener los archivos de precios. Intente más tarde.');
         }
 
-        $cabeceras = $fallidas === []
-            ? []
-            : ['X-Estaciones-Fallidas' => implode(',', $fallidas)];
+        $headers = $failed === [] ? [] : ['X-Estaciones-Fallidas' => implode(',', $failed)];
 
-        if (count($archivos) === 1) {
-            return $this->archivo(
-                $archivos[0]['contenido'],
-                $archivos[0]['nombre'],
-                $archivos[0]['content_type'],
-                $cabeceras,
-            );
+        if (count($files) === 1) {
+            return $this->archivo($files[0]['contenido'], $files[0]['nombre'], $files[0]['content_type'], $headers,);
         }
-
-        return $this->archivo(
-            $this->comprimir($archivos),
-            "precios-pemex-{$formato}-{$fechaVigencia}.zip",
-            'application/zip',
-            $cabeceras,
-        );
+        Log::info("Comprimiendo " . count($files) . " archivos en ZIP");
+        return $this->archivo($this->comprimir($files), "precios-pemex-{$format}-{$effectiveDate}.zip", 'application/zip', $headers);
     }
 
     /**
      * Empaqueta las respuestas del lote en un único zip en memoria.
      *
-     * @param  array<int, array{nombre: string, contenido: string}>  $archivos
+     * @param  array<int, array{nombre: string, contenido: string}>  $files
      */
-    private function comprimir(array $archivos): string
+    private function comprimir(array $files): string
     {
         $ruta = tempnam(sys_get_temp_dir(), 'precios_pemex_');
 
         if ($ruta === false) {
+            Log::error('comprimir(): tempnam falló al crear archivo temporal');
             abort(500, 'No fue posible preparar la descarga.');
         }
 
         $zip = new ZipArchive();
 
         if ($zip->open($ruta, ZipArchive::OVERWRITE | ZipArchive::CREATE) !== true) {
+            Log::error('comprimir(): ZipArchive falló al abrir la ruta', ['ruta' => $ruta]);
             @unlink($ruta);
             abort(500, 'No fue posible preparar la descarga.');
         }
 
         try {
-            foreach ($archivos as $archivo) {
+            foreach ($files as $archivo) {
                 $zip->addFromString($archivo['nombre'], $archivo['contenido']);
             }
 
@@ -269,36 +217,31 @@ class PrecioPemexController extends Controller
     }
 
     /**
-     * @param  array<string, string>  $cabecerasExtra
+     * @param  array<string, string>  $headersExtra
      */
-    private function archivo(string $contenido, string $nombre, string $contentType, array $cabecerasExtra = []): Response
+    private function archivo(string $body, string $name, string $contentType, array $headersExtra = []): Response
     {
-        return response($contenido, 200, [
+        return response($body, 200, [
             'Content-Type' => $contentType,
-            'Content-Disposition' => "attachment; filename=\"{$nombre}\"",
-            'Content-Length' => (string) strlen($contenido),
-            ...$cabecerasExtra,
+            'Content-Disposition' => "attachment; filename=\"{$name}\"",
+            'Content-Length' => (string) strlen($body),
+            ...$headersExtra,
         ]);
     }
 
-    /**
-     * Extensión real del archivo devuelto por la API: primero la que venga en
-     * el `Content-Disposition`, si no la que corresponda al `Content-Type`
-     * (el endpoint de imagen puede responder png/jpg o un zip).
-     */
-    private function extensionDe(ApiResponse $respuesta, string $porDefecto): string
+    private function extensionDe(ApiResponse $response, string $default): string
     {
-        $disposition = (string) $respuesta->header('Content-Disposition');
+        $disposition = $response->header('Content-Disposition');
 
-        if (preg_match('/filename\*?=(?:UTF-8\'\')?"?([^";]+)"?/i', $disposition, $coincidencias)) {
-            $extension = pathinfo(trim($coincidencias[1]), PATHINFO_EXTENSION);
+        if (preg_match('/filename\*?=(?:UTF-8\'\')?"?([^";]+)"?/i', $disposition, $matches)) {
+            $extension = pathinfo(trim($matches[1]), PATHINFO_EXTENSION);
 
             if ($extension !== '' && preg_match('/^[A-Za-z0-9]{1,5}$/', $extension)) {
                 return strtolower($extension);
             }
         }
 
-        $contentType = strtolower(trim(explode(';', (string) $respuesta->header('Content-Type'))[0]));
+        $contentType = strtolower(trim(explode(';', $response->header('Content-Type'))[0]));
 
         return match ($contentType) {
             'image/png' => 'png',
@@ -310,43 +253,21 @@ class PrecioPemexController extends Controller
             'application/pdf' => 'pdf',
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'xlsx',
             'application/vnd.ms-excel' => 'xls',
-            default => $porDefecto,
+            default => $default,
         };
     }
 
-    /**
-     * Deja traza de lo que el usuario hace dentro del módulo (consultas y
-     * descargas por lote). La actividad se ata a la última visita de página
-     * registrada, así queda dentro de la sesión de navegación.
-     *
-     * @param  array<int, int>  $idEstaciones
-     * @param  array<string, mixed>  $extra
-     */
-    private function logActivity(
-        string $tipo,
-        string $descripcion,
-        array $idEstaciones,
-        string $formato,
-        string $fechaVigencia,
-        array $extra = [],
-    ): void {
-        $this->tracking->logActivity($tipo, $descripcion, [
+    private function logActivity(string $type, string $description, array $idBranches, string $format, string $effectiveDate, array $extra = []): void {
+        $this->tracking->logActivity($type, $description, [
             'modulo' => 'precios_pemex',
-            'estaciones' => $idEstaciones,
-            'total_estaciones' => count($idEstaciones),
-            'fecha_vigencia' => $fechaVigencia,
-            'formato' => $formato,
+            'estaciones' => $idBranches,
+            'total_estaciones' => count($idBranches),
+            'fecha_vigencia' => $effectiveDate,
+            'formato' => $format,
             ...$extra,
         ]);
     }
 
-    /**
-     * Estaciones asignadas al usuario, resueltas contra el catálogo nacional.
-     * Si la foreign table no responde se conservan los ids de la pivote para
-     * que el módulo siga siendo utilizable.
-     *
-     * @return array<int, array{id_estacion: int, estacion: string}>
-     */
     private function stationsForUser(): array
     {
         /** @var User $user */
@@ -355,52 +276,34 @@ class PrecioPemexController extends Controller
         $ids = $user->estacionesAsignadasIds();
 
         if ($ids === []) {
+            Log::warning('stationsForUser(): El usuario NO tiene IDs de estaciones asignadas', ['user_id' => $user->id]);
             return [];
         }
+        Log::info('stationsForUser(): IDs asignados obtenidos', ['ids' => $ids]);
 
-        $nombres = $this->stationNames($ids);
+        $names = $this->stationNames($ids);
 
-        return collect($ids)
-            ->map(fn (int $id) => [
-                'id_estacion' => $id,
-                'estacion' => $nombres[$id] ?? "Estación {$id}",
-            ])
-            ->sortBy('estacion', SORT_NATURAL | SORT_FLAG_CASE)
-            ->values()
-            ->all();
+        return collect($ids)->map(fn (int $id) => ['id_estacion' => $id, 'estacion' => $names[$id] ?? "Estación {$id}",])
+            ->sortBy('estacion', SORT_NATURAL | SORT_FLAG_CASE)->values()->all();
     }
 
-    /**
-     * Nombre de cada estación del catálogo nacional, indexado por id.
-     *
-     * @param  array<int, int>  $ids
-     * @return array<int, string>
-     */
     private function stationNames(array $ids): array
     {
         if ($ids === []) {
             return [];
         }
 
-        return EstacionNacional::activasPorIds($ids)
-            ->mapWithKeys(fn (EstacionNacional $estacion) => [
-                (int) $estacion->id_estacion => (string) ($estacion->estacion ?: "Estación {$estacion->id_estacion}"),
-            ])
-            ->all();
+        return EstacionNacional::activasPorIds($ids)->mapWithKeys(fn (EstacionNacional $branch) => [(int) $branch->id_estacion => (string) ($branch->estacion ?: "Estación {$branch->id_estacion}"),])->all();
     }
 
-    /**
-     * Mensaje HTML de reemplazo cuando la API no devuelve el layout, para que
-     * la tarjeta de esa estación muestre algo legible en lugar de vaciarse.
-     */
     private function htmlMessage(int $status): string
     {
-        $mensaje = match (true) {
+        $message = match (true) {
             $status === 404 => 'Sin precios disponibles para esta estación en la fecha seleccionada.',
             $status === 401 || $status === 403 => 'Error de autenticación con la API de precios.',
             default => 'Error al obtener los precios. Intente más tarde.',
         };
 
-        return '<p style="text-align:center;padding:32px;margin:0;color:#64748b">' . e($mensaje) . '</p>';
+        return '<p style="text-align:center;padding:32px;margin:0;color:#64748b">' . e($message) . '</p>';
     }
 }

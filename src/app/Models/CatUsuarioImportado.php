@@ -53,7 +53,6 @@ class CatUsuarioImportado extends Model
                 ->exists();
         } catch (\Throwable $e) {
             logger($e);
-            // Si el catálogo no está disponible no bloqueamos el guardado
             return true;
         }
     }

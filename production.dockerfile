@@ -23,12 +23,12 @@ RUN composer dump-autoload --optimize --no-dev && \
 # ==========================================
 # Etapa 2: Construcción de assets (Vite)
 # ==========================================
-FROM node:18-alpine AS frontend
+FROM node:20-alpine AS frontend
 WORKDIR /app
 COPY src/package.json src/package-lock.json ./
 RUN npm ci
 COPY src/ ./
-# Generamos los assets estáticos
+# Generamos los assets estáticos de React + Ant Design
 RUN npm run build
 
 # ==========================================
@@ -84,9 +84,11 @@ RUN echo "server { \
     } \
 }" > /etc/nginx/http.d/default.conf
 
-# Script de Arranque Anti-Race-Condition
-# Levantamos PHP, le damos 2 segundos de ventaja, y luego abrimos la puerta con Nginx
+# Script de Arranque Anti-Race-Condition y Caché en Tiempo de Ejecución
 RUN echo '#!/bin/sh' > /start.sh \
+    && echo 'php artisan config:cache' >> /start.sh \
+    && echo 'php artisan route:cache' >> /start.sh \
+    && echo 'php artisan view:cache' >> /start.sh \
     && echo 'php-fpm -D' >> /start.sh \
     && echo 'sleep 2' >> /start.sh \
     && echo 'nginx -g "daemon off;"' >> /start.sh \

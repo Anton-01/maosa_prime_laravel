@@ -107,8 +107,8 @@ it('arma los cuatro formatos sobre el mismo path base', function (string $format
     Http::assertSent(fn ($request) => $request->url()
         === "https://dev.maosasolutions.com/precio_pemex/layout-api/estacion/1649/{$formato}?fecha_vigencia=2026-08-31");
 })->with([
-    PrecioPemexApiService::FORMATO_HTML,
-    PrecioPemexApiService::FORMATO_EXCEL,
-    PrecioPemexApiService::FORMATO_PDF,
-    PrecioPemexApiService::FORMATO_IMAGEN,
+    PrecioPemexApiService::FORMAT_HTML,
+    PrecioPemexApiService::FORMAT_EXCEL,
+    PrecioPemexApiService::FORMAT_PDF,
+    PrecioPemexApiService::FORMAT_IMAGE,
 ]);

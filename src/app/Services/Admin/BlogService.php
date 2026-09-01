@@ -11,9 +11,7 @@ use Illuminate\Support\Str;
 
 class BlogService
 {
-    public function __construct(private readonly ImageUploadService $imageUploadService)
-    {
-    }
+    public function __construct(private readonly ImageUploadService $imageUploadService){}
 
     /**
      * All posts shaped for the frontend table.
@@ -22,8 +20,7 @@ class BlogService
     {
         return Blog::with('author:id,name')
             ->orderByDesc('created_at')
-            ->get()
-            ->map(fn (Blog $blog) => [
+            ->get()->map(fn (Blog $blog) => [
                 'id' => $blog->id,
                 'title' => $blog->title,
                 'imageUrl' => $blog->image ? asset($blog->image) : null,
@@ -72,22 +69,17 @@ class BlogService
     public function update(Request $request, int $id, array $data): Blog
     {
         $blog = Blog::findOrFail($id);
-
         $imagePath = $this->imageUploadService->upload($request, 'image', $blog->image);
-
         $blog->image = $imagePath ?: $blog->image;
         $this->fill($blog, $data);
         $blog->save();
-
         return $blog;
     }
 
     public function delete(int $id): void
     {
         $blog = Blog::findOrFail($id);
-
         $this->imageUploadService->deleteFile($blog->image);
-
         $blog->delete();
     }
 

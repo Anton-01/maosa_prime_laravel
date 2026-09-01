@@ -33,13 +33,8 @@ return [
 
     'maosa_api' => [
         'base_url' => env('MAOSA_API_BASE_URL', 'https://maosa-layout-precios-api-659469608146.us-central1.run.app'),
-        // Los endpoints de Precios PEMEX viven en el mismo host salvo que se
-        // publique una URL propia para ese servicio.
-        'pemex_base_url' => env('MAOSA_PEMEX_API_BASE_URL'),
-        // Path base compartido por los cuatro formatos del layout PEMEX
-        // (HTML, Excel, pdf e imagen). Sólo cambia el último segmento, así que
-        // moverlo aquí mueve las cuatro peticiones a la vez.
-        'pemex_layout_path' => env('MAOSA_PEMEX_API_LAYOUT_PATH', '/api/precio_pemex/layout/estacion'),
-        'token' => env('MAOSA_API_TOKEN', ''),
+        'pemex_base_url' => env('MAOSA_PEMEX_API_BASE_URL', 'https://maosa-layout-precios-pemex-api-659469608146.us-central1.run.app'),
+        'pemex_layout_path' => env('MAOSA_API_PATH', 'precio_pemex/layout-api/estacion'),
+        'token' => env('MAOSA_PEMEX_API_TOKEN', ''),
     ],
 ];

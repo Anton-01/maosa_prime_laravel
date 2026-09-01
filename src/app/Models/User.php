@@ -57,7 +57,7 @@ class User extends Authenticatable
     public const PIVOT_USUARIO_ESTACION = 'usuario_estacion';
 
     /** Columna de la pivote que apunta al usuario. */
-    public const PIVOT_USUARIO_KEY = 'user_id';
+    public const PIVOT_USUARIO_KEY = 'id_usuario';
 
     /** Columna de la pivote que apunta a la estación del catálogo. */
     public const PIVOT_ESTACION_KEY = 'id_estacion';

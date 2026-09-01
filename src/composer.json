@@ -21,7 +21,8 @@
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
         "spatie/laravel-permission": "^6.1",
-        "yajra/laravel-datatables": "^11.0"
+        "yajra/laravel-datatables": "^11.0",
+        "ext-zip": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.0.0",
