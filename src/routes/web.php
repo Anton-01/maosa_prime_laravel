@@ -52,23 +52,25 @@ Route::group(['middleware' => ['auth', 'track.user.activity'], 'prefix' => 'user
 /*
  * Submódulo "Precios PEMEX" (REQ-04 a REQ-07).
  *
- * Los endpoints de layout conservan la ruta pública documentada por la API
- * (`/api/precio_pemex/layout/estacion/{id_estacion}/{formato}`), pero se
- * sirven desde la aplicación: el middleware `precios.pemex` filtra por el
- * permiso y el controlador valida que la estación esté asignada al usuario.
+ * Los endpoints de layout se sirven desde la aplicación (el middleware
+ * `precios.pemex` filtra por el permiso) y trabajan por lote: reciben
+ * `estaciones[]` y `fecha_vigencia`, resuelven todas las estaciones contra la
+ * API externa y devuelven el resultado ya armado en una sola respuesta.
+ *
+ *   GET /api/precio_pemex/layout/{HTML|Excel|pdf|imagen}
+ *       ?estaciones[]=1&estaciones[]=2&fecha_vigencia=YYYY-MM-DD
  */
 Route::middleware(['auth', 'precios.pemex'])->group(function () {
     Route::get('user/precios-pemex', [PrecioPemexController::class, 'index'])
         ->middleware('track.user.activity')
         ->name('user.precio-pemex.index');
 
-    Route::prefix('api/precio_pemex/layout/estacion/{idEstacion}')
-        ->whereNumber('idEstacion')
-        ->group(function () {
-            Route::get('HTML', [PrecioPemexController::class, 'html'])->name('user.precio-pemex.html');
-            Route::get('Excel', [PrecioPemexController::class, 'excel'])->name('user.precio-pemex.excel');
-            Route::get('pdf', [PrecioPemexController::class, 'pdf'])->name('user.precio-pemex.pdf');
-        });
+    Route::prefix('api/precio_pemex/layout')->group(function () {
+        Route::get('HTML', [PrecioPemexController::class, 'html'])->name('user.precio-pemex.html');
+        Route::get('Excel', [PrecioPemexController::class, 'excel'])->name('user.precio-pemex.excel');
+        Route::get('pdf', [PrecioPemexController::class, 'pdf'])->name('user.precio-pemex.pdf');
+        Route::get('imagen', [PrecioPemexController::class, 'imagen'])->name('user.precio-pemex.imagen');
+    });
 });
 
 require __DIR__.'/auth.php';
