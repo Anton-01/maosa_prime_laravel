@@ -27,6 +27,9 @@ class UserTrackingService
     /** Descarga del PDF de precios PEMEX. */
     public const ACTIVITY_PRECIOS_PEMEX_PDF = 'precios_pemex.descarga_pdf';
 
+    /** Descarga de la imagen (o zip de imágenes) de precios PEMEX. */
+    public const ACTIVITY_PRECIOS_PEMEX_IMAGEN = 'precios_pemex.descarga_imagen';
+
     protected ?Agent $agent = null;
 
     /**
